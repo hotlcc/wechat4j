@@ -53,4 +53,28 @@ public final class PropertiesUtil {
     public static String getProperty(String key, String defaultValue) {
         return prop.getProperty(key, defaultValue);
     }
+
+    public static Integer getInteger(String key, Integer defaultValue) {
+        String p = getProperty(key);
+        if (p == null) {
+            return defaultValue;
+        }
+        p.trim();
+        if ("".equals(p)) {
+            return defaultValue;
+        }
+        return Integer.valueOf(p);
+    }
+
+    public static Integer getInteger(String key) {
+        return getInteger(key, null);
+    }
+
+    public static int getIntValue(String key, int defaultValue) {
+        return getInteger(key, defaultValue);
+    }
+
+    public static int getIntValue(String key) {
+        return getInteger(key);
+    }
 }

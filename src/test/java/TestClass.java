@@ -18,11 +18,18 @@ public class TestClass {
         System.out.println(QRCodeUtil.toCharMatrix(image));
     }
 
-    @Test
     public void test04() {
         WebWeixinApi api = new WebWeixinApi();
         Wechat wechat = new Wechat();
         wechat.setWebWeixinApi(api);
         wechat.test();
+    }
+
+    @Test
+    public void test05() {
+        WebWeixinApi api = new WebWeixinApi();
+        Wechat wechat = new Wechat();
+        wechat.setWebWeixinApi(api);
+        System.out.println(wechat.autoLogin());
     }
 }

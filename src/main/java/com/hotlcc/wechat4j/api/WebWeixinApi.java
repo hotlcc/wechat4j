@@ -259,6 +259,37 @@ public class WebWeixinApi {
     }
 
     /**
+     * push登录
+     */
+    public JSONObject pushLogin(HttpClient httpClient,
+                                String wxuin) {
+        try {
+            long millis = System.currentTimeMillis();
+            String url = new ST(PropertiesUtil.getProperty("webwx-url.pushlogin_url"))
+                    .add("uin", wxuin)
+                    .render();
+
+            HttpGet httpGet = new HttpGet(url);
+            httpGet.setHeader("User-Agent", PropertiesUtil.getProperty("wechat4j.userAgent"));
+            httpGet.setConfig(RequestConfig.custom().setRedirectsEnabled(false).build());
+
+            HttpResponse response = httpClient.execute(httpGet);
+            int statusCode = response.getStatusLine().getStatusCode();
+            if (HttpStatus.SC_OK != statusCode) {
+                throw new RuntimeException("响应失败(" + statusCode + ")");
+            }
+
+            HttpEntity entity = response.getEntity();
+            String res = EntityUtils.toString(entity, Consts.UTF_8);
+
+            return JSONObject.parseObject(res);
+        } catch (Exception e) {
+            logger.error("push登录异常", e);
+            return null;
+        }
+    }
+
+    /**
      * 获取初始化数据
      */
     public JSONObject webWeixinInit(HttpClient httpClient,
