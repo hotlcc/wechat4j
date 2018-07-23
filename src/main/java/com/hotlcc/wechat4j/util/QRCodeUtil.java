@@ -6,10 +6,15 @@ import com.google.zxing.NotFoundException;
 import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.common.HybridBinarizer;
+import com.hotlcc.wechat4j.enums.OperatingSystemEnum;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -21,6 +26,8 @@ import java.util.Set;
  * @author Allen
  */
 public final class QRCodeUtil {
+    private static Logger logger = LoggerFactory.getLogger(QRCodeUtil.class);
+
     private QRCodeUtil() {
     }
 
@@ -226,5 +233,66 @@ public final class QRCodeUtil {
      */
     public static String toCharMatrix(byte[] data) {
         return toCharMatrix(data, "  ", "██");
+    }
+
+    /**
+     * 将二维码图片数据写入到临时文件
+     *
+     * @param data
+     * @return
+     */
+    public static File writeToTempFile(byte[] data) {
+        FileOutputStream fos = null;
+        try {
+            File tmp = File.createTempFile(PropertiesUtil.getProperty("wechat4j.qrcode.tmpfile.prefix"), ".jpg");
+            fos = new FileOutputStream(tmp);
+            fos.write(data);
+            fos.flush();
+            return tmp;
+        } catch (IOException e) {
+            logger.error("二维码写入临时文件异常", e);
+            throw new RuntimeException(e);
+        } finally {
+            if (fos != null) {
+                try {
+                    fos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    /**
+     * 打开二维码图片
+     *
+     * @param data
+     */
+    public static void openQRCodeImage(byte[] data) {
+        OperatingSystemEnum os = OperatingSystemEnum.currentOperatingSystem();
+        Runtime runtime = null;
+        File tmp = null;
+        switch (os) {
+            case WINDOWS:
+                runtime = Runtime.getRuntime();
+                tmp = writeToTempFile(data);
+                try {
+                    runtime.exec("cmd /c start " + tmp.getPath());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                break;
+            case MAC_OS:
+                runtime = Runtime.getRuntime();
+                tmp = writeToTempFile(data);
+                try {
+                    runtime.exec("open " + tmp.getPath());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                break;
+            default:
+                break;
+        }
     }
 }
