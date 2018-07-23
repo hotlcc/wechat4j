@@ -1,5 +1,6 @@
 package com.hotlcc.wechat4j;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.hotlcc.wechat4j.api.WebWeixinApi;
 import com.hotlcc.wechat4j.enums.LoginTipEnum;
@@ -15,12 +16,15 @@ import org.slf4j.LoggerFactory;
 
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * 微信客户端
  *
  * @author Allen
  */
+@SuppressWarnings("Duplicates")
 public class Wechat {
     private static Logger logger = LoggerFactory.getLogger(Wechat.class);
 
@@ -31,11 +35,18 @@ public class Wechat {
 
     //在线状态
     private volatile boolean isOnline = false;
-
+    //认证码
     private volatile String wxsid;
     private volatile String passTicket;
     private volatile String skey;
     private volatile String wxuin;
+    //用户数据
+    private volatile JSONObject loginUser;
+    private final Lock loginUserLock = new ReentrantLock();
+    private volatile JSONObject SyncKey;
+    private final Lock SyncKeyLock = new ReentrantLock();
+    private volatile JSONArray ContactList;
+    private final Lock ContactListLock = new ReentrantLock();
 
     public Wechat(CookieStore cookieStore) {
         this.cookieStore = cookieStore;
@@ -52,7 +63,7 @@ public class Wechat {
     }
 
     /**
-     * 获取uuid
+     * 获取uuid（登录时）
      *
      * @param ps
      * @param time
@@ -102,7 +113,7 @@ public class Wechat {
     }
 
     /**
-     * 获取并显示qrcode
+     * 获取并显示qrcode（登录时）
      *
      * @return
      */
@@ -141,7 +152,7 @@ public class Wechat {
     }
 
     /**
-     * 等待手机端确认登录
+     * 等待手机端确认登录（登录时）
      *
      * @return
      */
@@ -189,7 +200,7 @@ public class Wechat {
     }
 
     /**
-     * 获取登录认证码
+     * 获取登录认证码（登录时）
      */
     private boolean getLoginCode(PrintStream ps, String redirectUri) {
         ps.print("获取登录认证码...");
@@ -222,7 +233,7 @@ public class Wechat {
     }
 
     /**
-     * push方式获取uuid
+     * push方式获取uuid（登录时）
      *
      * @param ps
      * @param wxuin
@@ -257,6 +268,77 @@ public class Wechat {
         ps.flush();
 
         return uuid;
+    }
+
+    /**
+     * 微信数据初始化
+     *
+     * @return
+     */
+    private boolean wxInit() {
+        JSONObject result = webWeixinApi.webWeixinInit(httpClient, passTicket, wxsid, skey, wxuin);
+        if (result == null) {
+            return false;
+        }
+
+        JSONObject BaseResponse = result.getJSONObject("BaseResponse");
+        if (result == null) {
+            return false;
+        }
+
+        int Ret = BaseResponse.getIntValue("Ret");
+        if (Ret != 0) {
+            return false;
+        }
+
+        try {
+            loginUserLock.lock();
+            loginUser = result.getJSONObject("User");
+        } finally {
+            loginUserLock.unlock();
+        }
+
+        try {
+            SyncKeyLock.lock();
+            SyncKey = result.getJSONObject("SyncKey");
+        } finally {
+            SyncKeyLock.unlock();
+        }
+
+        return true;
+    }
+
+    /**
+     * 微信数据初始化（登录时）
+     *
+     * @return
+     */
+    private boolean wxInit(PrintStream ps, int time) {
+        ps.print("正在初始化数据...");
+        ps.flush();
+
+        for (int i = 0; i <= time; i++) {
+            if (i > 0) {
+                ps.print("\t第" + i + "次尝试...");
+                ps.flush();
+            }
+
+            if (!wxInit()) {
+                ps.print("\t失败");
+                if (i == 0 && time > 0) {
+                    ps.print("，将重复尝试" + time + "次");
+                }
+                ps.println();
+                ps.flush();
+                continue;
+            }
+
+            ps.println("\t成功");
+            ps.flush();
+
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -314,6 +396,15 @@ public class Wechat {
             return false;
         }
 
+        // 3、初始化数据
+        if (!wxInit(ps, time)) {
+            ps.println("初始化数据失败");
+            ps.flush();
+        }
+
+        ps.println("微信登录成功，欢迎你：" + getLoginUserNickName());
+        ps.flush();
+
         return true;
     }
 
@@ -331,141 +422,92 @@ public class Wechat {
      */
     public void logout() {
         webWeixinApi.logout(httpClient, wxsid, skey, wxuin);
+        isOnline = false;
+    }
+
+    /**
+     * 获取登录用户对象
+     *
+     * @return
+     */
+    public JSONObject getLoginUser(boolean update) {
+        if (loginUser == null || update) {
+            try {
+                loginUserLock.lock();
+                if (loginUser == null || update) {
+                    JSONObject result = webWeixinApi.webWeixinInit(httpClient, passTicket, wxsid, skey, wxuin);
+                    if (result == null) {
+                        return loginUser;
+                    }
+
+                    JSONObject BaseResponse = result.getJSONObject("BaseResponse");
+                    if (result == null) {
+                        return loginUser;
+                    }
+
+                    int Ret = BaseResponse.getIntValue("Ret");
+                    if (Ret != 0) {
+                        return loginUser;
+                    }
+
+                    loginUser = result.getJSONObject("User");
+                    return loginUser;
+                }
+            } finally {
+                loginUserLock.unlock();
+            }
+        }
+        return loginUser;
+    }
+
+    /**
+     * 获取登录用户的昵称
+     *
+     * @return
+     */
+    public String getLoginUserNickName() {
+        JSONObject loginUser = getLoginUser(false);
+        if (loginUser == null) {
+            return null;
+        }
+        return loginUser.getString("NickName");
+    }
+
+    /**
+     * 获取联系人列表
+     *
+     * @param update
+     * @return
+     */
+    public JSONArray getContactList(boolean update) {
+        if (ContactList == null || update) {
+            try {
+                ContactListLock.lock();
+                if (ContactList == null || update) {
+                    JSONObject result = webWeixinApi.getContact(httpClient, passTicket, skey);
+                    if (result == null) {
+                        return ContactList;
+                    }
+                    JSONObject BaseResponse = result.getJSONObject("BaseResponse");
+                    if (BaseResponse == null) {
+                        return ContactList;
+                    }
+                    String Ret = BaseResponse.getString("Ret");
+                    if (!"0".equals(Ret)) {
+                        return ContactList;
+                    }
+                    ContactList = result.getJSONArray("MemberList");
+                    return ContactList;
+                }
+            } finally {
+                ContactListLock.unlock();
+            }
+        }
+        return ContactList;
     }
 
     public void test() {
-        JSONObject result = null;
-
-        String redirectUri = null;
-        login:
-        while (true) {
-            //1、获取uuid
-            logger.info("开始获取uuid...");
-            String uuid = null;
-            while (uuid == null || "".equals(uuid)) {
-                result = webWeixinApi.getWxUuid(httpClient);
-                if (result != null) {
-                    uuid = result.getString("uuid");
-                }
-                if (uuid == null || "".equals(uuid)) {
-                    logger.info("获取uuid失败，将自动重试");
-                    try {
-                        Thread.sleep(2000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                } else {
-                    break;
-                }
-            }
-            logger.info("获取uuid成功，值为：{}", uuid);
-
-            //2、获取二维码
-            logger.info("开始获取二维码...");
-            byte[] data = webWeixinApi.getQR(httpClient, uuid);
-            logger.info("获取二维码成功，请扫描二维码：\n{}", QRCodeUtil.toCharMatrix(data));
-            QRCodeUtil.openQRCodeImage(data);
-
-            //3、轮询
-            String code = null;
-            while (!"200".equals(code)) {
-                result = webWeixinApi.getRedirectUri(httpClient, LoginTipEnum.TIP_0, uuid);
-                code = result.getString("code");
-                if ("408".equals(code)) {
-                    continue;
-                } else if ("400".equals(code)) {
-                    logger.info("二维码失效，将自动获取新的二维码");
-                    continue login;
-                } else if ("201".equals(code)) {
-                    logger.info("请在手机上确认");
-                    continue;
-                } else if ("200".equals(code)) {
-                    redirectUri = result.getString("redirectUri");
-                    logger.info("手机端认证成功");
-                    break login;
-                } else {
-                    break login;
-                }
-            }
-        }
-        //4、获取登录认证码
-        logger.info("开始获取登录认证码");
-        result = webWeixinApi.getLoginCode(httpClient, redirectUri);
-        String wxsid = result.getString("wxsid");
-        String passTicket = result.getString("pass_ticket");
-        String skey = result.getString("skey");
-        String wxuin = result.getString("wxuin");
-        logger.info("获取登录认证码成功");
-        //5、初始化数据
-        logger.info("开始初始化数据");
-        result = webWeixinApi.webWeixinInit(httpClient, passTicket, wxsid, skey, wxuin);
-        JSONObject loginUser = result.getJSONObject("User");
-        logger.info("欢迎回来，{}", loginUser.getString("NickName"));
-        JSONObject SyncKey = result.getJSONObject("SyncKey");
-        logger.info("初始化数据完成");
-        //6、开启消息状态通知
-//        logger.info("开始开启消息状态通知");
-//        result = webWeixinApi.statusNotify(httpClient, passTicket, wxsid, skey, wxuin, loginUser.getString("UserName"));
-//        logger.info("开启消息状态通知完成");
-        //7、获取联系人信息
-//        logger.info("开始获取全部联系人");
-//        result = webWeixinApi.getContact(httpClient, passTicket, wxsid);
-//        JSONArray MemberList = result.getJSONArray("MemberList");
-//        logger.info("获取全部联系人完成，共{}条：", MemberList.size());
-//        System.out.println("昵称\t备注名\tUserName");
-//        for (int i = 0, len = MemberList.size(); i < len; i++) {
-//            JSONObject Member = MemberList.getJSONObject(i);
-//            if ("BYCX-IT".equals(Member.getString("NickName"))) {
-//                System.out.println(Member);
-//                JSONArray params = new JSONArray();
-//                JSONObject param = new JSONObject();
-//                param.put("EncryChatRoomId", "");
-//                param.put("UserName", Member.getString("UserName"));
-//                params.add(param);
-//                result = webWeixinApi.batchGetContact(httpClient, passTicket, wxsid, skey, wxuin, params);
-//                System.out.println(result);
-//                break;
-//            }
-//        }
-//        logger.info("获取全部联系人完成，共{}条", MemberList.size());
-        //7、服务端状态同步
-//        logger.info("开始轮询服务端状态");
-//        while (true) {
-//            result = webWeixinApi.syncCheck(httpClient, wxsid, skey, wxuin, SyncKey.getJSONArray("List"));
-//            System.out.println(result);
-//            int retcode = result.getIntValue("retcode");
-//            if (retcode != 0) {
-//                logger.info("微信已退出登录：retcode={}", retcode);
-//                break;
-//            } else {
-//                int selector = result.getIntValue("selector");
-//                if (selector == 2) {
-//                    logger.info("收到新消息");
-//                    //8、获取新消息内容
-//                    result = webWeixinApi.pullNewMsg(httpClient, passTicket, wxsid, skey, wxuin, SyncKey);
-//                    SyncKey = result.getJSONObject("SyncKey");
-//                    JSONArray AddMsgList = result.getJSONArray("AddMsgList");
-//                    if (AddMsgList != null) {
-//                        for (int i = 0, len = AddMsgList.size(); i < len; i++) {
-//                            JSONObject Msg = AddMsgList.getJSONObject(i);
-//                            String Content = Msg.getString("Content");
-//                            int MsgType = Msg.getIntValue("MsgType");
-//                            String FromUserName = Msg.getString("FromUserName");
-//                            String ToUserName = Msg.getString("ToUserName");
-//                            logger.info("消息类型：{}，消息内容：{}，发送方：{}，接收方：{}", MsgType, Content, FromUserName, ToUserName);
-////                            result = webWeixinApi.sendMsg(httpClient, passTicket, wxsid, skey, wxuin, Content, MsgType, ToUserName, FromUserName);
-////                            logger.info("自动回复消息完成，返回：{}", result);
-//                        }
-//                    }
-//                }
-//            }
-//        }
-        //测试给特定联系人发送文本信息
-//        result = webWeixinApi.sendMsg(httpClient, passTicket, wxsid, skey, wxuin,
-//                "测试消息",
-//                1,
-//                loginUser.getString("UserName"),
-//                "@493f6dbadb4ed2f471b8098fd7f6db1bbcc7294e829e8ecbdc6d2b32647bc2d2");
-//        System.out.println(result);
+        JSONObject result = webWeixinApi.getContact(httpClient, passTicket, skey);
+        System.out.println(result);
     }
 }

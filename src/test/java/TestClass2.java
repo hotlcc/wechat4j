@@ -7,6 +7,7 @@ public class TestClass2 {
         Wechat wechat = new Wechat();
         wechat.setWebWeixinApi(api);
         System.out.println(wechat.autoLogin());
+        wechat.test();
         wechat.logout();
     }
 }
