@@ -52,7 +52,6 @@ public class WebWeixinApi {
                     .render();
 
             HttpGet httpGet = new HttpGet(url);
-            httpGet.setHeader("User-Agent", PropertiesUtil.getProperty("wechat4j.userAgent"));
             httpGet.setConfig(RequestConfig.custom().setRedirectsEnabled(false).build());
 
             HttpResponse response = httpClient.execute(httpGet);
@@ -108,7 +107,6 @@ public class WebWeixinApi {
                     .render();
 
             HttpGet httpGet = new HttpGet(url);
-            httpGet.setHeader("User-Agent", PropertiesUtil.getProperty("wechat4j.userAgent"));
             httpGet.setConfig(RequestConfig.custom().setRedirectsEnabled(false).build());
 
             HttpResponse response = httpClient.execute(httpGet);
@@ -148,7 +146,6 @@ public class WebWeixinApi {
                     .render();
 
             HttpGet httpGet = new HttpGet(url);
-            httpGet.setHeader("User-Agent", PropertiesUtil.getProperty("wechat4j.userAgent"));
             httpGet.setConfig(RequestConfig.custom().setRedirectsEnabled(false).build());
 
             HttpResponse response = httpClient.execute(httpGet);
@@ -204,7 +201,6 @@ public class WebWeixinApi {
                     .render();
 
             HttpGet httpGet = new HttpGet(url);
-            httpGet.setHeader("User-Agent", PropertiesUtil.getProperty("wechat4j.userAgent"));
             httpGet.setConfig(RequestConfig.custom().setRedirectsEnabled(false).build());
 
             HttpResponse response = httpClient.execute(httpGet);
@@ -245,7 +241,6 @@ public class WebWeixinApi {
                         .render();
 
                 HttpPost httpPost = new HttpPost(url);
-                httpPost.setHeader("User-Agent", PropertiesUtil.getProperty("wechat4j.userAgent"));
                 httpPost.setHeader("Content-type", ContentType.APPLICATION_FORM_URLENCODED.toString());
 
                 HttpEntity paramEntity = new UrlEncodedFormEntity(pairList);
@@ -270,7 +265,6 @@ public class WebWeixinApi {
                     .render();
 
             HttpGet httpGet = new HttpGet(url);
-            httpGet.setHeader("User-Agent", PropertiesUtil.getProperty("wechat4j.userAgent"));
             httpGet.setConfig(RequestConfig.custom().setRedirectsEnabled(false).build());
 
             HttpResponse response = httpClient.execute(httpGet);
@@ -304,7 +298,6 @@ public class WebWeixinApi {
                     .render();
 
             HttpPost httpPost = new HttpPost(url);
-            httpPost.setHeader("User-Agent", PropertiesUtil.getProperty("wechat4j.userAgent"));
             httpPost.setHeader("Content-type", ContentType.APPLICATION_JSON.toString());
 
             JSONObject paramJson = new JSONObject();
@@ -345,7 +338,6 @@ public class WebWeixinApi {
                     .render();
 
             HttpPost httpPost = new HttpPost(url);
-            httpPost.setHeader("User-Agent", PropertiesUtil.getProperty("wechat4j.userAgent"));
             httpPost.setHeader("Content-type", ContentType.APPLICATION_JSON.toString());
 
             JSONObject paramJson = new JSONObject();
@@ -394,8 +386,10 @@ public class WebWeixinApi {
                     .render();
 
             HttpGet httpGet = new HttpGet(url);
-            httpGet.setHeader("User-Agent", PropertiesUtil.getProperty("wechat4j.userAgent"));
-            httpGet.setConfig(RequestConfig.custom().setRedirectsEnabled(false).build());
+            RequestConfig config = RequestConfig.custom().
+                    setRedirectsEnabled(false)
+                    .build();
+            httpGet.setConfig(config);
 
             HttpResponse response = httpClient.execute(httpGet);
             int statusCode = response.getStatusLine().getStatusCode();
@@ -437,7 +431,6 @@ public class WebWeixinApi {
                     .render();
 
             HttpGet httpGet = new HttpGet(url);
-            httpGet.setHeader("User-Agent", PropertiesUtil.getProperty("wechat4j.userAgent"));
             httpGet.setConfig(RequestConfig.custom().setRedirectsEnabled(false).build());
             HttpResponse response = httpClient.execute(httpGet);
             int statusCode = response.getStatusLine().getStatusCode();
@@ -471,7 +464,6 @@ public class WebWeixinApi {
                     .render();
 
             HttpPost httpPost = new HttpPost(url);
-            httpPost.setHeader("User-Agent", PropertiesUtil.getProperty("wechat4j.userAgent"));
             httpPost.setHeader("Content-type", ContentType.APPLICATION_JSON.toString());
 
             JSONObject paramJson = new JSONObject();
@@ -514,7 +506,6 @@ public class WebWeixinApi {
                     .render();
 
             HttpPost httpPost = new HttpPost(url);
-            httpPost.setHeader("User-Agent", PropertiesUtil.getProperty("wechat4j.userAgent"));
             httpPost.setHeader("Content-type", ContentType.APPLICATION_JSON.toString());
 
             JSONObject paramJson = new JSONObject();
@@ -557,7 +548,6 @@ public class WebWeixinApi {
                     .render();
 
             HttpPost httpPost = new HttpPost(url);
-            httpPost.setHeader("User-Agent", PropertiesUtil.getProperty("wechat4j.userAgent"));
             httpPost.setHeader("Content-type", ContentType.APPLICATION_JSON.toString());
 
             JSONObject paramJson = new JSONObject();

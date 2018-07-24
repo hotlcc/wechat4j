@@ -3,17 +3,27 @@ package com.hotlcc.wechat4j;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.hotlcc.wechat4j.api.WebWeixinApi;
+import com.hotlcc.wechat4j.enums.ExitTypeEnum;
 import com.hotlcc.wechat4j.enums.LoginTipEnum;
+import com.hotlcc.wechat4j.util.CommonUtil;
 import com.hotlcc.wechat4j.util.PropertiesUtil;
 import com.hotlcc.wechat4j.util.QRCodeUtil;
 import com.hotlcc.wechat4j.util.StringUtil;
+import org.apache.http.HttpException;
+import org.apache.http.HttpRequest;
+import org.apache.http.HttpRequestInterceptor;
+import org.apache.http.HttpResponse;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.HttpClient;
+import org.apache.http.conn.ConnectionKeepAliveStrategy;
 import org.apache.http.impl.client.BasicCookieStore;
+import org.apache.http.impl.client.DefaultConnectionKeepAliveStrategy;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.protocol.HttpContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.concurrent.locks.Lock;
@@ -33,8 +43,6 @@ public class Wechat {
     private CookieStore cookieStore;
     private HttpClient httpClient;
 
-    //在线状态
-    private volatile boolean isOnline = false;
     //认证码
     private volatile String wxsid;
     private volatile String passTicket;
@@ -47,19 +55,49 @@ public class Wechat {
     private final Lock SyncKeyLock = new ReentrantLock();
     private volatile JSONArray ContactList;
     private final Lock ContactListLock = new ReentrantLock();
+    //在线状态
+    private volatile boolean isOnline = false;
+    private final Lock isOnlineLock = new ReentrantLock();
+    //同步监听器
+    private volatile SyncMonitor syncMonitor;
 
     public Wechat(CookieStore cookieStore) {
         this.cookieStore = cookieStore;
-        this.httpClient = HttpClients.custom().setDefaultCookieStore(cookieStore).build();
+        this.httpClient = buildHttpClient(cookieStore);
     }
 
     public Wechat() {
-        this.cookieStore = new BasicCookieStore();
-        this.httpClient = HttpClients.custom().setDefaultCookieStore(cookieStore).build();
+        this(new BasicCookieStore());
     }
 
     public void setWebWeixinApi(WebWeixinApi webWeixinApi) {
         this.webWeixinApi = webWeixinApi;
+    }
+
+    private HttpClient buildHttpClient(CookieStore cookieStore) {
+        ConnectionKeepAliveStrategy keepAliveStrategy = new DefaultConnectionKeepAliveStrategy() {
+            @Override
+            public long getKeepAliveDuration(HttpResponse response, HttpContext context) {
+                long keepAlive = super.getKeepAliveDuration(response, context);
+                if (keepAlive == -1) {
+                    //如果服务器没有设置keep-alive这个参数，我们就把它设置成1分钟
+                    keepAlive = 5000;
+                }
+                return keepAlive;
+            }
+        };
+        HttpRequestInterceptor interceptor = new HttpRequestInterceptor() {
+            @Override
+            public void process(HttpRequest httpRequest, HttpContext httpContext) throws HttpException, IOException {
+                httpRequest.addHeader("User-Agent", PropertiesUtil.getProperty("wechat4j.userAgent"));
+            }
+        };
+        HttpClient httpClient = HttpClients.custom()
+                .setDefaultCookieStore(cookieStore)
+//                .setKeepAliveStrategy(keepAliveStrategy)
+                .addInterceptorFirst(interceptor)
+                .build();
+        return httpClient;
     }
 
     /**
@@ -137,6 +175,8 @@ public class Wechat {
                 ps.println();
                 ps.flush();
                 getWxUuid(ps, 0);
+
+                CommonUtil.threadSleep(2000);
                 continue;
             }
 
@@ -224,7 +264,6 @@ public class Wechat {
         passTicket = result.getString("pass_ticket");
         skey = result.getString("skey");
         wxuin = result.getString("wxuin");
-        isOnline = true;
 
         ps.println("\t成功");
         ps.flush();
@@ -302,7 +341,7 @@ public class Wechat {
      *
      * @return
      */
-    private boolean wxInit(PrintStream ps, int time) {
+    private boolean wxInitWithRetry(PrintStream ps, int time) {
         ps.print("正在初始化数据...");
         ps.flush();
 
@@ -319,6 +358,8 @@ public class Wechat {
                 }
                 ps.println();
                 ps.flush();
+
+                CommonUtil.threadSleep(2000);
                 continue;
             }
 
@@ -327,6 +368,35 @@ public class Wechat {
 
             return true;
         }
+        return false;
+    }
+
+    /**
+     * 开启状态通知
+     *
+     * @param time
+     * @return
+     */
+    private boolean statusNotify(int time) {
+        for (int i = 0; i < time; i++) {
+            JSONObject result = webWeixinApi.statusNotify(httpClient, passTicket, wxsid, skey, wxuin, getLoginUserName(false));
+            if (result == null) {
+                continue;
+            }
+
+            JSONObject BaseResponse = result.getJSONObject("BaseResponse");
+            if (result == null) {
+                continue;
+            }
+
+            int Ret = BaseResponse.getIntValue("Ret");
+            if (Ret != 0) {
+                continue;
+            }
+
+            return true;
+        }
+
         return false;
     }
 
@@ -386,13 +456,24 @@ public class Wechat {
         }
 
         // 3、初始化数据
-        if (!wxInit(ps, time)) {
-            ps.println("初始化数据失败");
+        if (!wxInitWithRetry(ps, time)) {
+            ps.println("初始化数据失败，请重新登录");
             ps.flush();
+            return false;
         }
-
         ps.println("微信登录成功，欢迎你：" + getLoginUserNickName(false));
         ps.flush();
+
+        try {
+            isOnlineLock.lock();
+
+            statusNotify(time);
+            isOnline = true;
+            syncMonitor = new SyncMonitor();
+            syncMonitor.start();
+        } finally {
+            isOnlineLock.unlock();
+        }
 
         return true;
     }
@@ -410,8 +491,96 @@ public class Wechat {
      * 退出登录
      */
     public void logout() {
-        webWeixinApi.logout(httpClient, wxsid, skey, wxuin);
-        isOnline = false;
+        try {
+            isOnlineLock.lock();
+
+            webWeixinApi.logout(httpClient, wxsid, skey, wxuin);
+            isOnline = false;
+        } finally {
+            isOnlineLock.unlock();
+        }
+    }
+
+    /**
+     * 微信同步监听器（心跳）
+     */
+    private class SyncMonitor extends Thread {
+        @Override
+        public void run() {
+            int time = PropertiesUtil.getIntValue("wechat4j.syncCheck.retry.time", 5);
+            int i = 0;
+            while (isOnline) {
+                long start = System.currentTimeMillis();
+
+                try {
+                    //API调用异常导致退出
+                    JSONObject result = webWeixinApi.syncCheck(httpClient, wxsid, skey, wxuin, getSyncKeyList(false));
+                    logger.debug("微信同步监听心跳返回数据：{}", result);
+                    if (result == null) {
+                        throw new RuntimeException("微信API调用异常");
+                    } else {
+                        i = 0;
+                    }
+
+                    //人为退出
+                    int retcode = result.getIntValue("retcode");
+                    if (retcode != 0) {
+                        logger.info("微信退出或从其它设备登录");
+                        logout();
+                        processExitEvent(ExitTypeEnum.REMOTE_EXIT, null);
+                        return;
+                    }
+
+                    int selector = result.getIntValue("selector");
+                    processSelector(selector);
+                } catch (Exception e) {
+                    logger.error("同步监听心跳异常", e);
+
+                    if (i == 0) {
+                        logger.info("同步监听请求失败，正在重试...");
+                    } else if (i > 0) {
+                        logger.info("第{}次重试失败" + i);
+                    }
+
+                    if (i >= time) {
+                        logger.info("重复{}次仍然失败，退出微信", i);
+                        logout();
+                        processExitEvent(ExitTypeEnum.ERROR_EXIT, e);
+                        return;
+                    }
+
+                    i++;
+                }
+
+                //如果时间太短则阻塞2秒
+                long end = System.currentTimeMillis();
+                if (end - start < 2000) {
+                    CommonUtil.threadSleep(2000);
+                }
+            }
+
+            processExitEvent(ExitTypeEnum.LOCAL_EXIT, null);
+        }
+
+        /**
+         * 处理退出事件
+         */
+        private void processExitEvent(ExitTypeEnum type, Throwable t) {
+            try {
+
+            } catch (Exception e) {
+                logger.error("Exit event process error.", e);
+            }
+        }
+
+        /**
+         * 处理selector值
+         *
+         * @param selector
+         */
+        private void processSelector(int selector) {
+            System.out.println(selector);
+        }
     }
 
     /**
@@ -482,7 +651,7 @@ public class Wechat {
      * @param update
      * @return
      */
-    public JSONObject getSyncKey(boolean update) {
+    private JSONObject getSyncKey(boolean update) {
         if (SyncKey == null || update) {
             JSONObject result = webWeixinApi.webWeixinInit(httpClient, passTicket, wxsid, skey, wxuin);
             if (result == null) {
@@ -511,6 +680,20 @@ public class Wechat {
             return SyncKey;
         }
         return SyncKey;
+    }
+
+    /**
+     * 获取SyncKey的List
+     *
+     * @param update
+     * @return
+     */
+    private JSONArray getSyncKeyList(boolean update) {
+        JSONObject SyncKey = getSyncKey(update);
+        if (SyncKey == null) {
+            return null;
+        }
+        return SyncKey.getJSONArray("List");
     }
 
     /**
@@ -644,8 +827,6 @@ public class Wechat {
     }
 
     public void test() {
-        System.out.println(SyncKey);
-        JSONObject result = webWeixinApi.webWeixinInit(httpClient, passTicket, wxsid, skey, wxuin);
-        System.out.println(result);
+
     }
 }
