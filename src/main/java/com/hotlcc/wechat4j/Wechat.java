@@ -291,19 +291,8 @@ public class Wechat {
             return false;
         }
 
-        try {
-            loginUserLock.lock();
-            loginUser = result.getJSONObject("User");
-        } finally {
-            loginUserLock.unlock();
-        }
-
-        try {
-            SyncKeyLock.lock();
-            SyncKey = result.getJSONObject("SyncKey");
-        } finally {
-            SyncKeyLock.unlock();
-        }
+        loginUser = result.getJSONObject("User");
+        SyncKey = result.getJSONObject("SyncKey");
 
         return true;
     }
@@ -402,7 +391,7 @@ public class Wechat {
             ps.flush();
         }
 
-        ps.println("微信登录成功，欢迎你：" + getLoginUserNickName());
+        ps.println("微信登录成功，欢迎你：" + getLoginUserNickName(false));
         ps.flush();
 
         return true;
@@ -432,32 +421,46 @@ public class Wechat {
      */
     public JSONObject getLoginUser(boolean update) {
         if (loginUser == null || update) {
+            JSONObject result = webWeixinApi.webWeixinInit(httpClient, passTicket, wxsid, skey, wxuin);
+            if (result == null) {
+                return loginUser;
+            }
+
+            JSONObject BaseResponse = result.getJSONObject("BaseResponse");
+            if (result == null) {
+                return loginUser;
+            }
+
+            int Ret = BaseResponse.getIntValue("Ret");
+            if (Ret != 0) {
+                return loginUser;
+            }
+
             try {
                 loginUserLock.lock();
                 if (loginUser == null || update) {
-                    JSONObject result = webWeixinApi.webWeixinInit(httpClient, passTicket, wxsid, skey, wxuin);
-                    if (result == null) {
-                        return loginUser;
-                    }
-
-                    JSONObject BaseResponse = result.getJSONObject("BaseResponse");
-                    if (result == null) {
-                        return loginUser;
-                    }
-
-                    int Ret = BaseResponse.getIntValue("Ret");
-                    if (Ret != 0) {
-                        return loginUser;
-                    }
-
                     loginUser = result.getJSONObject("User");
-                    return loginUser;
                 }
             } finally {
                 loginUserLock.unlock();
             }
+
+            return loginUser;
         }
         return loginUser;
+    }
+
+    /**
+     * 获取登录用户名
+     *
+     * @return
+     */
+    public String getLoginUserName(boolean update) {
+        JSONObject loginUser = getLoginUser(update);
+        if (loginUser == null) {
+            return null;
+        }
+        return loginUser.getString("UserName");
     }
 
     /**
@@ -465,12 +468,49 @@ public class Wechat {
      *
      * @return
      */
-    public String getLoginUserNickName() {
-        JSONObject loginUser = getLoginUser(false);
+    public String getLoginUserNickName(boolean update) {
+        JSONObject loginUser = getLoginUser(update);
         if (loginUser == null) {
             return null;
         }
         return loginUser.getString("NickName");
+    }
+
+    /**
+     * 获取SyncKey
+     *
+     * @param update
+     * @return
+     */
+    public JSONObject getSyncKey(boolean update) {
+        if (SyncKey == null || update) {
+            JSONObject result = webWeixinApi.webWeixinInit(httpClient, passTicket, wxsid, skey, wxuin);
+            if (result == null) {
+                return SyncKey;
+            }
+
+            JSONObject BaseResponse = result.getJSONObject("BaseResponse");
+            if (result == null) {
+                return SyncKey;
+            }
+
+            int Ret = BaseResponse.getIntValue("Ret");
+            if (Ret != 0) {
+                return SyncKey;
+            }
+
+            try {
+                SyncKeyLock.lock();
+                if (SyncKey == null || update) {
+                    SyncKey = result.getJSONObject("SyncKey");
+                }
+            } finally {
+                SyncKeyLock.unlock();
+            }
+
+            return SyncKey;
+        }
+        return SyncKey;
     }
 
     /**
@@ -481,33 +521,38 @@ public class Wechat {
      */
     public JSONArray getContactList(boolean update) {
         if (ContactList == null || update) {
+            JSONObject result = webWeixinApi.getContact(httpClient, passTicket, skey);
+            if (result == null) {
+                return ContactList;
+            }
+
+            JSONObject BaseResponse = result.getJSONObject("BaseResponse");
+            if (BaseResponse == null) {
+                return ContactList;
+            }
+
+            String Ret = BaseResponse.getString("Ret");
+            if (!"0".equals(Ret)) {
+                return ContactList;
+            }
+
             try {
                 ContactListLock.lock();
                 if (ContactList == null || update) {
-                    JSONObject result = webWeixinApi.getContact(httpClient, passTicket, skey);
-                    if (result == null) {
-                        return ContactList;
-                    }
-                    JSONObject BaseResponse = result.getJSONObject("BaseResponse");
-                    if (BaseResponse == null) {
-                        return ContactList;
-                    }
-                    String Ret = BaseResponse.getString("Ret");
-                    if (!"0".equals(Ret)) {
-                        return ContactList;
-                    }
                     ContactList = result.getJSONArray("MemberList");
-                    return ContactList;
                 }
             } finally {
                 ContactListLock.unlock();
             }
+
+            return ContactList;
         }
         return ContactList;
     }
 
     public void test() {
-        JSONObject result = webWeixinApi.getContact(httpClient, passTicket, skey);
+        System.out.println(SyncKey);
+        JSONObject result = webWeixinApi.webWeixinInit(httpClient, passTicket, wxsid, skey, wxuin);
         System.out.println(result);
     }
 }
