@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.hotlcc.wechat4j.api.WebWeixinApi;
 import com.hotlcc.wechat4j.enums.ExitTypeEnum;
 import com.hotlcc.wechat4j.enums.LoginTipEnum;
+import com.hotlcc.wechat4j.handler.ExitEventHandler;
 import com.hotlcc.wechat4j.util.CommonUtil;
 import com.hotlcc.wechat4j.util.PropertiesUtil;
 import com.hotlcc.wechat4j.util.QRCodeUtil;
@@ -26,6 +27,9 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -61,6 +65,9 @@ public class Wechat {
     //同步监听器
     private volatile SyncMonitor syncMonitor;
 
+    //退出事件处理器
+    private List<ExitEventHandler> exitEventHandlers;
+
     public Wechat(CookieStore cookieStore) {
         this.cookieStore = cookieStore;
         this.httpClient = buildHttpClient(cookieStore);
@@ -72,6 +79,21 @@ public class Wechat {
 
     public void setWebWeixinApi(WebWeixinApi webWeixinApi) {
         this.webWeixinApi = webWeixinApi;
+    }
+
+    public void addExitEventHandler(ExitEventHandler handler) {
+        if (exitEventHandlers == null) {
+            exitEventHandlers = new ArrayList<>();
+        }
+
+        exitEventHandlers.add(handler);
+    }
+
+    public void addExitEventHandler(Collection<ExitEventHandler> handlers) {
+        if (exitEventHandlers == null) {
+            exitEventHandlers = new ArrayList<>();
+        }
+        exitEventHandlers.addAll(handlers);
     }
 
     private HttpClient buildHttpClient(CookieStore cookieStore) {
@@ -469,7 +491,7 @@ public class Wechat {
 
             statusNotify(time);
             isOnline = true;
-            syncMonitor = new SyncMonitor();
+            syncMonitor = new SyncMonitor(this);
             syncMonitor.start();
         } finally {
             isOnlineLock.unlock();
@@ -502,9 +524,24 @@ public class Wechat {
     }
 
     /**
+     * 判断在线状态
+     *
+     * @return
+     */
+    public boolean isOnline() {
+        return isOnline;
+    }
+
+    /**
      * 微信同步监听器（心跳）
      */
     private class SyncMonitor extends Thread {
+        private Wechat wechat;
+
+        public SyncMonitor(Wechat wechat) {
+            this.wechat = wechat;
+        }
+
         @Override
         public void run() {
             int time = PropertiesUtil.getIntValue("wechat4j.syncCheck.retry.time", 5);
@@ -567,9 +604,43 @@ public class Wechat {
          */
         private void processExitEvent(ExitTypeEnum type, Throwable t) {
             try {
+                if (exitEventHandlers == null) {
+                    return;
+                }
 
+                for (ExitEventHandler handler : exitEventHandlers) {
+                    if (handler != null) {
+                        processExitEvent(type, t, handler);
+                    }
+                }
             } catch (Exception e) {
                 logger.error("Exit event process error.", e);
+            }
+        }
+
+        private void processExitEvent(ExitTypeEnum type, Throwable t, ExitEventHandler handler) {
+            try {
+                switch (type) {
+                    case ERROR_EXIT:
+                        handler.forError(wechat);
+                        break;
+                    case REMOTE_EXIT:
+                        handler.forRemote(wechat);
+                        break;
+                    case LOCAL_EXIT:
+                        handler.forLocal(wechat);
+                        break;
+                    default:
+                        break;
+                }
+            } catch (Exception e) {
+                logger.error("Exit event \"" + type.name() + "\" process error.", e);
+            }
+
+            try {
+                handler.forAll(wechat, type, t);
+            } catch (Exception e) {
+                logger.error("ForAll Exit event process error.", e);
             }
         }
 
@@ -824,9 +895,5 @@ public class Wechat {
         }
 
         return null;
-    }
-
-    public void test() {
-
     }
 }

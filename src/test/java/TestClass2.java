@@ -8,7 +8,6 @@ public class TestClass2 {
         Wechat wechat = new Wechat();
         wechat.setWebWeixinApi(api);
         wechat.autoLogin();
-        wechat.test();
         CommonUtil.threadSleep(1000 * 60 * 10);
         wechat.logout();
     }
