@@ -550,6 +550,99 @@ public class Wechat {
         return ContactList;
     }
 
+    /**
+     * 根据UserName获取联系人信息
+     *
+     * @param update
+     * @param UserName
+     * @return
+     */
+    public JSONObject getContactByUserName(boolean update, String UserName) {
+        if (StringUtil.isEmpty(UserName)) {
+            return null;
+        }
+
+        JSONArray list = getContactList(update);
+        if (list == null) {
+            return null;
+        }
+
+        for (int i = 0, len = list.size(); i < len; i++) {
+            JSONObject c = list.getJSONObject(i);
+            if (c == null) {
+                continue;
+            }
+
+            if (UserName.equals(c.getString("UserName"))) {
+                return c;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * 根据NickName获取联系人信息
+     *
+     * @param update
+     * @param NickName
+     * @return
+     */
+    public JSONObject getContactByNickName(boolean update, String NickName) {
+        if (StringUtil.isEmpty(NickName)) {
+            return null;
+        }
+
+        JSONArray list = getContactList(update);
+        if (list == null) {
+            return null;
+        }
+
+        for (int i = 0, len = list.size(); i < len; i++) {
+            JSONObject c = list.getJSONObject(i);
+            if (c == null) {
+                continue;
+            }
+
+            if (NickName.equals(c.getString("NickName"))) {
+                return c;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * 根据RemarkName获取联系人信息
+     *
+     * @param update
+     * @param RemarkName
+     * @return
+     */
+    public JSONObject getContactByRemarkName(boolean update, String RemarkName) {
+        if (StringUtil.isEmpty(RemarkName)) {
+            return null;
+        }
+
+        JSONArray list = getContactList(update);
+        if (list == null) {
+            return null;
+        }
+
+        for (int i = 0, len = list.size(); i < len; i++) {
+            JSONObject c = list.getJSONObject(i);
+            if (c == null) {
+                continue;
+            }
+
+            if (RemarkName.equals(c.getString("RemarkName"))) {
+                return c;
+            }
+        }
+
+        return null;
+    }
+
     public void test() {
         System.out.println(SyncKey);
         JSONObject result = webWeixinApi.webWeixinInit(httpClient, passTicket, wxsid, skey, wxuin);
