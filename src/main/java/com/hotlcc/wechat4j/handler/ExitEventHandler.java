@@ -14,26 +14,26 @@ public interface ExitEventHandler {
      * @param type
      * @param t
      */
-    void forAll(Wechat wechat, ExitTypeEnum type, Throwable t);
+    void handleAllType(Wechat wechat, ExitTypeEnum type, Throwable t);
 
     /**
      * 针对错误导致的退出事件
      *
      * @param wechat
      */
-    void forError(Wechat wechat);
+    void handleErrorExitEvent(Wechat wechat);
 
     /**
      * 针对远程人为导致的退出事件
      *
      * @param wechat
      */
-    void forRemote(Wechat wechat);
+    void handleRemoteExitEvent(Wechat wechat);
 
     /**
      * 针对本地任务导致的退出事件
      *
      * @param wechat
      */
-    void forLocal(Wechat wechat);
+    void handleLocalExitEvent(Wechat wechat);
 }

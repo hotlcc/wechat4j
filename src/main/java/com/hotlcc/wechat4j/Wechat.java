@@ -5,7 +5,11 @@ import com.alibaba.fastjson.JSONObject;
 import com.hotlcc.wechat4j.api.WebWeixinApi;
 import com.hotlcc.wechat4j.enums.ExitTypeEnum;
 import com.hotlcc.wechat4j.enums.LoginTipEnum;
+import com.hotlcc.wechat4j.enums.RetcodeEnum;
+import com.hotlcc.wechat4j.enums.SelectorEnum;
 import com.hotlcc.wechat4j.handler.ExitEventHandler;
+import com.hotlcc.wechat4j.handler.ReceivedMsgHandler;
+import com.hotlcc.wechat4j.model.ReceivedMsg;
 import com.hotlcc.wechat4j.util.CommonUtil;
 import com.hotlcc.wechat4j.util.PropertiesUtil;
 import com.hotlcc.wechat4j.util.QRCodeUtil;
@@ -67,6 +71,8 @@ public class Wechat {
 
     //退出事件处理器
     private List<ExitEventHandler> exitEventHandlers;
+    //接收消息处理器
+    private List<ReceivedMsgHandler> receivedMsgHandlers;
 
     public Wechat(CookieStore cookieStore) {
         this.cookieStore = cookieStore;
@@ -82,6 +88,9 @@ public class Wechat {
     }
 
     public void addExitEventHandler(ExitEventHandler handler) {
+        if (handler == null) {
+            return;
+        }
         if (exitEventHandlers == null) {
             exitEventHandlers = new ArrayList<>();
         }
@@ -90,10 +99,37 @@ public class Wechat {
     }
 
     public void addExitEventHandler(Collection<ExitEventHandler> handlers) {
+        if (handlers == null || handlers.isEmpty()) {
+            return;
+        }
         if (exitEventHandlers == null) {
             exitEventHandlers = new ArrayList<>();
         }
-        exitEventHandlers.addAll(handlers);
+        for (ExitEventHandler handler : handlers) {
+            addExitEventHandler(handler);
+        }
+    }
+
+    public void addReceivedMsgHandler(ReceivedMsgHandler handler) {
+        if (handler == null) {
+            return;
+        }
+        if (receivedMsgHandlers == null) {
+            receivedMsgHandlers = new ArrayList<>();
+        }
+        receivedMsgHandlers.add(handler);
+    }
+
+    public void addReceivedMsgHandler(Collection<ReceivedMsgHandler> handlers) {
+        if (handlers == null || handlers.isEmpty()) {
+            return;
+        }
+        if (receivedMsgHandlers == null) {
+            receivedMsgHandlers = new ArrayList<>();
+        }
+        for (ReceivedMsgHandler handler : handlers) {
+            addReceivedMsgHandler(handler);
+        }
     }
 
     private HttpClient buildHttpClient(CookieStore cookieStore) {
@@ -103,7 +139,7 @@ public class Wechat {
                 long keepAlive = super.getKeepAliveDuration(response, context);
                 if (keepAlive == -1) {
                     //如果服务器没有设置keep-alive这个参数，我们就把它设置成1分钟
-                    keepAlive = 5000;
+                    keepAlive = 60000;
                 }
                 return keepAlive;
             }
@@ -561,7 +597,7 @@ public class Wechat {
 
                     //人为退出
                     int retcode = result.getIntValue("retcode");
-                    if (retcode != 0) {
+                    if (retcode != RetcodeEnum.RECODE_0.getCode()) {
                         logger.info("微信退出或从其它设备登录");
                         logout();
                         processExitEvent(ExitTypeEnum.REMOTE_EXIT, null);
@@ -622,25 +658,25 @@ public class Wechat {
             try {
                 switch (type) {
                     case ERROR_EXIT:
-                        handler.forError(wechat);
+                        handler.handleErrorExitEvent(wechat);
                         break;
                     case REMOTE_EXIT:
-                        handler.forRemote(wechat);
+                        handler.handleRemoteExitEvent(wechat);
                         break;
                     case LOCAL_EXIT:
-                        handler.forLocal(wechat);
+                        handler.handleLocalExitEvent(wechat);
                         break;
                     default:
                         break;
                 }
             } catch (Exception e) {
-                logger.error("Exit event \"" + type.name() + "\" process error.", e);
+                logger.error("Exit event process error.", e);
             }
 
             try {
-                handler.forAll(wechat, type, t);
+                handler.handleAllType(wechat, type, t);
             } catch (Exception e) {
-                logger.error("ForAll Exit event process error.", e);
+                logger.error("Exit event process error.", e);
             }
         }
 
@@ -650,7 +686,124 @@ public class Wechat {
          * @param selector
          */
         private void processSelector(int selector) {
-            System.out.println(selector);
+            try {
+                SelectorEnum e = SelectorEnum.valueOf(selector);
+                if (e == null) {
+                    logger.warn("Cannot process selector for error selector {}", selector);
+                    return;
+                }
+
+                switch (e) {
+                    case SELECTOR_0:
+                        break;
+                    case SELECTOR_2:
+                        webWxSync();
+                        break;
+                    case SELECTOR_4:
+                        break;
+                    case SELECTOR_7:
+                        break;
+                    default:
+                        break;
+                }
+            } catch (Exception e) {
+                logger.error("Execute processSelector error.", e);
+            }
+        }
+
+        /**
+         * 同步数据
+         *
+         * @return
+         */
+        private void webWxSync() {
+            try {
+                JSONObject result = webWeixinApi.webWxSync(httpClient, passTicket, wxsid, skey, wxuin, SyncKey);
+                if (result == null) {
+                    logger.error("从服务端同步新数据异常");
+                    return;
+                }
+
+                JSONObject BaseResponse = result.getJSONObject("BaseResponse");
+                if (BaseResponse == null) {
+                    logger.warn("同步接口返回数据格式错误");
+                    return;
+                }
+
+                int Ret = BaseResponse.getIntValue("Ret");
+                if (Ret != RetcodeEnum.RECODE_0.getCode()) {
+                    logger.warn("同步接口返回错误代码:{}", Ret);
+                    return;
+                }
+
+                //新消息处理
+                JSONArray AddMsgList = result.getJSONArray("AddMsgList");
+                processNewMsg(AddMsgList);
+
+                //更新SyncKey
+                try {
+                    SyncKeyLock.lock();
+                    SyncKey = result.getJSONObject("SyncKey");
+                } finally {
+                    SyncKeyLock.unlock();
+                }
+            } catch (Exception e) {
+                logger.error("Execute webWxSync error.", e);
+            }
+        }
+
+        /**
+         * 处理新消息
+         *
+         * @param AddMsgList
+         */
+        private void processNewMsg(JSONArray AddMsgList) {
+            try {
+                if (AddMsgList != null && !AddMsgList.isEmpty()) {
+                    int len = AddMsgList.size();
+                    logger.debug("收到{}条新消息", len);
+                    for (int i = 0; i < len; i++) {
+                        JSONObject AddMsg = AddMsgList.getJSONObject(i);
+                        processNewMsg(AddMsg);
+                    }
+                }
+            } catch (Exception e) {
+                logger.error("Execute processNewMsg error.", e);
+            }
+        }
+
+        private void processNewMsg(JSONObject AddMsg) {
+            try {
+                ReceivedMsg msg = new ReceivedMsg(AddMsg);
+                processNewMsg(msg);
+            } catch (Exception e) {
+                logger.error("Execute processNewMsg error.", e);
+            }
+        }
+
+        private void processNewMsg(ReceivedMsg msg) {
+            try {
+                if (receivedMsgHandlers == null) {
+                    return;
+                }
+                for (ReceivedMsgHandler handler : receivedMsgHandlers) {
+                    if (handler != null) {
+                        processNewMsg(msg, handler);
+                    }
+                }
+            } catch (Exception e) {
+                logger.error("Execute processNewMsg error.", e);
+            }
+        }
+
+        private void processNewMsg(ReceivedMsg msg, ReceivedMsgHandler handler) {
+            try {
+                if (handler != null) {
+                    handler.handleAllType(wechat, msg);
+                }
+            } catch (Exception e) {
+
+            }
         }
     }
 

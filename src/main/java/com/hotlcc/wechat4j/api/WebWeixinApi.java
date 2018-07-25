@@ -490,14 +490,14 @@ public class WebWeixinApi {
     }
 
     /**
-     * 从服务端拉取新消息
+     * 从服务端同步新数据
      */
-    public JSONObject pullNewMsg(HttpClient httpClient,
-                                 String passticket,
-                                 String wxsid,
-                                 String skey,
-                                 String wxuin,
-                                 JSONObject SyncKey) {
+    public JSONObject webWxSync(HttpClient httpClient,
+                                String passticket,
+                                String wxsid,
+                                String skey,
+                                String wxuin,
+                                JSONObject SyncKey) {
         try {
             String url = new ST(PropertiesUtil.getProperty("webwx-url.webwxsync_url"))
                     .add("skey", skey)
@@ -525,7 +525,7 @@ public class WebWeixinApi {
 
             return JSONObject.parseObject(res);
         } catch (Exception e) {
-            logger.error("从服务端拉取新消息异常", e);
+            logger.error("从服务端同步新数据异常", e);
             return null;
         }
     }
