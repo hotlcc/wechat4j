@@ -569,17 +569,21 @@ public class Wechat {
      * 退出登录
      */
     public void logout(boolean clearAllLoginInfo) {
-        try {
-            isOnlineLock.lock();
+        if (isOnline) {
+            try {
+                isOnlineLock.lock();
 
-            webWeixinApi.logout(httpClient, urlVersion, new BaseRequest(wxsid, skey, wxuin));
-            isOnline = false;
+                if (isOnline) {
+                    webWeixinApi.logout(httpClient, urlVersion, new BaseRequest(wxsid, skey, wxuin));
+                    isOnline = false;
 
-            if (clearAllLoginInfo) {
-                clearAllLoginInfo();
+                    if (clearAllLoginInfo) {
+                        clearAllLoginInfo();
+                    }
+                }
+            } finally {
+                isOnlineLock.unlock();
             }
-        } finally {
-            isOnlineLock.unlock();
         }
     }
 
