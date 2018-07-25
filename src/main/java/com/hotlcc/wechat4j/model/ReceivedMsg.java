@@ -1,39 +1,13 @@
 package com.hotlcc.wechat4j.model;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public final class ReceivedMsg {
-    public ReceivedMsg(JSONObject msg) {
-        if (msg == null) {
-            return;
-        }
-        this.SubMsgType = msg.getInteger("SubMsgType");
-        this.VoiceLength = msg.getLong("VoiceLength");
-        this.FileName = msg.getString("FileName");
-        this.ImgHeight = msg.getLong("ImgHeight");
-        this.ToUserName = msg.getString("ToUserName");
-        this.HasProductId = msg.getLong("HasProductId");
-        this.ImgStatus = msg.getInteger("ImgStatus");
-        this.Url = msg.getString("Url");
-        this.ImgWidth = msg.getInteger("ImgWidth");
-        this.ForwardFlag = msg.getInteger("ForwardFlag");
-        this.Status = msg.getInteger("Status");
-        this.Ticket = msg.getString("Ticket");
-        this.RecommendInfo = new RecommendInfo(msg.getJSONObject("RecommendInfo"));
-        this.CreateTime = msg.getLong("CreateTime");
-        this.NewMsgId = msg.getLong("NewMsgId");
-        this.MsgType = msg.getInteger("MsgType");
-        this.EncryFileName = msg.getString("EncryFileName");
-        this.MsgId = msg.getString("MsgId");
-        this.StatusNotifyCode = msg.getInteger("StatusNotifyCode");
-        this.AppInfo = new AppInfo(msg.getJSONObject("AppInfo"));
-        this.PlayLength = msg.getLong("PlayLength");
-        this.MediaId = msg.getString("MediaId");
-        this.Content = msg.getString("Content");
-        this.StatusNotifyUserName = msg.getString("StatusNotifyUserName");
-        this.FromUserName = msg.getString("FromUserName");
-        this.OriContent = msg.getString("OriContent");
-        this.FileSize = msg.getString("FileSize");
+    private ReceivedMsg() {
     }
 
     private Integer SubMsgType;
@@ -141,7 +115,7 @@ public final class ReceivedMsg {
         return StatusNotifyCode;
     }
 
-    public com.hotlcc.wechat4j.model.AppInfo getAppInfo() {
+    public AppInfo getAppInfo() {
         return AppInfo;
     }
 
@@ -175,5 +149,56 @@ public final class ReceivedMsg {
 
     public String getFileSize() {
         return FileSize;
+    }
+
+    public static ReceivedMsg valueOf(JSONObject msg) {
+        if (msg == null) {
+            return null;
+        }
+
+        ReceivedMsg receivedMsg = new ReceivedMsg();
+
+        receivedMsg.SubMsgType = msg.getInteger("SubMsgType");
+        receivedMsg.VoiceLength = msg.getLong("VoiceLength");
+        receivedMsg.FileName = msg.getString("FileName");
+        receivedMsg.ImgHeight = msg.getLong("ImgHeight");
+        receivedMsg.ToUserName = msg.getString("ToUserName");
+        receivedMsg.HasProductId = msg.getLong("HasProductId");
+        receivedMsg.ImgStatus = msg.getInteger("ImgStatus");
+        receivedMsg.Url = msg.getString("Url");
+        receivedMsg.ImgWidth = msg.getInteger("ImgWidth");
+        receivedMsg.ForwardFlag = msg.getInteger("ForwardFlag");
+        receivedMsg.Status = msg.getInteger("Status");
+        receivedMsg.Ticket = msg.getString("Ticket");
+        receivedMsg.RecommendInfo = com.hotlcc.wechat4j.model.RecommendInfo.valueOf(msg.getJSONObject("RecommendInfo"));
+        receivedMsg.CreateTime = msg.getLong("CreateTime");
+        receivedMsg.NewMsgId = msg.getLong("NewMsgId");
+        receivedMsg.MsgType = msg.getInteger("MsgType");
+        receivedMsg.EncryFileName = msg.getString("EncryFileName");
+        receivedMsg.MsgId = msg.getString("MsgId");
+        receivedMsg.StatusNotifyCode = msg.getInteger("StatusNotifyCode");
+        receivedMsg.AppInfo = com.hotlcc.wechat4j.model.AppInfo.valueOf(msg.getJSONObject("AppInfo"));
+        receivedMsg.PlayLength = msg.getLong("PlayLength");
+        receivedMsg.MediaId = msg.getString("MediaId");
+        receivedMsg.Content = msg.getString("Content");
+        receivedMsg.StatusNotifyUserName = msg.getString("StatusNotifyUserName");
+        receivedMsg.FromUserName = msg.getString("FromUserName");
+        receivedMsg.OriContent = msg.getString("OriContent");
+        receivedMsg.FileSize = msg.getString("FileSize");
+
+        return receivedMsg;
+    }
+
+    public static List<ReceivedMsg> valueOf(JSONArray msgs) {
+        if (msgs == null) {
+            return null;
+        }
+
+        List<ReceivedMsg> receivedMsgList = new ArrayList<>();
+        for (int i = 0, len = msgs.size(); i < len; i++) {
+            JSONObject info = msgs.getJSONObject(i);
+            receivedMsgList.add(ReceivedMsg.valueOf(info));
+        }
+        return receivedMsgList;
     }
 }

@@ -10,6 +10,7 @@ import com.hotlcc.wechat4j.enums.SelectorEnum;
 import com.hotlcc.wechat4j.handler.ExitEventHandler;
 import com.hotlcc.wechat4j.handler.ReceivedMsgHandler;
 import com.hotlcc.wechat4j.model.ReceivedMsg;
+import com.hotlcc.wechat4j.model.UserInfo;
 import com.hotlcc.wechat4j.util.CommonUtil;
 import com.hotlcc.wechat4j.util.PropertiesUtil;
 import com.hotlcc.wechat4j.util.QRCodeUtil;
@@ -57,11 +58,11 @@ public class Wechat {
     private volatile String skey;
     private volatile String wxuin;
     //用户数据
-    private volatile JSONObject loginUser;
+    private volatile UserInfo loginUser;
     private final Lock loginUserLock = new ReentrantLock();
     private volatile JSONObject SyncKey;
     private final Lock SyncKeyLock = new ReentrantLock();
-    private volatile JSONArray ContactList;
+    private volatile List<UserInfo> ContactList;
     private final Lock ContactListLock = new ReentrantLock();
     //在线状态
     private volatile boolean isOnline = false;
@@ -388,7 +389,7 @@ public class Wechat {
             return false;
         }
 
-        loginUser = result.getJSONObject("User");
+        loginUser = UserInfo.valueOf(result.getJSONObject("User"));
         SyncKey = result.getJSONObject("SyncKey");
 
         return true;
@@ -774,7 +775,7 @@ public class Wechat {
 
         private void processNewMsg(JSONObject AddMsg) {
             try {
-                ReceivedMsg msg = new ReceivedMsg(AddMsg);
+                ReceivedMsg msg = ReceivedMsg.valueOf(AddMsg);
                 processNewMsg(msg);
             } catch (Exception e) {
                 logger.error("Execute processNewMsg error.", e);
@@ -812,7 +813,7 @@ public class Wechat {
      *
      * @return
      */
-    public JSONObject getLoginUser(boolean update) {
+    public UserInfo getLoginUser(boolean update) {
         if (loginUser == null || update) {
             JSONObject result = webWeixinApi.webWeixinInit(httpClient, passTicket, wxsid, skey, wxuin);
             if (result == null) {
@@ -832,7 +833,7 @@ public class Wechat {
             try {
                 loginUserLock.lock();
                 if (loginUser == null || update) {
-                    loginUser = result.getJSONObject("User");
+                    loginUser = UserInfo.valueOf(result.getJSONObject("User"));
                 }
             } finally {
                 loginUserLock.unlock();
@@ -849,11 +850,11 @@ public class Wechat {
      * @return
      */
     public String getLoginUserName(boolean update) {
-        JSONObject loginUser = getLoginUser(update);
+        UserInfo loginUser = getLoginUser(update);
         if (loginUser == null) {
             return null;
         }
-        return loginUser.getString("UserName");
+        return loginUser.getUserName();
     }
 
     /**
@@ -862,11 +863,11 @@ public class Wechat {
      * @return
      */
     public String getLoginUserNickName(boolean update) {
-        JSONObject loginUser = getLoginUser(update);
+        UserInfo loginUser = getLoginUser(update);
         if (loginUser == null) {
             return null;
         }
-        return loginUser.getString("NickName");
+        return loginUser.getNickName();
     }
 
     /**
@@ -926,7 +927,7 @@ public class Wechat {
      * @param update
      * @return
      */
-    public JSONArray getContactList(boolean update) {
+    public List<UserInfo> getContactList(boolean update) {
         if (ContactList == null || update) {
             JSONObject result = webWeixinApi.getContact(httpClient, passTicket, skey);
             if (result == null) {
@@ -946,7 +947,7 @@ public class Wechat {
             try {
                 ContactListLock.lock();
                 if (ContactList == null || update) {
-                    ContactList = result.getJSONArray("MemberList");
+                    ContactList = UserInfo.valueOf(result.getJSONArray("MemberList"));
                 }
             } finally {
                 ContactListLock.unlock();
@@ -964,24 +965,23 @@ public class Wechat {
      * @param UserName
      * @return
      */
-    public JSONObject getContactByUserName(boolean update, String UserName) {
+    public UserInfo getContactByUserName(boolean update, String UserName) {
         if (StringUtil.isEmpty(UserName)) {
             return null;
         }
 
-        JSONArray list = getContactList(update);
+        List<UserInfo> list = getContactList(update);
         if (list == null) {
             return null;
         }
 
-        for (int i = 0, len = list.size(); i < len; i++) {
-            JSONObject c = list.getJSONObject(i);
-            if (c == null) {
+        for (UserInfo userInfo : list) {
+            if (userInfo == null) {
                 continue;
             }
 
-            if (UserName.equals(c.getString("UserName"))) {
-                return c;
+            if (UserName.equals(userInfo.getUserName())) {
+                return userInfo;
             }
         }
 
@@ -995,24 +995,23 @@ public class Wechat {
      * @param NickName
      * @return
      */
-    public JSONObject getContactByNickName(boolean update, String NickName) {
+    public UserInfo getContactByNickName(boolean update, String NickName) {
         if (StringUtil.isEmpty(NickName)) {
             return null;
         }
 
-        JSONArray list = getContactList(update);
+        List<UserInfo> list = getContactList(update);
         if (list == null) {
             return null;
         }
 
-        for (int i = 0, len = list.size(); i < len; i++) {
-            JSONObject c = list.getJSONObject(i);
-            if (c == null) {
+        for (UserInfo userInfo : list) {
+            if (userInfo == null) {
                 continue;
             }
 
-            if (NickName.equals(c.getString("NickName"))) {
-                return c;
+            if (NickName.equals(userInfo.getNickName())) {
+                return userInfo;
             }
         }
 
@@ -1026,24 +1025,23 @@ public class Wechat {
      * @param RemarkName
      * @return
      */
-    public JSONObject getContactByRemarkName(boolean update, String RemarkName) {
+    public UserInfo getContactByRemarkName(boolean update, String RemarkName) {
         if (StringUtil.isEmpty(RemarkName)) {
             return null;
         }
 
-        JSONArray list = getContactList(update);
+        List<UserInfo> list = getContactList(update);
         if (list == null) {
             return null;
         }
 
-        for (int i = 0, len = list.size(); i < len; i++) {
-            JSONObject c = list.getJSONObject(i);
-            if (c == null) {
+        for (UserInfo userInfo : list) {
+            if (userInfo == null) {
                 continue;
             }
 
-            if (RemarkName.equals(c.getString("RemarkName"))) {
-                return c;
+            if (RemarkName.equals(userInfo.getRemarkName())) {
+                return userInfo;
             }
         }
 

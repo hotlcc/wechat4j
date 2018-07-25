@@ -1,26 +1,13 @@
 package com.hotlcc.wechat4j.model;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public final class RecommendInfo {
-    public RecommendInfo(JSONObject info) {
-        if (info == null) {
-            return;
-        }
-        this.Ticket = info.getString("Ticket");
-        this.UserName = info.getString("UserName");
-        this.Sex = info.getInteger("Sex");
-        this.AttrStatus = info.getInteger("AttrStatus");
-        this.City = info.getString("City");
-        this.NickName = info.getString("NickName");
-        this.Scene = info.getInteger("Scene");
-        this.Province = info.getString("Province");
-        this.Content = info.getString("Content");
-        this.Alias = info.getString("Alias");
-        this.Signature = info.getString("Signature");
-        this.OpCode = info.getInteger("OpCode");
-        this.QQNum = info.getLong("QQNum");
-        this.VerifyFlag = info.getInteger("VerifyFlag");
+    private RecommendInfo() {
     }
 
     private String Ticket;
@@ -92,5 +79,43 @@ public final class RecommendInfo {
 
     public Integer getVerifyFlag() {
         return VerifyFlag;
+    }
+
+    public static RecommendInfo valueOf(JSONObject info) {
+        if (info == null) {
+            return null;
+        }
+
+        RecommendInfo recommendInfo = new RecommendInfo();
+
+        recommendInfo.Ticket = info.getString("Ticket");
+        recommendInfo.UserName = info.getString("UserName");
+        recommendInfo.Sex = info.getInteger("Sex");
+        recommendInfo.AttrStatus = info.getInteger("AttrStatus");
+        recommendInfo.City = info.getString("City");
+        recommendInfo.NickName = info.getString("NickName");
+        recommendInfo.Scene = info.getInteger("Scene");
+        recommendInfo.Province = info.getString("Province");
+        recommendInfo.Content = info.getString("Content");
+        recommendInfo.Alias = info.getString("Alias");
+        recommendInfo.Signature = info.getString("Signature");
+        recommendInfo.OpCode = info.getInteger("OpCode");
+        recommendInfo.QQNum = info.getLong("QQNum");
+        recommendInfo.VerifyFlag = info.getInteger("VerifyFlag");
+
+        return recommendInfo;
+    }
+
+    public static List<RecommendInfo> valueOf(JSONArray infos) {
+        if (infos == null) {
+            return null;
+        }
+
+        List<RecommendInfo> recommendInfos = new ArrayList<>();
+        for (int i = 0, len = infos.size(); i < len; i++) {
+            JSONObject info = infos.getJSONObject(i);
+            recommendInfos.add(RecommendInfo.valueOf(info));
+        }
+        return recommendInfos;
     }
 }
