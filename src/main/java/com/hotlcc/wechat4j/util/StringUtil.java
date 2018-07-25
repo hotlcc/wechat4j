@@ -3,6 +3,7 @@ package com.hotlcc.wechat4j.util;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.util.UUID;
 
 public final class StringUtil {
     private StringUtil() {
@@ -30,5 +31,9 @@ public final class StringUtil {
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static String getUuid() {
+        return UUID.randomUUID().toString().replace("-", "").toLowerCase();
     }
 }

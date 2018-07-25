@@ -3,18 +3,14 @@ package com.hotlcc.wechat4j;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.hotlcc.wechat4j.api.WebWeixinApi;
-import com.hotlcc.wechat4j.enums.ExitTypeEnum;
-import com.hotlcc.wechat4j.enums.LoginTipEnum;
-import com.hotlcc.wechat4j.enums.RetcodeEnum;
-import com.hotlcc.wechat4j.enums.SelectorEnum;
+import com.hotlcc.wechat4j.enums.*;
 import com.hotlcc.wechat4j.handler.ExitEventHandler;
 import com.hotlcc.wechat4j.handler.ReceivedMsgHandler;
+import com.hotlcc.wechat4j.model.BaseRequest;
 import com.hotlcc.wechat4j.model.ReceivedMsg;
 import com.hotlcc.wechat4j.model.UserInfo;
-import com.hotlcc.wechat4j.util.CommonUtil;
-import com.hotlcc.wechat4j.util.PropertiesUtil;
-import com.hotlcc.wechat4j.util.QRCodeUtil;
-import com.hotlcc.wechat4j.util.StringUtil;
+import com.hotlcc.wechat4j.model.WxMessage;
+import com.hotlcc.wechat4j.util.*;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestInterceptor;
@@ -374,7 +370,7 @@ public class Wechat {
      * @return
      */
     private boolean wxInit() {
-        JSONObject result = webWeixinApi.webWeixinInit(httpClient, passTicket, wxsid, skey, wxuin);
+        JSONObject result = webWeixinApi.webWeixinInit(httpClient, passTicket, new BaseRequest(wxsid, skey, wxuin));
         if (result == null) {
             return false;
         }
@@ -438,7 +434,7 @@ public class Wechat {
      */
     private boolean statusNotify(int time) {
         for (int i = 0; i < time; i++) {
-            JSONObject result = webWeixinApi.statusNotify(httpClient, passTicket, wxsid, skey, wxuin, getLoginUserName(false));
+            JSONObject result = webWeixinApi.statusNotify(httpClient, passTicket, new BaseRequest(wxsid, skey, wxuin), getLoginUserName(false));
             if (result == null) {
                 continue;
             }
@@ -553,7 +549,7 @@ public class Wechat {
         try {
             isOnlineLock.lock();
 
-            webWeixinApi.logout(httpClient, wxsid, skey, wxuin);
+            webWeixinApi.logout(httpClient, new BaseRequest(wxsid, skey, wxuin));
             isOnline = false;
         } finally {
             isOnlineLock.unlock();
@@ -588,7 +584,7 @@ public class Wechat {
 
                 try {
                     //API调用异常导致退出
-                    JSONObject result = webWeixinApi.syncCheck(httpClient, wxsid, skey, wxuin, getSyncKeyList(false));
+                    JSONObject result = webWeixinApi.syncCheck(httpClient, new BaseRequest(wxsid, skey, wxuin), getSyncKeyList(false));
                     logger.debug("微信同步监听心跳返回数据：{}", result);
                     if (result == null) {
                         throw new RuntimeException("微信API调用异常");
@@ -719,7 +715,7 @@ public class Wechat {
          */
         private void webWxSync() {
             try {
-                JSONObject result = webWeixinApi.webWxSync(httpClient, passTicket, wxsid, skey, wxuin, SyncKey);
+                JSONObject result = webWeixinApi.webWxSync(httpClient, passTicket, new BaseRequest(wxsid, skey, wxuin), SyncKey);
                 if (result == null) {
                     logger.error("从服务端同步新数据异常");
                     return;
@@ -815,7 +811,7 @@ public class Wechat {
      */
     public UserInfo getLoginUser(boolean update) {
         if (loginUser == null || update) {
-            JSONObject result = webWeixinApi.webWeixinInit(httpClient, passTicket, wxsid, skey, wxuin);
+            JSONObject result = webWeixinApi.webWeixinInit(httpClient, passTicket, new BaseRequest(wxsid, skey, wxuin));
             if (result == null) {
                 return loginUser;
             }
@@ -878,7 +874,7 @@ public class Wechat {
      */
     private JSONObject getSyncKey(boolean update) {
         if (SyncKey == null || update) {
-            JSONObject result = webWeixinApi.webWeixinInit(httpClient, passTicket, wxsid, skey, wxuin);
+            JSONObject result = webWeixinApi.webWeixinInit(httpClient, passTicket, new BaseRequest(wxsid, skey, wxuin));
             if (result == null) {
                 return SyncKey;
             }
@@ -1046,5 +1042,82 @@ public class Wechat {
         }
 
         return null;
+    }
+
+    /**
+     * 发送文本消息
+     *
+     * @return
+     */
+    public JSONObject sendText(String Content, String ToUserName) {
+        BaseRequest BaseRequest = new BaseRequest(wxsid, skey, wxuin);
+
+        String msgId = WechatUtil.createMsgId();
+        String loginUserName = getLoginUserName(false);
+        WxMessage message = new WxMessage();
+        message.setClientMsgId(msgId);
+        message.setContent(Content);
+        message.setFromUserName(loginUserName);
+        message.setLocalID(msgId);
+        if (StringUtil.isEmpty(ToUserName)) {
+            message.setToUserName(loginUserName);
+        } else {
+            message.setToUserName(ToUserName);
+        }
+        message.setType(MsgTypeEnum.TEXT_MSG.getCode());
+
+        JSONObject result = webWeixinApi.sendMsg(httpClient, passTicket, BaseRequest, message);
+
+        return result;
+    }
+
+    /**
+     * 发送文本消息（根据昵称）
+     *
+     * @param Content
+     * @param NickName
+     * @return
+     */
+    public JSONObject sendTextToNickName(String Content, String NickName) {
+        if (StringUtil.isEmpty(NickName)) {
+            return sendText(Content, null);
+        }
+
+        UserInfo userInfo = getContactByNickName(false, NickName);
+        if (userInfo == null) {
+            return null;
+        }
+
+        String UserName = userInfo.getUserName();
+        if (StringUtil.isEmpty(UserName)) {
+            return null;
+        }
+
+        return sendText(Content, UserName);
+    }
+
+    /**
+     * 发送文本消息（根据备注名）
+     *
+     * @param Content
+     * @param RemarkName
+     * @return
+     */
+    public JSONObject sendTextToRemarkName(String Content, String RemarkName) {
+        if (StringUtil.isEmpty(RemarkName)) {
+            return sendText(Content, null);
+        }
+
+        UserInfo userInfo = getContactByRemarkName(false, RemarkName);
+        if (userInfo == null) {
+            return null;
+        }
+
+        String UserName = userInfo.getUserName();
+        if (StringUtil.isEmpty(UserName)) {
+            return null;
+        }
+
+        return sendText(Content, UserName);
     }
 }

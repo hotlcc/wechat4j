@@ -30,29 +30,6 @@ public final class WechatUtil {
     }
 
     /**
-     * 创建BaseRequest
-     *
-     * @return
-     */
-    public static JSONObject createBaseRequest(String DeviceID, String wxsid, String skey, String wxuin) {
-        JSONObject BaseRequest = new JSONObject();
-        BaseRequest.put("DeviceID", DeviceID);
-        BaseRequest.put("Sid", wxsid);
-        BaseRequest.put("Skey", skey);
-        BaseRequest.put("Uin", wxuin);
-        return BaseRequest;
-    }
-
-    /**
-     * 创建BaseRequest
-     *
-     * @return
-     */
-    public static JSONObject createBaseRequest(String wxsid, String skey, String wxuin) {
-        return createBaseRequest(createDeviceID(), wxsid, skey, wxuin);
-    }
-
-    /**
      * 把SyncKeyList转为字符串格式
      *
      * @param SyncKeyList
@@ -76,19 +53,19 @@ public final class WechatUtil {
     }
 
     /**
-     * 创建要发送的Msg
+     * 根据ContentType得到微信上传所需的mediatype
      *
+     * @param contentType
      * @return
      */
-    public static JSONObject createSendMsg(String Content, int Type, String FromUserName, String ToUserName) {
-        JSONObject Msg = new JSONObject();
-        String msgId = WechatUtil.createMsgId();
-        Msg.put("ClientMsgId", msgId);
-        Msg.put("Content", Content);
-        Msg.put("FromUserName", FromUserName);
-        Msg.put("LocalID", msgId);
-        Msg.put("ToUserName", ToUserName);
-        Msg.put("Type", Type);
-        return Msg;
+    public static String getMediatype(String contentType) {
+        if (contentType == null) {
+            return "doc";
+        }
+        if (contentType.indexOf("image") >= 0) {
+            return "pic";
+        } else {
+            return "doc";
+        }
     }
 }
