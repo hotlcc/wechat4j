@@ -18,6 +18,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.HttpClient;
 import org.apache.http.conn.ConnectionKeepAliveStrategy;
+import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.DefaultConnectionKeepAliveStrategy;
 import org.apache.http.impl.client.HttpClients;
@@ -25,6 +26,7 @@ import org.apache.http.protocol.HttpContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -82,6 +84,27 @@ public class Wechat {
 
     public void setWebWeixinApi(WebWeixinApi webWeixinApi) {
         this.webWeixinApi = webWeixinApi;
+    }
+
+    private Cookie getCookie(String name) {
+        List<Cookie> cookies = cookieStore.getCookies();
+        if (cookies == null) {
+            return null;
+        }
+        for (Cookie cookie : cookies) {
+            if (cookie.getName().equals(name)) {
+                return cookie;
+            }
+        }
+        return null;
+    }
+
+    public String getCookieValue(String name) {
+        Cookie cookie = getCookie(name);
+        if (cookie == null) {
+            return null;
+        }
+        return cookie.getValue();
     }
 
     public void addExitEventHandler(ExitEventHandler handler) {
@@ -1049,7 +1072,7 @@ public class Wechat {
      *
      * @return
      */
-    public JSONObject sendText(String content, String toUserName) {
+    public JSONObject sendText(String content, String userName) {
         BaseRequest baseRequest = new BaseRequest(wxsid, skey, wxuin);
 
         String msgId = WechatUtil.createMsgId();
@@ -1059,10 +1082,10 @@ public class Wechat {
         message.setContent(content);
         message.setFromUserName(loginUserName);
         message.setLocalID(msgId);
-        if (StringUtil.isEmpty(toUserName)) {
+        if (StringUtil.isEmpty(userName)) {
             message.setToUserName(loginUserName);
         } else {
-            message.setToUserName(toUserName);
+            message.setToUserName(userName);
         }
         message.setType(MsgTypeEnum.TEXT_MSG.getCode());
 
@@ -1119,5 +1142,17 @@ public class Wechat {
         }
 
         return sendText(content, userName);
+    }
+
+    //TODO 待完成
+    @Deprecated
+    public JSONObject sendImage(File image, String userName) {
+        String loginUserName = getLoginUserName(false);
+        String toUserName = StringUtil.isEmpty(userName) ? loginUserName : userName;
+        BaseRequest baseRequest = new BaseRequest(wxsid, skey, wxuin);
+        String dataTicket = getCookieValue("webwx_data_ticket");
+
+        JSONObject result = webWeixinApi.uploadMedia(httpClient, passTicket, baseRequest, loginUserName, toUserName, dataTicket, image);
+        return result;
     }
 }
