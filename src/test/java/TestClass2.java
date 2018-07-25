@@ -16,7 +16,7 @@ public class TestClass2 {
                 UserInfo contact = wechat.getContactByUserName(false, msg.getFromUserName());
                 System.out.println(contact.getRemarkName() + "：" + msg.getContent());
                 if ("李国栋".equals(contact.getRemarkName())) {
-                    JSONObject result = wechat.sendText("你的消 息收到了", contact.getUserName());
+                    JSONObject result = wechat.sendText("你的消息收到了", contact.getUserName());
                     System.out.println(result);
                 }
             }
