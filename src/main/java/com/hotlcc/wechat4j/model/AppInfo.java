@@ -2,6 +2,7 @@ package com.hotlcc.wechat4j.model;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.annotation.JSONField;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,15 +11,17 @@ public final class AppInfo {
     private AppInfo() {
     }
 
-    private Integer Type;
-    private String AppID;
+    @JSONField(name = "Type")
+    private Integer type;
+    @JSONField(name = "AppID")
+    private String appID;
 
     public Integer getType() {
-        return Type;
+        return type;
     }
 
     public String getAppID() {
-        return AppID;
+        return appID;
     }
 
     public static AppInfo valueOf(JSONObject info) {
@@ -26,8 +29,8 @@ public final class AppInfo {
             return null;
         }
         AppInfo appInfo = new AppInfo();
-        appInfo.Type = info.getInteger("Type");
-        appInfo.AppID = info.getString("AppID");
+        appInfo.type = info.getInteger("Type");
+        appInfo.appID = info.getString("AppID");
         return appInfo;
     }
 

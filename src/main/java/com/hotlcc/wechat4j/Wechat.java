@@ -1049,20 +1049,20 @@ public class Wechat {
      *
      * @return
      */
-    public JSONObject sendText(String Content, String ToUserName) {
+    public JSONObject sendText(String content, String toUserName) {
         BaseRequest BaseRequest = new BaseRequest(wxsid, skey, wxuin);
 
         String msgId = WechatUtil.createMsgId();
         String loginUserName = getLoginUserName(false);
         WxMessage message = new WxMessage();
         message.setClientMsgId(msgId);
-        message.setContent(Content);
+        message.setContent(content);
         message.setFromUserName(loginUserName);
         message.setLocalID(msgId);
-        if (StringUtil.isEmpty(ToUserName)) {
+        if (StringUtil.isEmpty(toUserName)) {
             message.setToUserName(loginUserName);
         } else {
-            message.setToUserName(ToUserName);
+            message.setToUserName(toUserName);
         }
         message.setType(MsgTypeEnum.TEXT_MSG.getCode());
 
@@ -1074,50 +1074,50 @@ public class Wechat {
     /**
      * 发送文本消息（根据昵称）
      *
-     * @param Content
-     * @param NickName
+     * @param content
+     * @param nickName
      * @return
      */
-    public JSONObject sendTextToNickName(String Content, String NickName) {
-        if (StringUtil.isEmpty(NickName)) {
-            return sendText(Content, null);
+    public JSONObject sendTextToNickName(String content, String nickName) {
+        if (StringUtil.isEmpty(nickName)) {
+            return sendText(content, null);
         }
 
-        UserInfo userInfo = getContactByNickName(false, NickName);
+        UserInfo userInfo = getContactByNickName(false, nickName);
         if (userInfo == null) {
             return null;
         }
 
-        String UserName = userInfo.getUserName();
-        if (StringUtil.isEmpty(UserName)) {
+        String userName = userInfo.getUserName();
+        if (StringUtil.isEmpty(userName)) {
             return null;
         }
 
-        return sendText(Content, UserName);
+        return sendText(content, userName);
     }
 
     /**
      * 发送文本消息（根据备注名）
      *
-     * @param Content
-     * @param RemarkName
+     * @param content
+     * @param remarkName
      * @return
      */
-    public JSONObject sendTextToRemarkName(String Content, String RemarkName) {
-        if (StringUtil.isEmpty(RemarkName)) {
-            return sendText(Content, null);
+    public JSONObject sendTextToRemarkName(String content, String remarkName) {
+        if (StringUtil.isEmpty(remarkName)) {
+            return sendText(content, null);
         }
 
-        UserInfo userInfo = getContactByRemarkName(false, RemarkName);
+        UserInfo userInfo = getContactByRemarkName(false, remarkName);
         if (userInfo == null) {
             return null;
         }
 
-        String UserName = userInfo.getUserName();
-        if (StringUtil.isEmpty(UserName)) {
+        String userName = userInfo.getUserName();
+        if (StringUtil.isEmpty(userName)) {
             return null;
         }
 
-        return sendText(Content, UserName);
+        return sendText(content, userName);
     }
 }

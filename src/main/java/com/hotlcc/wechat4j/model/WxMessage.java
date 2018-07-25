@@ -1,54 +1,62 @@
 package com.hotlcc.wechat4j.model;
 
+import com.alibaba.fastjson.annotation.JSONField;
+
 /**
  * 要发送的消息
  */
 public class WxMessage {
-    private String ClientMsgId;
-    private String Content;
-    private String FromUserName;
-    private String LocalID;
-    private String ToUserName;
+    @JSONField(name = "ClientMsgId")
+    private String clientMsgId;
+    @JSONField(name = "Content")
+    private String content;
+    @JSONField(name = "FromUserName")
+    private String fromUserName;
+    @JSONField(name = "LocalID")
+    private String localID;
+    @JSONField(name = "ToUserName")
+    private String toUserName;
+    @JSONField(name = "Type")
     private Integer type;
 
     public String getClientMsgId() {
-        return ClientMsgId;
+        return clientMsgId;
     }
 
     public void setClientMsgId(String clientMsgId) {
-        ClientMsgId = clientMsgId;
+        clientMsgId = clientMsgId;
     }
 
     public String getContent() {
-        return Content;
+        return content;
     }
 
     public void setContent(String content) {
-        Content = content;
+        content = content;
     }
 
     public String getFromUserName() {
-        return FromUserName;
+        return fromUserName;
     }
 
     public void setFromUserName(String fromUserName) {
-        FromUserName = fromUserName;
+        fromUserName = fromUserName;
     }
 
     public String getLocalID() {
-        return LocalID;
+        return localID;
     }
 
     public void setLocalID(String localID) {
-        LocalID = localID;
+        localID = localID;
     }
 
     public String getToUserName() {
-        return ToUserName;
+        return toUserName;
     }
 
     public void setToUserName(String toUserName) {
-        ToUserName = toUserName;
+        toUserName = toUserName;
     }
 
     public Integer getType() {

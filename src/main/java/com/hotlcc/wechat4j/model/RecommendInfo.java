@@ -2,6 +2,7 @@ package com.hotlcc.wechat4j.model;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.annotation.JSONField;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,75 +11,89 @@ public final class RecommendInfo {
     private RecommendInfo() {
     }
 
-    private String Ticket;
-    private String UserName;
-    private Integer Sex;
-    private Integer AttrStatus;
-    private String City;
-    private String NickName;
-    private Integer Scene;
-    private String Province;
-    private String Content;
-    private String Alias;
-    private String Signature;
-    private Integer OpCode;
-    private Long QQNum;
-    private Integer VerifyFlag;
+    @JSONField(name = "Ticket")
+    private String ticket;
+    @JSONField(name = "UserName")
+    private String userName;
+    @JSONField(name = "Sex")
+    private Integer sex;
+    @JSONField(name = "AttrStatus")
+    private Integer attrStatus;
+    @JSONField(name = "City")
+    private String city;
+    @JSONField(name = "NickName")
+    private String nickName;
+    @JSONField(name = "Scene")
+    private Integer scene;
+    @JSONField(name = "Province")
+    private String province;
+    @JSONField(name = "Content")
+    private String content;
+    @JSONField(name = "Alias")
+    private String alias;
+    @JSONField(name = "Signature")
+    private String signature;
+    @JSONField(name = "OpCode")
+    private Integer opCode;
+    @JSONField(name = "QQNum")
+    private Long qqNum;
+    @JSONField(name = "VerifyFlag")
+    private Integer verifyFlag;
 
     public String getTicket() {
-        return Ticket;
+        return ticket;
     }
 
     public String getUserName() {
-        return UserName;
+        return userName;
     }
 
     public Integer getSex() {
-        return Sex;
+        return sex;
     }
 
     public Integer getAttrStatus() {
-        return AttrStatus;
+        return attrStatus;
     }
 
     public String getCity() {
-        return City;
+        return city;
     }
 
     public String getNickName() {
-        return NickName;
+        return nickName;
     }
 
     public Integer getScene() {
-        return Scene;
+        return scene;
     }
 
     public String getProvince() {
-        return Province;
+        return province;
     }
 
     public String getContent() {
-        return Content;
+        return content;
     }
 
     public String getAlias() {
-        return Alias;
+        return alias;
     }
 
     public String getSignature() {
-        return Signature;
+        return signature;
     }
 
     public Integer getOpCode() {
-        return OpCode;
+        return opCode;
     }
 
     public Long getQQNum() {
-        return QQNum;
+        return qqNum;
     }
 
     public Integer getVerifyFlag() {
-        return VerifyFlag;
+        return verifyFlag;
     }
 
     public static RecommendInfo valueOf(JSONObject info) {
@@ -88,20 +103,20 @@ public final class RecommendInfo {
 
         RecommendInfo recommendInfo = new RecommendInfo();
 
-        recommendInfo.Ticket = info.getString("Ticket");
-        recommendInfo.UserName = info.getString("UserName");
-        recommendInfo.Sex = info.getInteger("Sex");
-        recommendInfo.AttrStatus = info.getInteger("AttrStatus");
-        recommendInfo.City = info.getString("City");
-        recommendInfo.NickName = info.getString("NickName");
-        recommendInfo.Scene = info.getInteger("Scene");
-        recommendInfo.Province = info.getString("Province");
-        recommendInfo.Content = info.getString("Content");
-        recommendInfo.Alias = info.getString("Alias");
-        recommendInfo.Signature = info.getString("Signature");
-        recommendInfo.OpCode = info.getInteger("OpCode");
-        recommendInfo.QQNum = info.getLong("QQNum");
-        recommendInfo.VerifyFlag = info.getInteger("VerifyFlag");
+        recommendInfo.ticket = info.getString("Ticket");
+        recommendInfo.userName = info.getString("UserName");
+        recommendInfo.sex = info.getInteger("Sex");
+        recommendInfo.attrStatus = info.getInteger("AttrStatus");
+        recommendInfo.city = info.getString("City");
+        recommendInfo.nickName = info.getString("NickName");
+        recommendInfo.scene = info.getInteger("Scene");
+        recommendInfo.province = info.getString("Province");
+        recommendInfo.content = info.getString("Content");
+        recommendInfo.alias = info.getString("Alias");
+        recommendInfo.signature = info.getString("Signature");
+        recommendInfo.opCode = info.getInteger("OpCode");
+        recommendInfo.qqNum = info.getLong("QQNum");
+        recommendInfo.verifyFlag = info.getInteger("VerifyFlag");
 
         return recommendInfo;
     }

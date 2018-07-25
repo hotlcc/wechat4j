@@ -2,6 +2,7 @@ package com.hotlcc.wechat4j.model;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.annotation.JSONField;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,145 +11,173 @@ public final class ReceivedMsg {
     private ReceivedMsg() {
     }
 
-    private Integer SubMsgType;
-    private Long VoiceLength;
-    private String FileName;
-    private Long ImgHeight;
-    private String ToUserName;
-    private Long HasProductId;
-    private Integer ImgStatus;
-    private String Url;
-    private Integer ImgWidth;
-    private Integer ForwardFlag;
-    private Integer Status;
-    private String Ticket;
-    private RecommendInfo RecommendInfo;
-    private Long CreateTime;
-    private Long NewMsgId;
-    private Integer MsgType;
-    private String EncryFileName;
-    private String MsgId;
-    private Integer StatusNotifyCode;
-    private AppInfo AppInfo;
-    private Integer AppMsgType;
-    private Long PlayLength;
-    private String MediaId;
-    private String Content;
-    private String StatusNotifyUserName;
-    private String FromUserName;
-    private String OriContent;
-    private String FileSize;
+    @JSONField(name = "SubMsgType")
+    private Integer subMsgType;
+    @JSONField(name = "VoiceLength")
+    private Long voiceLength;
+    @JSONField(name = "FileName")
+    private String fileName;
+    @JSONField(name = "ImgHeight")
+    private Long imgHeight;
+    @JSONField(name = "ToUserName")
+    private String toUserName;
+    @JSONField(name = "HasProductId")
+    private Long hasProductId;
+    @JSONField(name = "ImgStatus")
+    private Integer imgStatus;
+    @JSONField(name = "Url")
+    private String url;
+    @JSONField(name = "ImgWidth")
+    private Integer imgWidth;
+    @JSONField(name = "ForwardFlag")
+    private Integer forwardFlag;
+    @JSONField(name = "Status")
+    private Integer status;
+    @JSONField(name = "Ticket")
+    private String ticket;
+    @JSONField(name = "RecommendInfo")
+    private RecommendInfo recommendInfo;
+    @JSONField(name = "CreateTime")
+    private Long createTime;
+    @JSONField(name = "NewMsgId")
+    private Long newMsgId;
+    @JSONField(name = "MsgType")
+    private Integer msgType;
+    @JSONField(name = "EncryFileName")
+    private String encryFileName;
+    @JSONField(name = "MsgId")
+    private String msgId;
+    @JSONField(name = "StatusNotifyCode")
+    private Integer statusNotifyCode;
+    @JSONField(name = "AppInfo")
+    private AppInfo appInfo;
+    @JSONField(name = "AppMsgType")
+    private Integer appMsgType;
+    @JSONField(name = "PlayLength")
+    private Long playLength;
+    @JSONField(name = "MediaId")
+    private String mediaId;
+    @JSONField(name = "Content")
+    private String content;
+    @JSONField(name = "StatusNotifyUserName")
+    private String statusNotifyUserName;
+    @JSONField(name = "FromUserName")
+    private String fromUserName;
+    @JSONField(name = "OriContent")
+    private String oriContent;
+    @JSONField(name = "FileSize")
+    private String fileSize;
 
     public Integer getSubMsgType() {
-        return SubMsgType;
+        return subMsgType;
     }
 
     public Long getVoiceLength() {
-        return VoiceLength;
+        return voiceLength;
     }
 
     public String getFileName() {
-        return FileName;
+        return fileName;
     }
 
     public Long getImgHeight() {
-        return ImgHeight;
+        return imgHeight;
     }
 
     public String getToUserName() {
-        return ToUserName;
+        return toUserName;
     }
 
     public Long getHasProductId() {
-        return HasProductId;
+        return hasProductId;
     }
 
     public Integer getImgStatus() {
-        return ImgStatus;
+        return imgStatus;
     }
 
     public String getUrl() {
-        return Url;
+        return url;
     }
 
     public Integer getImgWidth() {
-        return ImgWidth;
+        return imgWidth;
     }
 
     public Integer getForwardFlag() {
-        return ForwardFlag;
+        return forwardFlag;
     }
 
     public Integer getStatus() {
-        return Status;
+        return status;
     }
 
     public String getTicket() {
-        return Ticket;
+        return ticket;
     }
 
     public com.hotlcc.wechat4j.model.RecommendInfo getRecommendInfo() {
-        return RecommendInfo;
+        return recommendInfo;
     }
 
     public Long getCreateTime() {
-        return CreateTime;
+        return createTime;
     }
 
     public Long getNewMsgId() {
-        return NewMsgId;
+        return newMsgId;
     }
 
     public Integer getMsgType() {
-        return MsgType;
+        return msgType;
     }
 
     public String getEncryFileName() {
-        return EncryFileName;
+        return encryFileName;
     }
 
     public String getMsgId() {
-        return MsgId;
+        return msgId;
     }
 
     public Integer getStatusNotifyCode() {
-        return StatusNotifyCode;
+        return statusNotifyCode;
     }
 
     public AppInfo getAppInfo() {
-        return AppInfo;
+        return appInfo;
     }
 
     public Integer getAppMsgType() {
-        return AppMsgType;
+        return appMsgType;
     }
 
     public Long getPlayLength() {
-        return PlayLength;
+        return playLength;
     }
 
     public String getMediaId() {
-        return MediaId;
+        return mediaId;
     }
 
     public String getContent() {
-        return Content;
+        return content;
     }
 
     public String getStatusNotifyUserName() {
-        return StatusNotifyUserName;
+        return statusNotifyUserName;
     }
 
     public String getFromUserName() {
-        return FromUserName;
+        return fromUserName;
     }
 
     public String getOriContent() {
-        return OriContent;
+        return oriContent;
     }
 
     public String getFileSize() {
-        return FileSize;
+        return fileSize;
     }
 
     public static ReceivedMsg valueOf(JSONObject msg) {
@@ -158,33 +187,33 @@ public final class ReceivedMsg {
 
         ReceivedMsg receivedMsg = new ReceivedMsg();
 
-        receivedMsg.SubMsgType = msg.getInteger("SubMsgType");
-        receivedMsg.VoiceLength = msg.getLong("VoiceLength");
-        receivedMsg.FileName = msg.getString("FileName");
-        receivedMsg.ImgHeight = msg.getLong("ImgHeight");
-        receivedMsg.ToUserName = msg.getString("ToUserName");
-        receivedMsg.HasProductId = msg.getLong("HasProductId");
-        receivedMsg.ImgStatus = msg.getInteger("ImgStatus");
-        receivedMsg.Url = msg.getString("Url");
-        receivedMsg.ImgWidth = msg.getInteger("ImgWidth");
-        receivedMsg.ForwardFlag = msg.getInteger("ForwardFlag");
-        receivedMsg.Status = msg.getInteger("Status");
-        receivedMsg.Ticket = msg.getString("Ticket");
-        receivedMsg.RecommendInfo = com.hotlcc.wechat4j.model.RecommendInfo.valueOf(msg.getJSONObject("RecommendInfo"));
-        receivedMsg.CreateTime = msg.getLong("CreateTime");
-        receivedMsg.NewMsgId = msg.getLong("NewMsgId");
-        receivedMsg.MsgType = msg.getInteger("MsgType");
-        receivedMsg.EncryFileName = msg.getString("EncryFileName");
-        receivedMsg.MsgId = msg.getString("MsgId");
-        receivedMsg.StatusNotifyCode = msg.getInteger("StatusNotifyCode");
-        receivedMsg.AppInfo = com.hotlcc.wechat4j.model.AppInfo.valueOf(msg.getJSONObject("AppInfo"));
-        receivedMsg.PlayLength = msg.getLong("PlayLength");
-        receivedMsg.MediaId = msg.getString("MediaId");
-        receivedMsg.Content = msg.getString("Content");
-        receivedMsg.StatusNotifyUserName = msg.getString("StatusNotifyUserName");
-        receivedMsg.FromUserName = msg.getString("FromUserName");
-        receivedMsg.OriContent = msg.getString("OriContent");
-        receivedMsg.FileSize = msg.getString("FileSize");
+        receivedMsg.subMsgType = msg.getInteger("SubMsgType");
+        receivedMsg.voiceLength = msg.getLong("VoiceLength");
+        receivedMsg.fileName = msg.getString("FileName");
+        receivedMsg.imgHeight = msg.getLong("ImgHeight");
+        receivedMsg.toUserName = msg.getString("ToUserName");
+        receivedMsg.hasProductId = msg.getLong("HasProductId");
+        receivedMsg.imgStatus = msg.getInteger("ImgStatus");
+        receivedMsg.url = msg.getString("Url");
+        receivedMsg.imgWidth = msg.getInteger("ImgWidth");
+        receivedMsg.forwardFlag = msg.getInteger("ForwardFlag");
+        receivedMsg.status = msg.getInteger("Status");
+        receivedMsg.ticket = msg.getString("Ticket");
+        receivedMsg.recommendInfo = com.hotlcc.wechat4j.model.RecommendInfo.valueOf(msg.getJSONObject("RecommendInfo"));
+        receivedMsg.createTime = msg.getLong("CreateTime");
+        receivedMsg.newMsgId = msg.getLong("NewMsgId");
+        receivedMsg.msgType = msg.getInteger("MsgType");
+        receivedMsg.encryFileName = msg.getString("EncryFileName");
+        receivedMsg.msgId = msg.getString("MsgId");
+        receivedMsg.statusNotifyCode = msg.getInteger("StatusNotifyCode");
+        receivedMsg.appInfo = com.hotlcc.wechat4j.model.AppInfo.valueOf(msg.getJSONObject("AppInfo"));
+        receivedMsg.playLength = msg.getLong("PlayLength");
+        receivedMsg.mediaId = msg.getString("MediaId");
+        receivedMsg.content = msg.getString("Content");
+        receivedMsg.statusNotifyUserName = msg.getString("StatusNotifyUserName");
+        receivedMsg.fromUserName = msg.getString("FromUserName");
+        receivedMsg.oriContent = msg.getString("OriContent");
+        receivedMsg.fileSize = msg.getString("FileSize");
 
         return receivedMsg;
     }

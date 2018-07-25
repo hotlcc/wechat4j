@@ -1,5 +1,6 @@
 package com.hotlcc.wechat4j.model;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.hotlcc.wechat4j.util.WechatUtil;
 
 /**
@@ -9,51 +10,55 @@ public class BaseRequest {
     public BaseRequest() {
     }
 
-    public BaseRequest(String DeviceID, String Sid, String Skey, String Uin) {
-        this.DeviceID = DeviceID;
-        this.Sid = Sid;
-        this.Skey = Skey;
-        this.Uin = Uin;
+    public BaseRequest(String deviceID, String sid, String skey, String uin) {
+        this.deviceID = deviceID;
+        this.sid = sid;
+        this.skey = skey;
+        this.uin = uin;
     }
 
     public BaseRequest(String Sid, String Skey, String Uin) {
         this(WechatUtil.createDeviceID(), Sid, Skey, Uin);
     }
 
-    private String DeviceID;
-    private String Sid;
-    private String Skey;
-    private String Uin;
+    @JSONField(name = "DeviceID")
+    private String deviceID;
+    @JSONField(name = "Sid")
+    private String sid;
+    @JSONField(name = "Skey")
+    private String skey;
+    @JSONField(name = "Uin")
+    private String uin;
 
     public String getDeviceID() {
-        return DeviceID;
+        return deviceID;
     }
 
     public void setDeviceID(String deviceID) {
-        DeviceID = deviceID;
+        deviceID = deviceID;
     }
 
     public String getSid() {
-        return Sid;
+        return sid;
     }
 
     public void setSid(String sid) {
-        Sid = sid;
+        sid = sid;
     }
 
     public String getSkey() {
-        return Skey;
+        return skey;
     }
 
     public void setSkey(String skey) {
-        Skey = skey;
+        skey = skey;
     }
 
     public String getUin() {
-        return Uin;
+        return uin;
     }
 
     public void setUin(String uin) {
-        Uin = uin;
+        uin = uin;
     }
 }

@@ -542,6 +542,7 @@ public class WebWeixinApi {
             paramJson.put("BaseRequest", BaseRequest);
             paramJson.put("Msg", message);
             paramJson.put("Scene", 0);
+            System.out.println(paramJson.toJSONString());
             HttpEntity paramEntity = new StringEntity(paramJson.toJSONString(), Consts.UTF_8);
             httpPost.setEntity(paramEntity);
 

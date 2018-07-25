@@ -2,6 +2,7 @@ package com.hotlcc.wechat4j.model;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.annotation.JSONField;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,160 +14,191 @@ public final class UserInfo {
     private UserInfo() {
     }
 
-    private Long Uin;
-    private String NickName;
-    private String HeadImgUrl;
-    private Integer ContactFlag;
-    private Integer MemberCount;
-    private List<UserInfo> MemberList;
-    private String RemarkName;
-    private Integer HideInputBarFlag;
-    private Integer Sex;
-    private String Signature;
-    private Integer VerifyFlag;
-    private Long OwnerUin;
-    private String PYInitial;
-    private String PYQuanPin;
-    private String RemarkPYInitial;
-    private String RemarkPYQuanPin;
-    private Integer StarFriend;
-    private Integer AppAccountFlag;
-    private Integer Statues;
-    private Integer AttrStatus;
-    private String Province;
-    private String City;
-    private String Alias;
-    private Integer SnsFlag;
-    private Integer UniFriend;
-    private String DisplayName;
-    private Long ChatRoomId;
-    private String KeyWord;
-    private String EncryChatRoomId;
-    private Integer IsOwner;
-    private String UserName;
+    @JSONField(name = "Uin")
+    private Long uin;
+    @JSONField(name = "NickName")
+    private String nickName;
+    @JSONField(name = "HeadImgUrl")
+    private String headImgUrl;
+    @JSONField(name = "ContactFlag")
+    private Integer contactFlag;
+    @JSONField(name = "MemberCount")
+    private Integer memberCount;
+    @JSONField(name = "MemberList")
+    private List<UserInfo> memberList;
+    @JSONField(name = "RemarkName")
+    private String remarkName;
+    @JSONField(name = "HideInputBarFlag")
+    private Integer hideInputBarFlag;
+    @JSONField(name = "Sex")
+    private Integer sex;
+    @JSONField(name = "Signature")
+    private String signature;
+    @JSONField(name = "VerifyFlag")
+    private Integer verifyFlag;
+    @JSONField(name = "OwnerUin")
+    private Long ownerUin;
+    @JSONField(name = "PYInitial")
+    private String pyInitial;
+    @JSONField(name = "PYQuanPin")
+    private String pyQuanPin;
+    @JSONField(name = "RemarkPYInitial")
+    private String remarkPYInitial;
+    @JSONField(name = "RemarkPYQuanPin")
+    private String remarkPYQuanPin;
+    @JSONField(name = "StarFriend")
+    private Integer starFriend;
+    @JSONField(name = "AppAccountFlag")
+    private Integer appAccountFlag;
+    @JSONField(name = "Statues")
+    private Integer statues;
+    @JSONField(name = "AttrStatus")
+    private Integer attrStatus;
+    @JSONField(name = "Province")
+    private String province;
+    @JSONField(name = "City")
+    private String city;
+    @JSONField(name = "Alias")
+    private String alias;
+    @JSONField(name = "SnsFlag")
+    private Integer snsFlag;
+    @JSONField(name = "UniFriend")
+    private Integer uniFriend;
+    @JSONField(name = "DisplayName")
+    private String displayName;
+    @JSONField(name = "ChatRoomId")
+    private Long chatRoomId;
+    @JSONField(name = "KeyWord")
+    private String keyWord;
+    @JSONField(name = "EncryChatRoomId")
+    private String encryChatRoomId;
+    @JSONField(name = "IsOwner")
+    private Integer isOwner;
+    @JSONField(name = "UserName")
+    private String userName;
 
     public Long getUin() {
-        return Uin;
+        return uin;
     }
 
     public String getNickName() {
-        return NickName;
+        return nickName;
     }
 
     public String getHeadImgUrl() {
-        return HeadImgUrl;
+        return headImgUrl;
     }
 
     public Integer getContactFlag() {
-        return ContactFlag;
+        return contactFlag;
     }
 
     public Integer getMemberCount() {
-        return MemberCount;
+        return memberCount;
     }
 
     public List<UserInfo> getMemberList() {
-        return MemberList;
+        return memberList;
     }
 
     public String getRemarkName() {
-        return RemarkName;
+        return remarkName;
     }
 
     public Integer getHideInputBarFlag() {
-        return HideInputBarFlag;
+        return hideInputBarFlag;
     }
 
     public Integer getSex() {
-        return Sex;
+        return sex;
     }
 
     public String getSignature() {
-        return Signature;
+        return signature;
     }
 
     public Integer getVerifyFlag() {
-        return VerifyFlag;
+        return verifyFlag;
     }
 
     public Long getOwnerUin() {
-        return OwnerUin;
+        return ownerUin;
     }
 
     public String getPYInitial() {
-        return PYInitial;
+        return pyInitial;
     }
 
     public String getPYQuanPin() {
-        return PYQuanPin;
+        return pyQuanPin;
     }
 
     public String getRemarkPYInitial() {
-        return RemarkPYInitial;
+        return remarkPYInitial;
     }
 
     public String getRemarkPYQuanPin() {
-        return RemarkPYQuanPin;
+        return remarkPYQuanPin;
     }
 
     public Integer getStarFriend() {
-        return StarFriend;
+        return starFriend;
     }
 
     public Integer getAppAccountFlag() {
-        return AppAccountFlag;
+        return appAccountFlag;
     }
 
     public Integer getStatues() {
-        return Statues;
+        return statues;
     }
 
     public Integer getAttrStatus() {
-        return AttrStatus;
+        return attrStatus;
     }
 
     public String getProvince() {
-        return Province;
+        return province;
     }
 
     public String getCity() {
-        return City;
+        return city;
     }
 
     public String getAlias() {
-        return Alias;
+        return alias;
     }
 
     public Integer getSnsFlag() {
-        return SnsFlag;
+        return snsFlag;
     }
 
     public Integer getUniFriend() {
-        return UniFriend;
+        return uniFriend;
     }
 
     public String getDisplayName() {
-        return DisplayName;
+        return displayName;
     }
 
     public Long getChatRoomId() {
-        return ChatRoomId;
+        return chatRoomId;
     }
 
     public String getKeyWord() {
-        return KeyWord;
+        return keyWord;
     }
 
     public String getEncryChatRoomId() {
-        return EncryChatRoomId;
+        return encryChatRoomId;
     }
 
     public Integer getIsOwner() {
-        return IsOwner;
+        return isOwner;
     }
 
     public String getUserName() {
-        return UserName;
+        return userName;
     }
 
     public static UserInfo valueOf(JSONObject info) {
@@ -176,37 +208,37 @@ public final class UserInfo {
 
         UserInfo userInfo = new UserInfo();
 
-        userInfo.Uin = info.getLong("Uin");
-        userInfo.NickName = info.getString("NickName");
-        userInfo.HeadImgUrl = info.getString("HeadImgUrl");
-        userInfo.ContactFlag = info.getInteger("ContactFlag");
-        userInfo.MemberCount = info.getInteger("MemberCount");
-        userInfo.MemberList = valueOf(info.getJSONArray("MemberList"));
-        userInfo.RemarkName = info.getString("RemarkName");
-        userInfo.HideInputBarFlag = info.getInteger("HideInputBarFlag");
-        userInfo.Sex = info.getInteger("Sex");
-        userInfo.Signature = info.getString("Signature");
-        userInfo.VerifyFlag = info.getInteger("VerifyFlag");
-        userInfo.OwnerUin = info.getLong("OwnerUin");
-        userInfo.PYInitial = info.getString("PYInitial");
-        userInfo.PYQuanPin = info.getString("PYQuanPin");
-        userInfo.RemarkPYInitial = info.getString("RemarkPYInitial");
-        userInfo.RemarkPYQuanPin = info.getString("RemarkPYQuanPin");
-        userInfo.StarFriend = info.getInteger("StarFriend");
-        userInfo.AppAccountFlag = info.getInteger("AppAccountFlag");
-        userInfo.Statues = info.getInteger("Statues");
-        userInfo.AttrStatus = info.getInteger("AttrStatus");
-        userInfo.Province = info.getString("Province");
-        userInfo.City = info.getString("City");
-        userInfo.Alias = info.getString("Alias");
-        userInfo.SnsFlag = info.getInteger("SnsFlag");
-        userInfo.UniFriend = info.getInteger("UniFriend");
-        userInfo.DisplayName = info.getString("DisplayName");
-        userInfo.ChatRoomId = info.getLong("ChatRoomId");
-        userInfo.KeyWord = info.getString("KeyWord");
-        userInfo.EncryChatRoomId = info.getString("EncryChatRoomId");
-        userInfo.IsOwner = info.getInteger("IsOwner");
-        userInfo.UserName = info.getString("UserName");
+        userInfo.uin = info.getLong("Uin");
+        userInfo.nickName = info.getString("NickName");
+        userInfo.headImgUrl = info.getString("HeadImgUrl");
+        userInfo.contactFlag = info.getInteger("ContactFlag");
+        userInfo.memberCount = info.getInteger("MemberCount");
+        userInfo.memberList = valueOf(info.getJSONArray("MemberList"));
+        userInfo.remarkName = info.getString("RemarkName");
+        userInfo.hideInputBarFlag = info.getInteger("HideInputBarFlag");
+        userInfo.sex = info.getInteger("Sex");
+        userInfo.signature = info.getString("Signature");
+        userInfo.verifyFlag = info.getInteger("VerifyFlag");
+        userInfo.ownerUin = info.getLong("OwnerUin");
+        userInfo.pyInitial = info.getString("PYInitial");
+        userInfo.pyQuanPin = info.getString("PYQuanPin");
+        userInfo.remarkPYInitial = info.getString("RemarkPYInitial");
+        userInfo.remarkPYQuanPin = info.getString("RemarkPYQuanPin");
+        userInfo.starFriend = info.getInteger("StarFriend");
+        userInfo.appAccountFlag = info.getInteger("AppAccountFlag");
+        userInfo.statues = info.getInteger("Statues");
+        userInfo.attrStatus = info.getInteger("AttrStatus");
+        userInfo.province = info.getString("Province");
+        userInfo.city = info.getString("City");
+        userInfo.alias = info.getString("Alias");
+        userInfo.snsFlag = info.getInteger("SnsFlag");
+        userInfo.uniFriend = info.getInteger("UniFriend");
+        userInfo.displayName = info.getString("DisplayName");
+        userInfo.chatRoomId = info.getLong("ChatRoomId");
+        userInfo.keyWord = info.getString("KeyWord");
+        userInfo.encryChatRoomId = info.getString("EncryChatRoomId");
+        userInfo.isOwner = info.getInteger("IsOwner");
+        userInfo.userName = info.getString("UserName");
 
         return userInfo;
     }
