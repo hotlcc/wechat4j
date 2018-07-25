@@ -55,19 +55,21 @@ public class Wechat {
     private volatile String passTicket;
     private volatile String skey;
     private volatile String wxuin;
+    //url版本号
+    private volatile String urlVersion;
     //用户数据
     private volatile UserInfo loginUser;
     private final Lock loginUserLock = new ReentrantLock();
-    private volatile JSONObject SyncKey;
-    private final Lock SyncKeyLock = new ReentrantLock();
-    private volatile List<UserInfo> ContactList;
-    private final Lock ContactListLock = new ReentrantLock();
+    private volatile JSONObject syncKey;
+    private final Lock syncKeyLock = new ReentrantLock();
+    private volatile List<UserInfo> contactList;
+    private final Lock contactListLock = new ReentrantLock();
     //在线状态
     private volatile boolean isOnline = false;
     private final Lock isOnlineLock = new ReentrantLock();
+
     //同步监听器
     private volatile SyncMonitor syncMonitor;
-
     //退出事件处理器
     private List<ExitEventHandler> exitEventHandlers;
     //接收消息处理器
@@ -274,13 +276,12 @@ public class Wechat {
      *
      * @return
      */
-    private String waitForConfirm(PrintStream ps, String uuid) {
+    private JSONObject waitForConfirm(PrintStream ps, String uuid) {
         ps.print("等待手机端扫码...");
         ps.flush();
 
-        String code = null;
         boolean flag = false;
-        while (!"200".equals(code)) {
+        while (true) {
             JSONObject result = webWeixinApi.getRedirectUri(httpClient, LoginTipEnum.TIP_0, uuid);
             if (result == null) {
                 ps.println("\t失败：出现异常");
@@ -288,7 +289,7 @@ public class Wechat {
                 return null;
             }
 
-            code = result.getString("code");
+            String code = result.getString("code");
             if ("408".equals(code)) {
                 ps.print(".");
                 ps.flush();
@@ -306,15 +307,13 @@ public class Wechat {
                 }
                 continue;
             } else if ("200".equals(code)) {
-                String redirectUri = result.getString("redirectUri");
                 ps.println("\t成功，认证完成");
                 ps.flush();
-                return redirectUri;
+                return result;
             } else {
                 return null;
             }
         }
-        return null;
     }
 
     /**
@@ -360,7 +359,7 @@ public class Wechat {
         ps.print("尝试push方式获取uuid...");
         ps.flush();
 
-        JSONObject result = webWeixinApi.pushLogin(httpClient, wxuin);
+        JSONObject result = webWeixinApi.pushLogin(httpClient, urlVersion, wxuin);
         if (result == null) {
             ps.println("\t失败：出现异常");
             ps.flush();
@@ -393,7 +392,7 @@ public class Wechat {
      * @return
      */
     private boolean wxInit() {
-        JSONObject result = webWeixinApi.webWeixinInit(httpClient, passTicket, new BaseRequest(wxsid, skey, wxuin));
+        JSONObject result = webWeixinApi.webWeixinInit(httpClient, urlVersion, passTicket, new BaseRequest(wxsid, skey, wxuin));
         if (result == null) {
             return false;
         }
@@ -409,7 +408,7 @@ public class Wechat {
         }
 
         loginUser = UserInfo.valueOf(result.getJSONObject("User"));
-        SyncKey = result.getJSONObject("SyncKey");
+        syncKey = result.getJSONObject("SyncKey");
 
         return true;
     }
@@ -457,7 +456,7 @@ public class Wechat {
      */
     private boolean statusNotify(int time) {
         for (int i = 0; i < time; i++) {
-            JSONObject result = webWeixinApi.statusNotify(httpClient, passTicket, new BaseRequest(wxsid, skey, wxuin), getLoginUserName(false));
+            JSONObject result = webWeixinApi.statusNotify(httpClient, urlVersion, passTicket, new BaseRequest(wxsid, skey, wxuin), getLoginUserName(false));
             if (result == null) {
                 continue;
             }
@@ -481,7 +480,7 @@ public class Wechat {
     /**
      * 自动登录
      */
-    public boolean autoLogin(OutputStream os) {
+    public boolean autoLogin(OutputStream os, boolean tryPushLogin) {
         // 0、获取消息打印流
         PrintStream ps = null;
         if (os != null) {
@@ -502,7 +501,7 @@ public class Wechat {
         // 2、登录
         // 2.1、获取uuid
         String uuid = null;
-        if (StringUtil.isNotEmpty(wxuin)) {
+        if (tryPushLogin && StringUtil.isNotEmpty(wxuin)) {
             uuid = getWxUuid(ps, wxuin);
         }
         if (StringUtil.isEmpty(uuid)) {
@@ -520,14 +519,15 @@ public class Wechat {
             return false;
         }
         // 2.3、等待确认
-        String redirectUri = waitForConfirm(ps, uuid);
-        if (StringUtil.isEmpty(redirectUri)) {
+        result = waitForConfirm(ps, uuid);
+        if (result == null) {
             ps.println("手机端认证失败，登录不成功");
             ps.flush();
             return false;
         }
+        urlVersion = result.getString("urlVersion");
         // 2.4、获取登录认证码
-        if (!getLoginCode(ps, redirectUri)) {
+        if (!getLoginCode(ps, result.getString("redirectUri"))) {
             ps.println("无法获取登录认证码，登录不成功");
             ps.flush();
             return false;
@@ -562,20 +562,54 @@ public class Wechat {
      * @return
      */
     public boolean autoLogin() {
-        return autoLogin(null);
+        return autoLogin(null, false);
     }
 
     /**
      * 退出登录
      */
-    public void logout() {
+    public void logout(boolean clearAllLoginInfo) {
         try {
             isOnlineLock.lock();
 
-            webWeixinApi.logout(httpClient, new BaseRequest(wxsid, skey, wxuin));
+            webWeixinApi.logout(httpClient, urlVersion, new BaseRequest(wxsid, skey, wxuin));
             isOnline = false;
+
+            if (clearAllLoginInfo) {
+                clearAllLoginInfo();
+            }
         } finally {
             isOnlineLock.unlock();
+        }
+    }
+
+    public void logout() {
+        logout(true);
+    }
+
+    /**
+     * 清除全部登录信息
+     */
+    private void clearAllLoginInfo() {
+        try {
+            loginUserLock.lock();
+            syncKeyLock.lock();
+            contactListLock.lock();
+
+            wxsid = null;
+            passTicket = null;
+            skey = null;
+            urlVersion = null;
+            loginUser = null;
+            syncKey = null;
+            if (contactList != null) {
+                contactList.clear();
+                contactList = null;
+            }
+        } finally {
+            loginUserLock.unlock();
+            syncKeyLock.unlock();
+            contactListLock.unlock();
         }
     }
 
@@ -607,7 +641,7 @@ public class Wechat {
 
                 try {
                     //API调用异常导致退出
-                    JSONObject result = webWeixinApi.syncCheck(httpClient, new BaseRequest(wxsid, skey, wxuin), getSyncKeyList(false));
+                    JSONObject result = webWeixinApi.syncCheck(httpClient, urlVersion, new BaseRequest(wxsid, skey, wxuin), getSyncKeyList(false));
                     logger.debug("微信同步监听心跳返回数据：{}", result);
                     if (result == null) {
                         throw new RuntimeException("微信API调用异常");
@@ -738,7 +772,7 @@ public class Wechat {
          */
         private void webWxSync() {
             try {
-                JSONObject result = webWeixinApi.webWxSync(httpClient, passTicket, new BaseRequest(wxsid, skey, wxuin), SyncKey);
+                JSONObject result = webWeixinApi.webWxSync(httpClient, urlVersion, passTicket, new BaseRequest(wxsid, skey, wxuin), syncKey);
                 if (result == null) {
                     logger.error("从服务端同步新数据异常");
                     return;
@@ -762,10 +796,10 @@ public class Wechat {
 
                 //更新SyncKey
                 try {
-                    SyncKeyLock.lock();
-                    SyncKey = result.getJSONObject("SyncKey");
+                    syncKeyLock.lock();
+                    syncKey = result.getJSONObject("SyncKey");
                 } finally {
-                    SyncKeyLock.unlock();
+                    syncKeyLock.unlock();
                 }
             } catch (Exception e) {
                 logger.error("Execute webWxSync error.", e);
@@ -834,7 +868,7 @@ public class Wechat {
      */
     public UserInfo getLoginUser(boolean update) {
         if (loginUser == null || update) {
-            JSONObject result = webWeixinApi.webWeixinInit(httpClient, passTicket, new BaseRequest(wxsid, skey, wxuin));
+            JSONObject result = webWeixinApi.webWeixinInit(httpClient, urlVersion, passTicket, new BaseRequest(wxsid, skey, wxuin));
             if (result == null) {
                 return loginUser;
             }
@@ -896,34 +930,34 @@ public class Wechat {
      * @return
      */
     private JSONObject getSyncKey(boolean update) {
-        if (SyncKey == null || update) {
-            JSONObject result = webWeixinApi.webWeixinInit(httpClient, passTicket, new BaseRequest(wxsid, skey, wxuin));
+        if (syncKey == null || update) {
+            JSONObject result = webWeixinApi.webWeixinInit(httpClient, urlVersion, passTicket, new BaseRequest(wxsid, skey, wxuin));
             if (result == null) {
-                return SyncKey;
+                return syncKey;
             }
 
             JSONObject BaseResponse = result.getJSONObject("BaseResponse");
             if (result == null) {
-                return SyncKey;
+                return syncKey;
             }
 
             int Ret = BaseResponse.getIntValue("Ret");
             if (Ret != 0) {
-                return SyncKey;
+                return syncKey;
             }
 
             try {
-                SyncKeyLock.lock();
-                if (SyncKey == null || update) {
-                    SyncKey = result.getJSONObject("SyncKey");
+                syncKeyLock.lock();
+                if (syncKey == null || update) {
+                    syncKey = result.getJSONObject("SyncKey");
                 }
             } finally {
-                SyncKeyLock.unlock();
+                syncKeyLock.unlock();
             }
 
-            return SyncKey;
+            return syncKey;
         }
-        return SyncKey;
+        return syncKey;
     }
 
     /**
@@ -947,34 +981,34 @@ public class Wechat {
      * @return
      */
     public List<UserInfo> getContactList(boolean update) {
-        if (ContactList == null || update) {
-            JSONObject result = webWeixinApi.getContact(httpClient, passTicket, skey);
+        if (contactList == null || update) {
+            JSONObject result = webWeixinApi.getContact(httpClient, urlVersion, passTicket, skey);
             if (result == null) {
-                return ContactList;
+                return contactList;
             }
 
             JSONObject BaseResponse = result.getJSONObject("BaseResponse");
             if (BaseResponse == null) {
-                return ContactList;
+                return contactList;
             }
 
             String Ret = BaseResponse.getString("Ret");
             if (!"0".equals(Ret)) {
-                return ContactList;
+                return contactList;
             }
 
             try {
-                ContactListLock.lock();
-                if (ContactList == null || update) {
-                    ContactList = UserInfo.valueOf(result.getJSONArray("MemberList"));
+                contactListLock.lock();
+                if (contactList == null || update) {
+                    contactList = UserInfo.valueOf(result.getJSONArray("MemberList"));
                 }
             } finally {
-                ContactListLock.unlock();
+                contactListLock.unlock();
             }
 
-            return ContactList;
+            return contactList;
         }
-        return ContactList;
+        return contactList;
     }
 
     /**
@@ -1089,7 +1123,7 @@ public class Wechat {
         }
         message.setType(MsgTypeEnum.TEXT_MSG.getCode());
 
-        JSONObject result = webWeixinApi.sendMsg(httpClient, passTicket, baseRequest, message);
+        JSONObject result = webWeixinApi.sendMsg(httpClient, urlVersion, passTicket, baseRequest, message);
 
         return result;
     }
@@ -1152,7 +1186,7 @@ public class Wechat {
         BaseRequest baseRequest = new BaseRequest(wxsid, skey, wxuin);
         String dataTicket = getCookieValue("webwx_data_ticket");
 
-        JSONObject result = webWeixinApi.uploadMedia(httpClient, passTicket, baseRequest, loginUserName, toUserName, dataTicket, image);
+        JSONObject result = webWeixinApi.uploadMedia(httpClient, urlVersion, passTicket, baseRequest, loginUserName, toUserName, dataTicket, image);
         return result;
     }
 }

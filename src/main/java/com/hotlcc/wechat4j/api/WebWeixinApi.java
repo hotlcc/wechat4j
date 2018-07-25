@@ -48,6 +48,7 @@ public class WebWeixinApi {
     private static Pattern PATTERN_UUID_2 = Pattern.compile("window.QRLogin.code = (\\d+); window.QRLogin.uuid = \"(\\S+?)\";");
     private static Pattern PATTERN_REDIRECT_URI_1 = Pattern.compile("window.code=(\\d+);");
     private static Pattern PATTERN_REDIRECT_URI_2 = Pattern.compile("window.code=(\\d+);\\s*window.redirect_uri=\"(\\S+?)\";");
+    private static Pattern PATTERN_REDIRECT_URI_3 = Pattern.compile("http(s*)://wx(\\d*)\\.qq\\.com\\/");
 
     /**
      * 获取微信uuid
@@ -184,8 +185,16 @@ public class WebWeixinApi {
                 if (!matcher.find()) {
                     throw new RuntimeException("没有匹配到跳转uri");
                 }
+                String redirectUri = matcher.group(2);
                 result.put("msg", "手机确认成功");
-                result.put("redirectUri", matcher.group(2));
+                result.put("redirectUri", redirectUri);
+
+                matcher = PATTERN_REDIRECT_URI_3.matcher(redirectUri);
+                if (!matcher.find()) {
+                    throw new RuntimeException("从跳转uri中没有匹配到url版本号");
+                }
+                String urlVersion = matcher.group(2);
+                result.put("urlVersion", urlVersion);
             } else {
                 throw new RuntimeException("返回code错误");
             }
@@ -233,6 +242,7 @@ public class WebWeixinApi {
      * 退出登录
      */
     public void logout(HttpClient httpClient,
+                       String urlVersion,
                        BaseRequest BaseRequest) {
         try {
             List<NameValuePair> pairList = new ArrayList<>();
@@ -242,6 +252,7 @@ public class WebWeixinApi {
             //分两步进行
             for (int i = 0; i <= 1; i++) {
                 String url = new ST(PropertiesUtil.getProperty("webwx-url.logout_url"))
+                        .add("urlVersion", urlVersion)
                         .add("type", i)
                         .add("skey", StringUtil.encodeURL(BaseRequest.getSkey(), Consts.UTF_8.name()))
                         .render();
@@ -263,10 +274,12 @@ public class WebWeixinApi {
      * push登录
      */
     public JSONObject pushLogin(HttpClient httpClient,
+                                String urlVersion,
                                 String wxuin) {
         try {
             long millis = System.currentTimeMillis();
             String url = new ST(PropertiesUtil.getProperty("webwx-url.pushlogin_url"))
+                    .add("urlVersion", urlVersion)
                     .add("uin", wxuin)
                     .render();
 
@@ -293,10 +306,12 @@ public class WebWeixinApi {
      * 获取初始化数据
      */
     public JSONObject webWeixinInit(HttpClient httpClient,
+                                    String urlVersion,
                                     String passticket,
                                     BaseRequest BaseRequest) {
         try {
             String url = new ST(PropertiesUtil.getProperty("webwx-url.webwxinit_url"))
+                    .add("urlVersion", urlVersion)
                     .add("pass_ticket", passticket)
                     .add("r", System.currentTimeMillis() / 1252L)
                     .render();
@@ -331,11 +346,13 @@ public class WebWeixinApi {
      * @return
      */
     public JSONObject statusNotify(HttpClient httpClient,
+                                   String urlVersion,
                                    String passticket,
                                    BaseRequest BaseRequest,
                                    String loginUserName) {
         try {
             String url = new ST(PropertiesUtil.getProperty("webwx-url.statusnotify_url"))
+                    .add("urlVersion", urlVersion)
                     .add("pass_ticket", passticket)
                     .render();
 
@@ -371,11 +388,13 @@ public class WebWeixinApi {
      * 服务端状态同步心跳
      */
     public JSONObject syncCheck(HttpClient httpClient,
+                                String urlVersion,
                                 BaseRequest BaseRequest,
                                 JSONArray SyncKeyList) {
         try {
             long millis = System.currentTimeMillis();
             String url = new ST(PropertiesUtil.getProperty("webwx-url.synccheck_url"))
+                    .add("urlVersion", urlVersion)
                     .add("r", millis)
                     .add("skey", StringUtil.encodeURL(BaseRequest.getSkey(), Consts.UTF_8.name()))
                     .add("sid", BaseRequest.getSid())
@@ -421,10 +440,12 @@ public class WebWeixinApi {
      * 获取全部联系人列表
      */
     public JSONObject getContact(HttpClient httpClient,
+                                 String urlVersion,
                                  String passticket,
                                  String skey) {
         try {
             String url = new ST(PropertiesUtil.getProperty("webwx-url.getcontact_url"))
+                    .add("urlVersion", urlVersion)
                     .add("pass_ticket", StringUtil.encodeURL(passticket, Consts.UTF_8.name()))
                     .add("r", System.currentTimeMillis())
                     .add("skey", StringUtil.encodeURL(skey, Consts.UTF_8.name()))
@@ -452,11 +473,13 @@ public class WebWeixinApi {
      * 批量获取指定用户信息
      */
     public JSONObject batchGetContact(HttpClient httpClient,
+                                      String urlVersion,
                                       String passticket,
                                       BaseRequest BaseRequest,
                                       JSONArray batchContactList) {
         try {
             String url = new ST(PropertiesUtil.getProperty("webwx-url.batchgetcontact_url"))
+                    .add("urlVersion", urlVersion)
                     .add("pass_ticket", StringUtil.encodeURL(passticket, Consts.UTF_8.name()))
                     .add("r", System.currentTimeMillis())
                     .render();
@@ -491,11 +514,13 @@ public class WebWeixinApi {
      * 从服务端同步新数据
      */
     public JSONObject webWxSync(HttpClient httpClient,
+                                String urlVersion,
                                 String passticket,
                                 BaseRequest BaseRequest,
                                 JSONObject SyncKey) {
         try {
             String url = new ST(PropertiesUtil.getProperty("webwx-url.webwxsync_url"))
+                    .add("urlVersion", urlVersion)
                     .add("skey", BaseRequest.getSkey())
                     .add("sid", BaseRequest.getSid())
                     .add("pass_ticket", passticket)
@@ -530,11 +555,13 @@ public class WebWeixinApi {
      * 发送消息
      */
     public JSONObject sendMsg(HttpClient httpClient,
+                              String urlVersion,
                               String passticket,
                               BaseRequest baseRequest,
                               WxMessage message) {
         try {
             String url = new ST(PropertiesUtil.getProperty("webwx-url.webwxsendmsg_url"))
+                    .add("urlVersion", urlVersion)
                     .add("pass_ticket", passticket)
                     .render();
 
@@ -572,6 +599,7 @@ public class WebWeixinApi {
      * @return
      */
     public JSONObject uploadMedia(HttpClient httpClient,
+                                  String urlVersion,
                                   String passticket,
                                   BaseRequest BaseRequest,
                                   String FromUserName,
@@ -582,6 +610,7 @@ public class WebWeixinApi {
                                   ContentType contentType) {
         try {
             String url = new ST(PropertiesUtil.getProperty("webwx-url.uploadmedia_url"))
+                    .add("urlVersion", urlVersion)
                     .render();
 
             HttpPost httpPost = new HttpPost(url);
@@ -640,6 +669,7 @@ public class WebWeixinApi {
      * @return
      */
     public JSONObject uploadMedia(HttpClient httpClient,
+                                  String urlVersion,
                                   String passticket,
                                   BaseRequest baseRequest,
                                   String fromUserName,
@@ -648,6 +678,7 @@ public class WebWeixinApi {
                                   File file) {
         try {
             String url = new ST(PropertiesUtil.getProperty("webwx-url.uploadmedia_url"))
+                    .add("urlVersion", urlVersion)
                     .render();
 
             HttpPost httpPost = new HttpPost(url);
