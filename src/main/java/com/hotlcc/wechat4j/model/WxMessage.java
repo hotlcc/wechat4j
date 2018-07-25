@@ -24,7 +24,7 @@ public class WxMessage {
     }
 
     public void setClientMsgId(String clientMsgId) {
-        clientMsgId = clientMsgId;
+        this.clientMsgId = clientMsgId;
     }
 
     public String getContent() {
@@ -32,7 +32,7 @@ public class WxMessage {
     }
 
     public void setContent(String content) {
-        content = content;
+        this.content = content;
     }
 
     public String getFromUserName() {
@@ -40,7 +40,7 @@ public class WxMessage {
     }
 
     public void setFromUserName(String fromUserName) {
-        fromUserName = fromUserName;
+        this.fromUserName = fromUserName;
     }
 
     public String getLocalID() {
@@ -48,7 +48,7 @@ public class WxMessage {
     }
 
     public void setLocalID(String localID) {
-        localID = localID;
+        this.localID = localID;
     }
 
     public String getToUserName() {
@@ -56,7 +56,7 @@ public class WxMessage {
     }
 
     public void setToUserName(String toUserName) {
-        toUserName = toUserName;
+        this.toUserName = toUserName;
     }
 
     public Integer getType() {

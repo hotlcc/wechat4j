@@ -1050,7 +1050,7 @@ public class Wechat {
      * @return
      */
     public JSONObject sendText(String content, String toUserName) {
-        BaseRequest BaseRequest = new BaseRequest(wxsid, skey, wxuin);
+        BaseRequest baseRequest = new BaseRequest(wxsid, skey, wxuin);
 
         String msgId = WechatUtil.createMsgId();
         String loginUserName = getLoginUserName(false);
@@ -1066,7 +1066,7 @@ public class Wechat {
         }
         message.setType(MsgTypeEnum.TEXT_MSG.getCode());
 
-        JSONObject result = webWeixinApi.sendMsg(httpClient, passTicket, BaseRequest, message);
+        JSONObject result = webWeixinApi.sendMsg(httpClient, passTicket, baseRequest, message);
 
         return result;
     }

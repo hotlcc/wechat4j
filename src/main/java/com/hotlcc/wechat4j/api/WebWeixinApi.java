@@ -528,7 +528,7 @@ public class WebWeixinApi {
      */
     public JSONObject sendMsg(HttpClient httpClient,
                               String passticket,
-                              BaseRequest BaseRequest,
+                              BaseRequest baseRequest,
                               WxMessage message) {
         try {
             String url = new ST(PropertiesUtil.getProperty("webwx-url.webwxsendmsg_url"))
@@ -539,7 +539,7 @@ public class WebWeixinApi {
             httpPost.setHeader("Content-type", ContentType.APPLICATION_JSON.toString());
 
             JSONObject paramJson = new JSONObject();
-            paramJson.put("BaseRequest", BaseRequest);
+            paramJson.put("BaseRequest", baseRequest);
             paramJson.put("Msg", message);
             paramJson.put("Scene", 0);
             System.out.println(paramJson.toJSONString());
