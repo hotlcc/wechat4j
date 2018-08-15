@@ -17,8 +17,8 @@ public final class PropertiesUtil {
 
     static {
         loadProperties(new String[]{
-                "config/app.properties",
-                "config/webwx-url.properties"
+                "META-INF/wechat4j/app.properties",
+                "META-INF/wechat4j/webwx-url.properties"
         });
     }
 
