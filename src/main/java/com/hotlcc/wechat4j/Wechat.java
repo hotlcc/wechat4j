@@ -28,8 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -183,24 +182,24 @@ public class Wechat {
     /**
      * 获取uuid（登录时）
      *
-     * @param ps
+     * @param pw
      * @param time
      * @return
      */
-    private String getWxUuid(PrintStream ps, int time) {
-        ps.print("尝试正常方式获取uuid...");
-        ps.flush();
+    private String getWxUuid(PrintWriter pw, int time) {
+        pw.print("尝试正常方式获取uuid...");
+        pw.flush();
 
         for (int i = 0; i <= time; i++) {
             if (i > 0) {
-                ps.print("\t第" + i + "次尝试...");
-                ps.flush();
+                pw.print("\t第" + i + "次尝试...");
+                pw.flush();
             }
             JSONObject result = webWeixinApi.getWxUuid(httpClient);
 
             if (result == null) {
-                ps.println("\t失败：出现异常");
-                ps.flush();
+                pw.println("\t失败：出现异常");
+                pw.flush();
                 return null;
             }
 
@@ -208,23 +207,23 @@ public class Wechat {
             String uuid = result.getString("uuid");
             if (!"200".equals(code)) {
                 String msg = result.getString("msg");
-                ps.println("\t失败：" + msg);
-                ps.flush();
+                pw.println("\t失败：" + msg);
+                pw.flush();
                 return null;
             }
 
             if (StringUtil.isEmpty(uuid)) {
-                ps.print("\t失败");
+                pw.print("\t失败");
                 if (i == 0 && time > 0) {
-                    ps.print("，将重复尝试" + time + "次");
+                    pw.print("，将重复尝试" + time + "次");
                 }
-                ps.println();
-                ps.flush();
+                pw.println();
+                pw.flush();
                 continue;
             }
 
-            ps.println("\t成功，值为：" + uuid);
-            ps.flush();
+            pw.println("\t成功，值为：" + uuid);
+            pw.flush();
             return uuid;
         }
         return null;
@@ -235,35 +234,35 @@ public class Wechat {
      *
      * @return
      */
-    private boolean getAndShowQRCode(PrintStream ps, String uuid, int time) {
-        ps.print("获取二维码...");
-        ps.flush();
+    private boolean getAndShowQRCode(PrintWriter pw, String uuid, int time) {
+        pw.print("获取二维码...");
+        pw.flush();
 
         for (int i = 0; i <= time; i++) {
             if (i > 0) {
-                ps.print("\t第" + i + "次尝试...");
-                ps.flush();
+                pw.print("\t第" + i + "次尝试...");
+                pw.flush();
             }
 
             byte[] data = webWeixinApi.getQR(httpClient, uuid);
 
             if (data == null || data.length <= 0) {
-                ps.print("\t失败");
+                pw.print("\t失败");
                 if (i == 0 && time > 0) {
-                    ps.print("，将重新获取uuid并重复尝试" + time + "次");
+                    pw.print("，将重新获取uuid并重复尝试" + time + "次");
                 }
-                ps.println();
-                ps.flush();
-                getWxUuid(ps, 0);
+                pw.println();
+                pw.flush();
+                getWxUuid(pw, 0);
 
                 CommonUtil.threadSleep(2000);
                 continue;
             }
 
-            ps.println("\t成功，请扫描二维码：");
-            ps.flush();
-            ps.println(QRCodeUtil.toCharMatrix(data));
-            ps.flush();
+            pw.println("\t成功，请扫描二维码：");
+            pw.flush();
+            pw.println(QRCodeUtil.toCharMatrix(data));
+            pw.flush();
             QRCodeUtil.openQRCodeImage(data);
             return true;
         }
@@ -276,39 +275,39 @@ public class Wechat {
      *
      * @return
      */
-    private JSONObject waitForConfirm(PrintStream ps, String uuid) {
-        ps.print("等待手机端扫码...");
-        ps.flush();
+    private JSONObject waitForConfirm(PrintWriter pw, String uuid) {
+        pw.print("等待手机端扫码...");
+        pw.flush();
 
         boolean flag = false;
         while (true) {
             JSONObject result = webWeixinApi.getRedirectUri(httpClient, LoginTipEnum.TIP_0, uuid);
             if (result == null) {
-                ps.println("\t失败：出现异常");
-                ps.flush();
+                pw.println("\t失败：出现异常");
+                pw.flush();
                 return null;
             }
 
             String code = result.getString("code");
             if ("408".equals(code)) {
-                ps.print(".");
-                ps.flush();
+                pw.print(".");
+                pw.flush();
                 continue;
             } else if ("400".equals(code)) {
-                ps.println("\t失败，二维码失效");
-                ps.flush();
+                pw.println("\t失败，二维码失效");
+                pw.flush();
                 return null;
             } else if ("201".equals(code)) {
                 if (!flag) {
-                    ps.println();
-                    ps.print("请确认登录...");
-                    ps.flush();
+                    pw.println();
+                    pw.print("请确认登录...");
+                    pw.flush();
                     flag = true;
                 }
                 continue;
             } else if ("200".equals(code)) {
-                ps.println("\t成功，认证完成");
-                ps.flush();
+                pw.println("\t成功，认证完成");
+                pw.flush();
                 return result;
             } else {
                 return null;
@@ -319,21 +318,21 @@ public class Wechat {
     /**
      * 获取登录认证码（登录时）
      */
-    private boolean getLoginCode(PrintStream ps, String redirectUri) {
-        ps.print("获取登录认证码...");
-        ps.flush();
+    private boolean getLoginCode(PrintWriter pw, String redirectUri) {
+        pw.print("获取登录认证码...");
+        pw.flush();
 
         JSONObject result = webWeixinApi.getLoginCode(httpClient, redirectUri);
         if (result == null) {
-            ps.println("\t失败：出现异常");
-            ps.flush();
+            pw.println("\t失败：出现异常");
+            pw.flush();
             return false;
         }
 
         String ret = result.getString("ret");
         if (!"0".equals(ret)) {
-            ps.println("\t失败：错误的返回码(" + ret + ")");
-            ps.flush();
+            pw.println("\t失败：错误的返回码(" + ret + ")");
+            pw.flush();
             return false;
         }
 
@@ -342,8 +341,8 @@ public class Wechat {
         skey = result.getString("skey");
         wxuin = result.getString("wxuin");
 
-        ps.println("\t成功");
-        ps.flush();
+        pw.println("\t成功");
+        pw.flush();
 
         return true;
     }
@@ -351,37 +350,37 @@ public class Wechat {
     /**
      * push方式获取uuid（登录时）
      *
-     * @param ps
+     * @param pw
      * @param wxuin
      * @return
      */
-    private String getWxUuid(PrintStream ps, String wxuin) {
-        ps.print("尝试push方式获取uuid...");
-        ps.flush();
+    private String getWxUuid(PrintWriter pw, String wxuin) {
+        pw.print("尝试push方式获取uuid...");
+        pw.flush();
 
         JSONObject result = webWeixinApi.pushLogin(httpClient, urlVersion, wxuin);
         if (result == null) {
-            ps.println("\t失败：出现异常");
-            ps.flush();
+            pw.println("\t失败：出现异常");
+            pw.flush();
             return null;
         }
 
         String ret = result.getString("ret");
         if (!"0".equals(ret)) {
-            ps.println("\t失败：错误的返回码(" + ret + ")");
-            ps.flush();
+            pw.println("\t失败：错误的返回码(" + ret + ")");
+            pw.flush();
             return null;
         }
 
         String uuid = result.getString("uuid");
         if (StringUtil.isEmpty(uuid)) {
-            ps.println("\t失败：空值");
-            ps.flush();
+            pw.println("\t失败：空值");
+            pw.flush();
             return null;
         }
 
-        ps.println("\t成功，值为：" + uuid);
-        ps.flush();
+        pw.println("\t成功，值为：" + uuid);
+        pw.flush();
 
         return uuid;
     }
@@ -418,30 +417,30 @@ public class Wechat {
      *
      * @return
      */
-    private boolean wxInitWithRetry(PrintStream ps, int time) {
-        ps.print("正在初始化数据...");
-        ps.flush();
+    private boolean wxInitWithRetry(PrintWriter pw, int time) {
+        pw.print("正在初始化数据...");
+        pw.flush();
 
         for (int i = 0; i <= time; i++) {
             if (i > 0) {
-                ps.print("\t第" + i + "次尝试...");
-                ps.flush();
+                pw.print("\t第" + i + "次尝试...");
+                pw.flush();
             }
 
             if (!wxInit()) {
-                ps.print("\t失败");
+                pw.print("\t失败");
                 if (i == 0 && time > 0) {
-                    ps.print("，将重复尝试" + time + "次");
+                    pw.print("，将重复尝试" + time + "次");
                 }
-                ps.println();
-                ps.flush();
+                pw.println();
+                pw.flush();
 
                 CommonUtil.threadSleep(2000);
                 continue;
             }
 
-            ps.println("\t成功");
-            ps.flush();
+            pw.println("\t成功");
+            pw.flush();
 
             return true;
         }
@@ -480,18 +479,15 @@ public class Wechat {
     /**
      * 自动登录
      */
-    public boolean autoLogin(OutputStream os, boolean tryPushLogin) {
+    public boolean autoLogin(PrintWriter pw, boolean tryPushLogin) {
         // 0、获取消息打印流
-        PrintStream ps = null;
-        if (os != null) {
-            ps = new PrintStream(os);
-        } else {
-            ps = System.out;
+        if (pw == null) {
+            pw = new PrintWriter(System.out);
         }
 
         // 1、判断是否已经登录
         if (isOnline) {
-            ps.println("当前已是登录状态，无需登录");
+            pw.println("当前已是登录状态，无需登录");
             return true;
         }
 
@@ -502,45 +498,45 @@ public class Wechat {
         // 2.1、获取uuid
         String uuid = null;
         if (tryPushLogin && StringUtil.isNotEmpty(wxuin)) {
-            uuid = getWxUuid(ps, wxuin);
+            uuid = getWxUuid(pw, wxuin);
         }
         if (StringUtil.isEmpty(uuid)) {
-            uuid = getWxUuid(ps, time);
+            uuid = getWxUuid(pw, time);
         }
         if (StringUtil.isEmpty(uuid)) {
-            ps.println("无法获取uuid，登录不成功");
-            ps.flush();
+            pw.println("无法获取uuid，登录不成功");
+            pw.flush();
             return false;
         }
         // 2.2、获取并显示二维码
-        if (!getAndShowQRCode(ps, uuid, time)) {
-            ps.println("无法获取二维码，登录不成功");
-            ps.flush();
+        if (!getAndShowQRCode(pw, uuid, time)) {
+            pw.println("无法获取二维码，登录不成功");
+            pw.flush();
             return false;
         }
         // 2.3、等待确认
-        result = waitForConfirm(ps, uuid);
+        result = waitForConfirm(pw, uuid);
         if (result == null) {
-            ps.println("手机端认证失败，登录不成功");
-            ps.flush();
+            pw.println("手机端认证失败，登录不成功");
+            pw.flush();
             return false;
         }
         urlVersion = result.getString("urlVersion");
         // 2.4、获取登录认证码
-        if (!getLoginCode(ps, result.getString("redirectUri"))) {
-            ps.println("无法获取登录认证码，登录不成功");
-            ps.flush();
+        if (!getLoginCode(pw, result.getString("redirectUri"))) {
+            pw.println("无法获取登录认证码，登录不成功");
+            pw.flush();
             return false;
         }
 
         // 3、初始化数据
-        if (!wxInitWithRetry(ps, time)) {
-            ps.println("初始化数据失败，请重新登录");
-            ps.flush();
+        if (!wxInitWithRetry(pw, time)) {
+            pw.println("初始化数据失败，请重新登录");
+            pw.flush();
             return false;
         }
-        ps.println("微信登录成功，欢迎你：" + getLoginUserNickName(false));
-        ps.flush();
+        pw.println("微信登录成功，欢迎你：" + getLoginUserNickName(false));
+        pw.flush();
 
         try {
             isOnlineLock.lock();
