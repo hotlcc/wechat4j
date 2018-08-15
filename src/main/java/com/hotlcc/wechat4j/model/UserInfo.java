@@ -3,6 +3,7 @@ package com.hotlcc.wechat4j.model;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
+import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,6 +11,7 @@ import java.util.List;
 /**
  * 微信用户信息
  */
+@Getter
 public final class UserInfo {
     private UserInfo() {
     }
@@ -76,130 +78,6 @@ public final class UserInfo {
     private Integer isOwner;
     @JSONField(name = "UserName")
     private String userName;
-
-    public Long getUin() {
-        return uin;
-    }
-
-    public String getNickName() {
-        return nickName;
-    }
-
-    public String getHeadImgUrl() {
-        return headImgUrl;
-    }
-
-    public Integer getContactFlag() {
-        return contactFlag;
-    }
-
-    public Integer getMemberCount() {
-        return memberCount;
-    }
-
-    public List<UserInfo> getMemberList() {
-        return memberList;
-    }
-
-    public String getRemarkName() {
-        return remarkName;
-    }
-
-    public Integer getHideInputBarFlag() {
-        return hideInputBarFlag;
-    }
-
-    public Integer getSex() {
-        return sex;
-    }
-
-    public String getSignature() {
-        return signature;
-    }
-
-    public Integer getVerifyFlag() {
-        return verifyFlag;
-    }
-
-    public Long getOwnerUin() {
-        return ownerUin;
-    }
-
-    public String getPYInitial() {
-        return pyInitial;
-    }
-
-    public String getPYQuanPin() {
-        return pyQuanPin;
-    }
-
-    public String getRemarkPYInitial() {
-        return remarkPYInitial;
-    }
-
-    public String getRemarkPYQuanPin() {
-        return remarkPYQuanPin;
-    }
-
-    public Integer getStarFriend() {
-        return starFriend;
-    }
-
-    public Integer getAppAccountFlag() {
-        return appAccountFlag;
-    }
-
-    public Integer getStatues() {
-        return statues;
-    }
-
-    public Integer getAttrStatus() {
-        return attrStatus;
-    }
-
-    public String getProvince() {
-        return province;
-    }
-
-    public String getCity() {
-        return city;
-    }
-
-    public String getAlias() {
-        return alias;
-    }
-
-    public Integer getSnsFlag() {
-        return snsFlag;
-    }
-
-    public Integer getUniFriend() {
-        return uniFriend;
-    }
-
-    public String getDisplayName() {
-        return displayName;
-    }
-
-    public Long getChatRoomId() {
-        return chatRoomId;
-    }
-
-    public String getKeyWord() {
-        return keyWord;
-    }
-
-    public String getEncryChatRoomId() {
-        return encryChatRoomId;
-    }
-
-    public Integer getIsOwner() {
-        return isOwner;
-    }
-
-    public String getUserName() {
-        return userName;
-    }
 
     public static UserInfo valueOf(JSONObject info) {
         if (info == null) {

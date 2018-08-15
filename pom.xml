@@ -79,7 +79,12 @@
             <artifactId>javase</artifactId>
             <version>3.3.3</version>
         </dependency>
-
+        <!--lombok简化开发-->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.16.20</version>
+        </dependency>
     </dependencies>
 
     <build>
