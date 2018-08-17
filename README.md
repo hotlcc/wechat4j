@@ -53,7 +53,7 @@ wechat.addReceivedMsgHandler(new ReceivedMsgHandler() {
         UserInfo contact = wechat.getContactByUserName(false, msg.getFromUserName());
         String name = StringUtil.isEmpty(contact.getRemarkName()) ? contact.getNickName() : contact.getRemarkName();
         System.out.println(name + ": " + msg.getContent());
-        }
-    });
+    }
+});
 ```
 
