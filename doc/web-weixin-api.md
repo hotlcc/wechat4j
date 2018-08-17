@@ -942,21 +942,21 @@ POST的数据（JSON）：
 
 ```javascript
 {
-    "BaseRequest": {
-        "DeviceID": "e57xxxxxxx94xx27",
-        "Sid": "8rwxxxxxxxxxHq2P",
-        "Skey": "@crypt_jkde99da_b4xxxxxxxxxxxxxxx76d9yualp",
-        "Uin": "26xxx7"
-    },
-    "Msg": {
-        "ClientMsgId": "15321964202620841",
-        "Content": "这里是消息内容",
-        "FromUserName": "@da9d7631177b3c54492954010eb7",
-        "LocalID": "15321964202620841",
-        "ToUserName": "@d946a2006c12e85deda45c26b8cd42dbd3f03fa67be",
-        "Type": 1
-    },
-    "Scene": 0
+	"BaseRequest": {
+		"DeviceID": "e57xxxxxxx94xx27",
+		"Sid": "8rwxxxxxxxxxHq2P",
+        "Skey": "@crypt_jkde99da_b4xxxxxxxxxxxxxxx76d9yualp",
+        "Uin": "26xxx7"
+	},
+	"Msg": {
+		"ClientMsgId": "15321964202620841",
+		"Content": "这里是消息内容",
+		"FromUserName": "@da9d7631177b3c54492954010eb7",
+		"LocalID": "15321964202620841",
+		"ToUserName": "@d946a2006c12e85deda45c26b8cd42dbd3f03fa67be",
+		"Type": 1
+	},
+	"Scene": 0
 }
 ```
 
