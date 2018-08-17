@@ -405,8 +405,8 @@ public class WebWeixinApi {
                     .render();
 
             HttpGet httpGet = new HttpGet(url);
-            RequestConfig config = RequestConfig.custom().
-                    setRedirectsEnabled(false)
+            RequestConfig config = RequestConfig.custom()
+                    .setRedirectsEnabled(false)
                     .build();
             httpGet.setConfig(config);
 
