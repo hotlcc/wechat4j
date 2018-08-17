@@ -409,6 +409,7 @@ public class WebWeixinApi {
                     .setRedirectsEnabled(false)
                     .build();
             httpGet.setConfig(config);
+            httpGet.addHeader("Connection", "Keep-Alive");
 
             HttpResponse response = httpClient.execute(httpGet);
             int statusCode = response.getStatusLine().getStatusCode();

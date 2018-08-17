@@ -14,13 +14,10 @@ import com.hotlcc.wechat4j.util.*;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestInterceptor;
-import org.apache.http.HttpResponse;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.HttpClient;
-import org.apache.http.conn.ConnectionKeepAliveStrategy;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.BasicCookieStore;
-import org.apache.http.impl.client.DefaultConnectionKeepAliveStrategy;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.protocol.HttpContext;
 import org.slf4j.Logger;
@@ -154,17 +151,6 @@ public class Wechat {
     }
 
     private HttpClient buildHttpClient(CookieStore cookieStore) {
-        ConnectionKeepAliveStrategy keepAliveStrategy = new DefaultConnectionKeepAliveStrategy() {
-            @Override
-            public long getKeepAliveDuration(HttpResponse response, HttpContext context) {
-                long keepAlive = super.getKeepAliveDuration(response, context);
-                if (keepAlive == -1) {
-                    //如果服务器没有设置keep-alive这个参数，我们就把它设置成1分钟
-                    keepAlive = 60000;
-                }
-                return keepAlive;
-            }
-        };
         HttpRequestInterceptor interceptor = new HttpRequestInterceptor() {
             @Override
             public void process(HttpRequest httpRequest, HttpContext httpContext) throws HttpException, IOException {
@@ -173,7 +159,6 @@ public class Wechat {
         };
         HttpClient httpClient = HttpClients.custom()
                 .setDefaultCookieStore(cookieStore)
-//                .setKeepAliveStrategy(keepAliveStrategy)
                 .addInterceptorFirst(interceptor)
                 .build();
         return httpClient;
@@ -641,7 +626,7 @@ public class Wechat {
 
                 try {
                     JSONObject result = webWeixinApi.syncCheck(httpClient, urlVersion, new BaseRequest(wxsid, skey, wxuin), getSyncKeyList(false));
-                    logger.debug("微信同步监听心跳返回数据：{}", result);
+                    logger.info("微信同步监听心跳返回数据：{}", result);
                     if (result == null) {
                         throw new RuntimeException("微信API调用异常");
                     } else {
