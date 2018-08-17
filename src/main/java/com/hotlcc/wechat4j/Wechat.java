@@ -885,6 +885,10 @@ public class Wechat {
         return loginUser;
     }
 
+    public UserInfo getLoginUser() {
+        return getLoginUser(false);
+    }
+
     /**
      * 获取登录用户名
      *
@@ -898,6 +902,10 @@ public class Wechat {
         return loginUser.getUserName();
     }
 
+    public String getLoginUserName() {
+        return getLoginUserName(false);
+    }
+
     /**
      * 获取登录用户的昵称
      *
@@ -909,6 +917,10 @@ public class Wechat {
             return null;
         }
         return loginUser.getNickName();
+    }
+
+    public String getLoginUserNickName() {
+        return getLoginUserNickName(false);
     }
 
     /**
@@ -999,15 +1011,19 @@ public class Wechat {
         return contactList;
     }
 
+    public List<UserInfo> getContactList() {
+        return getContactList(false);
+    }
+
     /**
      * 根据UserName获取联系人信息
      *
      * @param update
-     * @param UserName
+     * @param userName
      * @return
      */
-    public UserInfo getContactByUserName(boolean update, String UserName) {
-        if (StringUtil.isEmpty(UserName)) {
+    public UserInfo getContactByUserName(boolean update, String userName) {
+        if (StringUtil.isEmpty(userName)) {
             return null;
         }
 
@@ -1021,23 +1037,27 @@ public class Wechat {
                 continue;
             }
 
-            if (UserName.equals(userInfo.getUserName())) {
+            if (userName.equals(userInfo.getUserName())) {
                 return userInfo;
             }
         }
 
         return null;
+    }
+
+    public UserInfo getContactByUserName(String userName) {
+        return getContactByUserName(false, userName);
     }
 
     /**
      * 根据NickName获取联系人信息
      *
      * @param update
-     * @param NickName
+     * @param nickName
      * @return
      */
-    public UserInfo getContactByNickName(boolean update, String NickName) {
-        if (StringUtil.isEmpty(NickName)) {
+    public UserInfo getContactByNickName(boolean update, String nickName) {
+        if (StringUtil.isEmpty(nickName)) {
             return null;
         }
 
@@ -1051,7 +1071,7 @@ public class Wechat {
                 continue;
             }
 
-            if (NickName.equals(userInfo.getNickName())) {
+            if (nickName.equals(userInfo.getNickName())) {
                 return userInfo;
             }
         }
@@ -1059,15 +1079,19 @@ public class Wechat {
         return null;
     }
 
+    public UserInfo getContactByNickName(String nickName) {
+        return getContactByNickName(false, nickName);
+    }
+
     /**
      * 根据RemarkName获取联系人信息
      *
      * @param update
-     * @param RemarkName
+     * @param remarkName
      * @return
      */
-    public UserInfo getContactByRemarkName(boolean update, String RemarkName) {
-        if (StringUtil.isEmpty(RemarkName)) {
+    public UserInfo getContactByRemarkName(boolean update, String remarkName) {
+        if (StringUtil.isEmpty(remarkName)) {
             return null;
         }
 
@@ -1081,12 +1105,16 @@ public class Wechat {
                 continue;
             }
 
-            if (RemarkName.equals(userInfo.getRemarkName())) {
+            if (remarkName.equals(userInfo.getRemarkName())) {
                 return userInfo;
             }
         }
 
         return null;
+    }
+
+    public UserInfo getContactByRemarkName(String remarkName) {
+        return getContactByRemarkName(false, remarkName);
     }
 
     /**
