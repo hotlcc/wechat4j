@@ -220,12 +220,12 @@ POST的数据（JSON）：
 
 ```JavaScript
 {
-    "BaseRequest": {
-        "DeviceID": "e659xxxxxxxx3006",
-        "Sid": "8rwxxxxxxxxxHq2P",
-        "Skey": "@crypt_jkde99da_b4xxxxxxxxxxxxxxx76d9yualp",
-        "Uin": "26xxx7"
-    }
+    "BaseRequest": {
+        "DeviceID": "e659xxxxxxxx3006",
+        "Sid": "8rwxxxxxxxxxHq2P",
+        "Skey": "@crypt_jkde99da_b4xxxxxxxxxxxxxxx76d9yualp",
+        "Uin": "26xxx7"
+    }
 }
 ```
 
