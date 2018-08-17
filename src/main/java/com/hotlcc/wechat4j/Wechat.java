@@ -743,7 +743,7 @@ public class Wechat {
             try {
                 SelectorEnum e = SelectorEnum.valueOf(selector);
                 if (e == null) {
-                    logger.warn("Cannot process selector for error selector {}", selector);
+                    logger.warn("Cannot process unknow selector {}", selector);
                     return;
                 }
 
@@ -754,6 +754,8 @@ public class Wechat {
                         webWxSync();
                         break;
                     case SELECTOR_4:
+                        break;
+                    case SELECTOR_6:
                         break;
                     case SELECTOR_7:
                         break;
