@@ -815,36 +815,24 @@ public class Wechat {
          */
         private void processNewMsg(JSONArray AddMsgList) {
             try {
-                if (AddMsgList != null && !AddMsgList.isEmpty()) {
-                    int len = AddMsgList.size();
-                    logger.debug("收到{}条新消息", len);
-                    for (int i = 0; i < len; i++) {
-                        JSONObject AddMsg = AddMsgList.getJSONObject(i);
-                        processNewMsg(AddMsg);
-                    }
-                }
-            } catch (Exception e) {
-                logger.error("Execute processNewMsg error.", e);
-            }
-        }
-
-        private void processNewMsg(JSONObject AddMsg) {
-            try {
-                ReceivedMsg msg = ReceivedMsg.valueOf(AddMsg);
-                processNewMsg(msg);
-            } catch (Exception e) {
-                logger.error("Execute processNewMsg error.", e);
-            }
-        }
-
-        private void processNewMsg(ReceivedMsg msg) {
-            try {
-                if (receivedMsgHandlers == null) {
+                if (AddMsgList == null || AddMsgList.isEmpty()) {
                     return;
                 }
-                for (ReceivedMsgHandler handler : receivedMsgHandlers) {
-                    if (handler != null) {
-                        processNewMsg(msg, handler);
+
+                int len = AddMsgList.size();
+                logger.debug("收到{}条新消息", len);
+
+                if (receivedMsgHandlers == null || receivedMsgHandlers.isEmpty()) {
+                    logger.warn("收到{}条新消息，但没有配置消息处理器", len);
+                    return;
+                }
+
+                List<ReceivedMsg> receivedMsgList = ReceivedMsg.valueOf(AddMsgList);
+                for (ReceivedMsg receivedMsg : receivedMsgList) {
+                    for (ReceivedMsgHandler handler : receivedMsgHandlers) {
+                        if (handler != null) {
+                            processNewMsg(receivedMsg, handler);
+                        }
                     }
                 }
             } catch (Exception e) {
@@ -854,11 +842,9 @@ public class Wechat {
 
         private void processNewMsg(ReceivedMsg msg, ReceivedMsgHandler handler) {
             try {
-                if (handler != null) {
-                    handler.handleAllType(wechat, msg);
-                }
+                handler.handleAllType(wechat, msg);
             } catch (Exception e) {
-
+                logger.error("Execute processNewMsg error.", e);
             }
         }
     }
