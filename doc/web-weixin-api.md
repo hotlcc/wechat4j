@@ -409,7 +409,7 @@ window.synccheck={retcode:"0",selector:"2"}
 
 ## 3、联系人管理
 
-###3.1、获取全部联系人列表
+### 3.1、获取全部联系人列表
 
 接着可以看到获取全部联系人列表的 GET 请求：
 
@@ -431,45 +431,45 @@ URL参数分析：
 
 ```javascript
 {
-    "BaseResponse": {
-        "Ret": 0,
-        "ErrMsg": ""
-    },
-    "MemberCount": 1,
-    "MemberList": [{
-        "Uin": 0,
-        "UserName": "weixin",
-        "NickName": "å¾®ä¿¡å›¢é˜Ÿ",
-        "HeadImgUrl": "/cgi-bin/mmwebwx-bin/webwxgeticon?seq=1&username=weixin&skey=@crypt_4fb399da_91a345e0be9deca5d61b183fc36a3a93",
-        "ContactFlag": 1,
-        "MemberCount": 0,
-        "MemberList": [],
-        "RemarkName": "",
-        "HideInputBarFlag": 0,
-        "Sex": 0,
-        "Signature": "å¾®ä¿¡å›¢é˜Ÿå®˜æ–¹å¸•å•·",
-        "VerifyFlag": 56,
-        "OwnerUin": 0,
-        "PYInitial": "WXTD",
-        "PYQuanPin": "weixintuandui",
-        "RemarkPYInitial": "",
-        "RemarkPYQuanPin": "",
-        "StarFriend": 0,
-        "AppAccountFlag": 0,
-        "Statues": 0,
-        "AttrStatus": 4,
-        "Province": "",
-        "City": "",
-        "Alias": "",
-        "SnsFlag": 0,
-        "UniFriend": 0,
-        "DisplayName": "",
-        "ChatRoomId": 0,
-        "KeyWord": "wei",
-        "EncryChatRoomId": "",
-        "IsOwner": 0
-    }],
-    "Seq": 0
+    "BaseResponse": {
+        "Ret": 0,
+        "ErrMsg": ""
+    },
+    "MemberCount": 1,
+    "MemberList": [{
+        "Uin": 0,
+        "UserName": "weixin",
+        "NickName": "å¾®ä¿¡å›¢é˜Ÿ",
+        "HeadImgUrl": "/cgi-bin/mmwebwx-bin/webwxgeticon?seq=1&username=weixin&skey=@crypt_4fb399da_91a345e0be9deca5d61b183fc36a3a93",
+        "ContactFlag": 1,
+        "MemberCount": 0,
+        "MemberList": [],
+        "RemarkName": "",
+        "HideInputBarFlag": 0,
+        "Sex": 0,
+        "Signature": "å¾®ä¿¡å›¢é˜Ÿå®˜æ–¹å¸•å•·",
+        "VerifyFlag": 56,
+        "OwnerUin": 0,
+        "PYInitial": "WXTD",
+        "PYQuanPin": "weixintuandui",
+        "RemarkPYInitial": "",
+        "RemarkPYQuanPin": "",
+        "StarFriend": 0,
+        "AppAccountFlag": 0,
+        "Statues": 0,
+        "AttrStatus": 4,
+        "Province": "",
+        "City": "",
+        "Alias": "",
+        "SnsFlag": 0,
+        "UniFriend": 0,
+        "DisplayName": "",
+        "ChatRoomId": 0,
+        "KeyWord": "wei",
+        "EncryChatRoomId": "",
+        "IsOwner": 0
+    }],
+    "Seq": 0
 }
 ```
 
