@@ -335,16 +335,16 @@ POST的数据（JSON）：
 
 ```JavaScript
 {
-    "BaseRequest": {
-        "DeviceID": "e81xxxxxxxxx7686",
-        "Sid": "8rwxxxxxxxxxHq2P",
-        "Skey": "@crypt_jkde99da_b4xxxxxxxxxxxxxxx76d9yualp",
-        "Uin": "26xxx7"
-    },
-    "ClientMsgId": 1532xxxxx3374,
-    "Code": 3,
-    "FromUserName": "@56a0a9xxxxxxxxxxxxx54w0dxxxxbfab",
-    "ToUserName": "@56a0a9xxxxxxxxxxxxx54w0dxxxxbfab"
+	"BaseRequest": {
+		"DeviceID": "e81xxxxxxxxx7686",
+		"Sid": "8rwxxxxxxxxxHq2P",
+        "Skey": "@crypt_jkde99da_b4xxxxxxxxxxxxxxx76d9yualp",
+        "Uin": "26xxx7"
+	},
+	"ClientMsgId": 1532xxxxx3374,
+	"Code": 3,
+	"FromUserName": "@56a0a9xxxxxxxxxxxxx54w0dxxxxbfab",
+	"ToUserName": "@56a0a9xxxxxxxxxxxxx54w0dxxxxbfab"
 }
 ```
 
