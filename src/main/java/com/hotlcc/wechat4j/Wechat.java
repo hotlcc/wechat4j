@@ -640,7 +640,6 @@ public class Wechat {
                 long start = System.currentTimeMillis();
 
                 try {
-                    //API调用异常导致退出
                     JSONObject result = webWeixinApi.syncCheck(httpClient, urlVersion, new BaseRequest(wxsid, skey, wxuin), getSyncKeyList(false));
                     logger.debug("微信同步监听心跳返回数据：{}", result);
                     if (result == null) {
