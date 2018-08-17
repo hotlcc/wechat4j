@@ -81,7 +81,7 @@ public class WebWeixinApi {
             JSONObject result = new JSONObject();
             result.put("code", code);
             if (!"200".equals(code)) {
-                result.put("msg", "返回code错误，请确认appid是否有效");
+                result.put("msg", "错误代码(" + code + ")，请确认appid是否有效");
                 return result;
             }
 
@@ -405,8 +405,8 @@ public class WebWeixinApi {
                     .render();
 
             HttpGet httpGet = new HttpGet(url);
-            RequestConfig config = RequestConfig.custom().
-                    setRedirectsEnabled(false)
+            RequestConfig config = RequestConfig.custom()
+                    .setRedirectsEnabled(false)
                     .build();
             httpGet.setConfig(config);
 

@@ -3,10 +3,12 @@ package com.hotlcc.wechat4j.model;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
+import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Getter
 public final class ReceivedMsg {
     private ReceivedMsg() {
     }
@@ -67,118 +69,6 @@ public final class ReceivedMsg {
     private String oriContent;
     @JSONField(name = "FileSize")
     private String fileSize;
-
-    public Integer getSubMsgType() {
-        return subMsgType;
-    }
-
-    public Long getVoiceLength() {
-        return voiceLength;
-    }
-
-    public String getFileName() {
-        return fileName;
-    }
-
-    public Long getImgHeight() {
-        return imgHeight;
-    }
-
-    public String getToUserName() {
-        return toUserName;
-    }
-
-    public Long getHasProductId() {
-        return hasProductId;
-    }
-
-    public Integer getImgStatus() {
-        return imgStatus;
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
-    public Integer getImgWidth() {
-        return imgWidth;
-    }
-
-    public Integer getForwardFlag() {
-        return forwardFlag;
-    }
-
-    public Integer getStatus() {
-        return status;
-    }
-
-    public String getTicket() {
-        return ticket;
-    }
-
-    public com.hotlcc.wechat4j.model.RecommendInfo getRecommendInfo() {
-        return recommendInfo;
-    }
-
-    public Long getCreateTime() {
-        return createTime;
-    }
-
-    public Long getNewMsgId() {
-        return newMsgId;
-    }
-
-    public Integer getMsgType() {
-        return msgType;
-    }
-
-    public String getEncryFileName() {
-        return encryFileName;
-    }
-
-    public String getMsgId() {
-        return msgId;
-    }
-
-    public Integer getStatusNotifyCode() {
-        return statusNotifyCode;
-    }
-
-    public AppInfo getAppInfo() {
-        return appInfo;
-    }
-
-    public Integer getAppMsgType() {
-        return appMsgType;
-    }
-
-    public Long getPlayLength() {
-        return playLength;
-    }
-
-    public String getMediaId() {
-        return mediaId;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public String getStatusNotifyUserName() {
-        return statusNotifyUserName;
-    }
-
-    public String getFromUserName() {
-        return fromUserName;
-    }
-
-    public String getOriContent() {
-        return oriContent;
-    }
-
-    public String getFileSize() {
-        return fileSize;
-    }
 
     public static ReceivedMsg valueOf(JSONObject msg) {
         if (msg == null) {

@@ -2,10 +2,14 @@ package com.hotlcc.wechat4j.model;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.hotlcc.wechat4j.util.WechatUtil;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * 基本请求模型
  */
+@Getter
+@Setter
 public class BaseRequest {
     public BaseRequest() {
     }
@@ -29,36 +33,4 @@ public class BaseRequest {
     private String skey;
     @JSONField(name = "Uin")
     private String uin;
-
-    public String getDeviceID() {
-        return deviceID;
-    }
-
-    public void setDeviceID(String deviceID) {
-        deviceID = deviceID;
-    }
-
-    public String getSid() {
-        return sid;
-    }
-
-    public void setSid(String sid) {
-        sid = sid;
-    }
-
-    public String getSkey() {
-        return skey;
-    }
-
-    public void setSkey(String skey) {
-        skey = skey;
-    }
-
-    public String getUin() {
-        return uin;
-    }
-
-    public void setUin(String uin) {
-        uin = uin;
-    }
 }

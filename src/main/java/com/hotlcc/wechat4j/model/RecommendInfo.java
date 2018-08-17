@@ -3,10 +3,12 @@ package com.hotlcc.wechat4j.model;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
+import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Getter
 public final class RecommendInfo {
     private RecommendInfo() {
     }
@@ -39,62 +41,6 @@ public final class RecommendInfo {
     private Long qqNum;
     @JSONField(name = "VerifyFlag")
     private Integer verifyFlag;
-
-    public String getTicket() {
-        return ticket;
-    }
-
-    public String getUserName() {
-        return userName;
-    }
-
-    public Integer getSex() {
-        return sex;
-    }
-
-    public Integer getAttrStatus() {
-        return attrStatus;
-    }
-
-    public String getCity() {
-        return city;
-    }
-
-    public String getNickName() {
-        return nickName;
-    }
-
-    public Integer getScene() {
-        return scene;
-    }
-
-    public String getProvince() {
-        return province;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public String getAlias() {
-        return alias;
-    }
-
-    public String getSignature() {
-        return signature;
-    }
-
-    public Integer getOpCode() {
-        return opCode;
-    }
-
-    public Long getQQNum() {
-        return qqNum;
-    }
-
-    public Integer getVerifyFlag() {
-        return verifyFlag;
-    }
 
     public static RecommendInfo valueOf(JSONObject info) {
         if (info == null) {

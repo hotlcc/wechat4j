@@ -4,6 +4,7 @@ import com.hotlcc.wechat4j.api.WebWeixinApi;
 import com.hotlcc.wechat4j.handler.ReceivedMsgHandler;
 import com.hotlcc.wechat4j.model.ReceivedMsg;
 import com.hotlcc.wechat4j.model.UserInfo;
+import com.sun.scenario.effect.GaussianShadow;
 
 public class TestClass2 {
     public static void main(String[] args) {
@@ -22,5 +23,9 @@ public class TestClass2 {
             }
         });
         wechat.autoLogin();
+        UserInfo userInfo = wechat.getContactByNickName(false, "Allen");
+        System.out.println(JSONObject.toJSONString(userInfo));
+        wechat.sendText("aaa", userInfo.getUserName());
+        wechat.logout();
     }
 }
