@@ -159,6 +159,7 @@ URL参数分析：
 FORM表单参数分析：
 
 |数名|示例值|描述|
+|---|---|---|
 |sid||登录时获取的；|
 |uin||登录时获取的；|
 
@@ -179,6 +180,7 @@ https://wx.qq.com/cgi-bin/mmwebwx-bin/webwxpushloginurl?uin=26xxx7
 URL参数分析：
 
 |数名|示例值|描述|
+|---|---|---|
 |uin|26xxx7|同前面获取的uin；|
 
 服务器返回数据：
@@ -209,6 +211,7 @@ https://wx.qq.com/cgi-bin/mmwebwx-bin/webwxinit?r=1219172280&lang=zh_CN&pass_tic
 URL参数分析：
 
 |数名|示例值|描述|
+|---|---|---|
 |r|1219172280|10位随机数；|
 |lang|zh_CN|语言；zh_CN表示中文；|
 |pass_ticket|AFsdZ7eHxxxxxxxxxxxxxxxxfr1vjHPn=|上一步获取到的；|
@@ -229,6 +232,7 @@ POST的数据（JSON）：
 POST参数分析：
 
 |数名|示例值|描述|
+|---|---|---|
 |BaseRequest.DeviceID|e659xxxxxxxx3006|设备ID，e拼上15位随机串；|
 |BaseRequest.Sid|rwxxxxxxxxxHq2P|上一步获取到的wxsid；|
 |BaseRequest.Skey|crypt_jkde99da_b4xxxxxxxxxxxxxxx76d9yualp|上一步获取到的skey；|
@@ -323,6 +327,7 @@ https://wx.qq.com/cgi-bin/mmwebwx-bin/webwxstatusnotify?lang=zh_CN&pass_ticket=A
 URL参数分析：
 
 |数名|示例值|描述|
+|---|---|---|
 |lang|zh_CN|语言；zh_CN表示中文；|
 |pass_ticket|AFsdZ7eHxxxxxxxxxxxxxxxxfr1vjHPn=|同前面；|
 
