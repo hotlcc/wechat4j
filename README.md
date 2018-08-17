@@ -48,12 +48,12 @@ public JSONObject sendTextToRemarkName(String content, String remarkName);
 
 ```java
 wechat.addReceivedMsgHandler(new ReceivedMsgHandler() {
-            @Override
-            public void handleAllType(Wechat wechat, ReceivedMsg msg) {
-                UserInfo contact = wechat.getContactByUserName(false, msg.getFromUserName());
-                String name = StringUtil.isEmpty(contact.getRemarkName()) ? contact.getNickName() : contact.getRemarkName();
-                System.out.println(name + ": " + msg.getContent());
-            }
-        });
+    @Override
+    public void handleAllType(Wechat wechat, ReceivedMsg msg) {
+        UserInfo contact = wechat.getContactByUserName(false, msg.getFromUserName());
+        String name = StringUtil.isEmpty(contact.getRemarkName()) ? contact.getNickName() : contact.getRemarkName();
+        System.out.println(name + ": " + msg.getContent());
+        }
+    });
 ```
 
