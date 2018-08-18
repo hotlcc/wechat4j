@@ -7,6 +7,7 @@
 码云主页：[https://gitee.com/hotlcc](https://gitee.com/hotlcc)
 
 [![gitee](https://img.shields.io/badge/gitee-%40hotlcc-green.svg)](https://gitee.com/hotlcc)
+[![gitee](https://img.shields.io/badge/github-%40hotlcc-blank.svg)](https://github.com/hotlcc)
 [![toutiao](https://img.shields.io/badge/toutiao-%40Allen-red.svg)](https://www.toutiao.com/c/user/3341863552/#mid=51655113888)
 [![@Allen on weibo](https://img.shields.io/badge/weibo-%40Allen-orange.svg)](https://weibo.com/hotloveu?is_hot=1)
 [![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
