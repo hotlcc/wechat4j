@@ -3,10 +3,9 @@ import com.hotlcc.wechat4j.api.WebWeixinApi;
 import com.hotlcc.wechat4j.handler.ReceivedMsgHandler;
 import com.hotlcc.wechat4j.model.ReceivedMsg;
 import com.hotlcc.wechat4j.model.UserInfo;
-import com.hotlcc.wechat4j.util.CommonUtil;
 import com.hotlcc.wechat4j.util.StringUtil;
 
-public class TestClass2 {
+public class TestClass {
     public static void main(String[] args) {
         WebWeixinApi api = new WebWeixinApi();
         Wechat wechat = new Wechat();
@@ -20,6 +19,5 @@ public class TestClass2 {
             }
         });
         wechat.autoLogin();
-        CommonUtil.threadSleep(60000);
     }
 }
