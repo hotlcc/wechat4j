@@ -1178,6 +1178,39 @@ public class Wechat {
         return sendText(content, userName);
     }
 
+    /**
+     * 发送文本消息（根据多种名称）
+     *
+     * @param content
+     * @param userName
+     * @param nickName
+     * @param remarkName
+     * @return
+     */
+    public JSONObject sendText(String content, String userName, String nickName, String remarkName) {
+        UserInfo userInfo = null;
+
+        if (StringUtil.isNotEmpty(userName)) {
+            return sendText(content, userName);
+        } else if (StringUtil.isNotEmpty(nickName)) {
+            userInfo = getContactByNickName(false, nickName);
+        } else if (StringUtil.isNotEmpty(remarkName)) {
+            userInfo = getContactByRemarkName(false, remarkName);
+        } else {
+            String loginUserName = getLoginUserName(false);
+            return sendText(content, loginUserName);
+        }
+
+        if (userInfo == null) {
+            return null;
+        }
+        userName = userInfo.getUserName();
+        if (StringUtil.isEmpty(userName)) {
+            return null;
+        }
+        return sendText(content, userName);
+    }
+
     //TODO 待完成
     @Deprecated
     public JSONObject sendImage(File image, String userName) {
