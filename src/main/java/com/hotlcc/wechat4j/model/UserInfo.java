@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Getter;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,7 +13,9 @@ import java.util.List;
  * 微信用户信息
  */
 @Getter
-public final class UserInfo {
+public final class UserInfo implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private UserInfo() {
     }
 

@@ -6,10 +6,7 @@ import com.hotlcc.wechat4j.api.WebWeixinApi;
 import com.hotlcc.wechat4j.enums.*;
 import com.hotlcc.wechat4j.handler.ExitEventHandler;
 import com.hotlcc.wechat4j.handler.ReceivedMsgHandler;
-import com.hotlcc.wechat4j.model.BaseRequest;
-import com.hotlcc.wechat4j.model.ReceivedMsg;
-import com.hotlcc.wechat4j.model.UserInfo;
-import com.hotlcc.wechat4j.model.WxMessage;
+import com.hotlcc.wechat4j.model.*;
 import com.hotlcc.wechat4j.util.*;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
@@ -17,6 +14,7 @@ import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.HttpClient;
 import org.apache.http.cookie.Cookie;
+import org.apache.http.entity.ContentType;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.protocol.HttpContext;
@@ -1104,9 +1102,11 @@ public class Wechat {
     /**
      * 发送文本消息
      *
+     * @param userName
+     * @param content
      * @return
      */
-    public JSONObject sendText(String content, String userName) {
+    public JSONObject sendText(String userName, String content) {
         BaseRequest baseRequest = new BaseRequest(wxsid, skey, wxuin);
 
         String msgId = WechatUtil.createMsgId();
@@ -1131,11 +1131,11 @@ public class Wechat {
     /**
      * 发送文本消息（根据昵称）
      *
-     * @param content
      * @param nickName
+     * @param content
      * @return
      */
-    public JSONObject sendTextToNickName(String content, String nickName) {
+    public JSONObject sendTextToNickName(String nickName, String content) {
         if (StringUtil.isEmpty(nickName)) {
             return sendText(content, null);
         }
@@ -1156,11 +1156,11 @@ public class Wechat {
     /**
      * 发送文本消息（根据备注名）
      *
-     * @param content
      * @param remarkName
+     * @param content
      * @return
      */
-    public JSONObject sendTextToRemarkName(String content, String remarkName) {
+    public JSONObject sendTextToRemarkName(String remarkName, String content) {
         if (StringUtil.isEmpty(remarkName)) {
             return sendText(content, null);
         }
@@ -1181,13 +1181,13 @@ public class Wechat {
     /**
      * 发送文本消息（根据多种名称）
      *
-     * @param content
      * @param userName
      * @param nickName
      * @param remarkName
+     * @param content
      * @return
      */
-    public JSONObject sendText(String content, String userName, String nickName, String remarkName) {
+    public JSONObject sendText(String userName, String nickName, String remarkName, String content) {
         UserInfo userInfo = null;
 
         if (StringUtil.isNotEmpty(userName)) {
@@ -1211,15 +1211,196 @@ public class Wechat {
         return sendText(content, userName);
     }
 
-    //TODO 待完成
-    @Deprecated
-    public JSONObject sendImage(File image, String userName) {
+    /**
+     * 发送图片消息
+     *
+     * @param userName
+     * @param mediaData
+     * @param mediaName
+     * @param contentType
+     * @return
+     */
+    public JSONObject sendImage(String userName, byte[] mediaData, String mediaName, ContentType contentType) {
         String loginUserName = getLoginUserName(false);
         String toUserName = StringUtil.isEmpty(userName) ? loginUserName : userName;
         BaseRequest baseRequest = new BaseRequest(wxsid, skey, wxuin);
-        String dataTicket = getCookieValue("webwx_data_ticket");
 
-        JSONObject result = webWeixinApi.uploadMedia(httpClient, urlVersion, passTicket, baseRequest, loginUserName, toUserName, dataTicket, image);
+        // 上传媒体文件
+        String dataTicket = getCookieValue("webwx_data_ticket");
+        JSONObject result = webWeixinApi.uploadMedia(httpClient, urlVersion, passTicket, baseRequest, loginUserName, toUserName, dataTicket, mediaData, mediaName, contentType);
+        if (result == null) {
+            return null;
+        }
+        JSONObject BaseResponse = result.getJSONObject("BaseResponse");
+        if (BaseResponse == null) {
+            return result;
+        }
+        int Ret = BaseResponse.getIntValue("Ret");
+        if (Ret != 0) {
+            return result;
+        }
+
+        String MediaId = result.getString("MediaId");
+        if (StringUtil.isEmpty(MediaId)) {
+            return result;
+        }
+
+        // 发送图片消息
+        String msgId = WechatUtil.createMsgId();
+        MediaMessage message = new MediaMessage();
+        message.setClientMsgId(msgId);
+        message.setContent("");
+        message.setFromUserName(loginUserName);
+        message.setLocalID(msgId);
+        message.setMediaId(MediaId);
+        message.setToUserName(toUserName);
+        message.setType(MsgTypeEnum.IMAGE_MSG.getCode());
+        result = webWeixinApi.sendImageMsg(httpClient, urlVersion, passTicket, baseRequest, message);
+
         return result;
+    }
+
+    /**
+     * 发送图片消息
+     *
+     * @param userName
+     * @param image
+     * @return
+     */
+    public JSONObject sendImage(String userName, File image) {
+        ContentType contentType = FileUtil.getContentBody(image);
+        byte[] mediaData = FileUtil.getBytes(image);
+        return sendImage(userName, mediaData, image.getName(), contentType);
+    }
+
+    /**
+     * 发送图片消息（根据昵称）
+     *
+     * @param nickName
+     * @param mediaData
+     * @param mediaName
+     * @param contentType
+     * @return
+     */
+    public JSONObject sendImageToNickName(String nickName, byte[] mediaData, String mediaName, ContentType contentType) {
+        if (StringUtil.isEmpty(nickName)) {
+            return sendImage(null, mediaData, mediaName, contentType);
+        }
+
+        UserInfo userInfo = getContactByNickName(false, nickName);
+        if (userInfo == null) {
+            return null;
+        }
+
+        String userName = userInfo.getUserName();
+        if (StringUtil.isEmpty(userName)) {
+            return null;
+        }
+
+        return sendImage(userName, mediaData, mediaName, contentType);
+    }
+
+    /**
+     * 发送图片消息（根据昵称）
+     *
+     * @param nickName
+     * @param image
+     * @return
+     */
+    public JSONObject sendImageToNickName(String nickName, File image) {
+        ContentType contentType = FileUtil.getContentBody(image);
+        byte[] mediaData = FileUtil.getBytes(image);
+        return sendImageToNickName(nickName, mediaData, image.getName(), contentType);
+    }
+
+    /**
+     * 发送图片消息（根据备注名）
+     *
+     * @param remarkName
+     * @param mediaData
+     * @param mediaName
+     * @param contentType
+     * @return
+     */
+    public JSONObject sendImageToRemarkName(String remarkName, byte[] mediaData, String mediaName, ContentType contentType) {
+        if (StringUtil.isEmpty(remarkName)) {
+            return sendImage(null, mediaData, mediaName, contentType);
+        }
+
+        UserInfo userInfo = getContactByRemarkName(false, remarkName);
+        if (userInfo == null) {
+            return null;
+        }
+
+        String userName = userInfo.getUserName();
+        if (StringUtil.isEmpty(userName)) {
+            return null;
+        }
+
+        return sendImage(userName, mediaData, mediaName, contentType);
+    }
+
+    /**
+     * 发送图片消息（根据备注名）
+     *
+     * @param remarkName
+     * @param image
+     * @return
+     */
+    public JSONObject sendImageToRemarkName(String remarkName, File image) {
+        ContentType contentType = FileUtil.getContentBody(image);
+        byte[] mediaData = FileUtil.getBytes(image);
+        return sendImageToRemarkName(remarkName, mediaData, image.getName(), contentType);
+    }
+
+    /**
+     * 发送图片消息（根据多种名称）
+     *
+     * @param userName
+     * @param nickName
+     * @param remarkName
+     * @param mediaData
+     * @param mediaName
+     * @param contentType
+     * @return
+     */
+    public JSONObject sendImage(String userName, String nickName, String remarkName
+            , byte[] mediaData, String mediaName, ContentType contentType) {
+        UserInfo userInfo = null;
+
+        if (StringUtil.isNotEmpty(userName)) {
+            return sendImage(userName, mediaData, mediaName, contentType);
+        } else if (StringUtil.isNotEmpty(nickName)) {
+            userInfo = getContactByNickName(false, nickName);
+        } else if (StringUtil.isNotEmpty(remarkName)) {
+            userInfo = getContactByRemarkName(false, remarkName);
+        } else {
+            String loginUserName = getLoginUserName(false);
+            return sendImage(loginUserName, mediaData, mediaName, contentType);
+        }
+
+        if (userInfo == null) {
+            return null;
+        }
+        userName = userInfo.getUserName();
+        if (StringUtil.isEmpty(userName)) {
+            return null;
+        }
+        return sendImage(userName, mediaData, mediaName, contentType);
+    }
+
+    /**
+     * 发送图片消息（根据多种名称）
+     *
+     * @param userName
+     * @param nickName
+     * @param remarkName
+     * @param image
+     * @return
+     */
+    public JSONObject sendImage(String userName, String nickName, String remarkName, File image) {
+        ContentType contentType = FileUtil.getContentBody(image);
+        byte[] mediaData = FileUtil.getBytes(image);
+        return sendImage(userName, nickName, remarkName, mediaData, image.getName(), contentType);
     }
 }

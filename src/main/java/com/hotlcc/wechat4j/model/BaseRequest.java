@@ -5,12 +5,16 @@ import com.hotlcc.wechat4j.util.WechatUtil;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serializable;
+
 /**
  * 基本请求模型
  */
 @Getter
 @Setter
-public class BaseRequest {
+public class BaseRequest implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     public BaseRequest() {
     }
 

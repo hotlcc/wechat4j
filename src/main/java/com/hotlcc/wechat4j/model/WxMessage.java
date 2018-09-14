@@ -4,12 +4,16 @@ import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serializable;
+
 /**
  * 要发送的消息
  */
 @Getter
 @Setter
-public class WxMessage {
+public class WxMessage implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     @JSONField(name = "ClientMsgId")
     private String clientMsgId;
     @JSONField(name = "Content")

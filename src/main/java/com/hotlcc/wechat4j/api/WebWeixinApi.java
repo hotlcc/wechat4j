@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.hotlcc.wechat4j.enums.LoginTipEnum;
 import com.hotlcc.wechat4j.model.BaseRequest;
+import com.hotlcc.wechat4j.model.MediaMessage;
 import com.hotlcc.wechat4j.model.WxMessage;
 import com.hotlcc.wechat4j.util.PropertiesUtil;
 import com.hotlcc.wechat4j.util.StringUtil;
@@ -26,10 +27,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.stringtemplate.v4.ST;
 
-import javax.activation.MimetypesFileTypeMap;
-import java.io.File;
-import java.io.FileInputStream;
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -43,12 +43,19 @@ import java.util.regex.Pattern;
 public class WebWeixinApi {
     private static Logger logger = LoggerFactory.getLogger(WebWeixinApi.class);
 
-    //预编译正则匹配
+    /**
+     * 预编译正则匹配
+     */
     private static Pattern PATTERN_UUID_1 = Pattern.compile("window.QRLogin.code = (\\d+);");
     private static Pattern PATTERN_UUID_2 = Pattern.compile("window.QRLogin.code = (\\d+); window.QRLogin.uuid = \"(\\S+?)\";");
     private static Pattern PATTERN_REDIRECT_URI_1 = Pattern.compile("window.code=(\\d+);");
     private static Pattern PATTERN_REDIRECT_URI_2 = Pattern.compile("window.code=(\\d+);\\s*window.redirect_uri=\"(\\S+?)\";");
     private static Pattern PATTERN_REDIRECT_URI_3 = Pattern.compile("http(s*)://wx(\\d*)\\.qq\\.com\\/");
+
+    /**
+     * 上传媒体文件分片大小
+     */
+    private static final int UPLOAD_MEDIA_FILE_CHUNK_SIZE = 524288;
 
     /**
      * 获取微信uuid
@@ -312,7 +319,7 @@ public class WebWeixinApi {
         try {
             String url = new ST(PropertiesUtil.getProperty("webwx-url.webwxinit_url"))
                     .add("urlVersion", urlVersion)
-                    .add("pass_ticket", passticket)
+                    .add("pass_ticket", StringUtil.encodeURL(passticket, Consts.UTF_8.name()))
                     .add("r", System.currentTimeMillis() / 1252L)
                     .render();
 
@@ -353,7 +360,7 @@ public class WebWeixinApi {
         try {
             String url = new ST(PropertiesUtil.getProperty("webwx-url.statusnotify_url"))
                     .add("urlVersion", urlVersion)
-                    .add("pass_ticket", passticket)
+                    .add("pass_ticket", StringUtil.encodeURL(passticket, Consts.UTF_8.name()))
                     .render();
 
             HttpPost httpPost = new HttpPost(url);
@@ -524,7 +531,7 @@ public class WebWeixinApi {
                     .add("urlVersion", urlVersion)
                     .add("skey", BaseRequest.getSkey())
                     .add("sid", BaseRequest.getSid())
-                    .add("pass_ticket", passticket)
+                    .add("pass_ticket", StringUtil.encodeURL(passticket, Consts.UTF_8.name()))
                     .render();
 
             HttpPost httpPost = new HttpPost(url);
@@ -563,7 +570,7 @@ public class WebWeixinApi {
         try {
             String url = new ST(PropertiesUtil.getProperty("webwx-url.webwxsendmsg_url"))
                     .add("urlVersion", urlVersion)
-                    .add("pass_ticket", passticket)
+                    .add("pass_ticket", StringUtil.encodeURL(passticket, Consts.UTF_8.name()))
                     .render();
 
             HttpPost httpPost = new HttpPost(url);
@@ -595,78 +602,18 @@ public class WebWeixinApi {
     }
 
     /**
-     * 上传媒体文件
+     * 上传媒体文件(支持大文件自动分片上传)
      *
-     * @return
-     */
-    public JSONObject uploadMedia(HttpClient httpClient,
-                                  String urlVersion,
-                                  String passticket,
-                                  BaseRequest BaseRequest,
-                                  String FromUserName,
-                                  String ToUserName,
-                                  String dataTicket,
-                                  byte[] data,
-                                  String fileName,
-                                  ContentType contentType) {
-        try {
-            String url = new ST(PropertiesUtil.getProperty("webwx-url.uploadmedia_url"))
-                    .add("urlVersion", urlVersion)
-                    .render();
-
-            HttpPost httpPost = new HttpPost(url);
-            httpPost.setHeader("Content-type", ContentType.MULTIPART_FORM_DATA.toString());
-
-            long millis = System.currentTimeMillis();
-
-            JSONObject uploadmediarequest = new JSONObject();
-            uploadmediarequest.put("UploadType", 2);
-            uploadmediarequest.put("BaseRequest", BaseRequest);
-            uploadmediarequest.put("ClientMediaId", millis);
-            uploadmediarequest.put("TotalLen", data.length);
-            uploadmediarequest.put("StartPos", 0);
-            uploadmediarequest.put("DataLen", data.length);
-            uploadmediarequest.put("MediaType", 4);
-            uploadmediarequest.put("FromUserName", FromUserName);
-            uploadmediarequest.put("ToUserName", ToUserName);
-            uploadmediarequest.put("FileMd5", DigestUtils.md5(data));
-
-            HttpEntity paramEntity = MultipartEntityBuilder.create()
-                    .setMode(HttpMultipartMode.BROWSER_COMPATIBLE)
-                    .addTextBody("id", StringUtil.getUuid(), ContentType.TEXT_PLAIN)
-                    .addTextBody("name", fileName, ContentType.TEXT_PLAIN)
-                    .addTextBody("type", contentType.getMimeType(), ContentType.TEXT_PLAIN)
-                    .addTextBody("lastModifieDate", millis + "", ContentType.TEXT_PLAIN)
-                    .addTextBody("size", data.length + "", ContentType.TEXT_PLAIN)
-                    .addTextBody("mediatype", WechatUtil.getMediatype(contentType.getMimeType()), ContentType.TEXT_PLAIN)
-                    .addTextBody("uploadmediarequest", uploadmediarequest.toJSONString(), ContentType.TEXT_PLAIN)
-                    .addTextBody("webwx_data_ticket", dataTicket, ContentType.TEXT_PLAIN)
-                    .addTextBody("pass_ticket", passticket, ContentType.TEXT_PLAIN)
-                    .addBinaryBody("filename", data, contentType, fileName)
-                    .build();
-            httpPost.setEntity(paramEntity);
-
-            HttpResponse response = httpClient.execute(httpPost);
-            int statusCode = response.getStatusLine().getStatusCode();
-            if (HttpStatus.SC_OK != statusCode) {
-                throw new RuntimeException("响应失败(" + statusCode + ")");
-            }
-
-            HttpEntity entity = response.getEntity();
-            String res = EntityUtils.toString(entity, Consts.UTF_8);
-
-            JSONObject result = JSONObject.parseObject(res);
-
-            return result;
-        } catch (Exception e) {
-            logger.error("上传媒体文件异常", e);
-            return null;
-        }
-    }
-
-    /**
-     * 上传媒体文件
-     *
+     * @param httpClient
+     * @param urlVersion
+     * @param passticket
+     * @param baseRequest
+     * @param fromUserName
+     * @param toUserName
+     * @param dataTicket
+     * @param mediaData
+     * @param mediaName
+     * @param contentType
      * @return
      */
     public JSONObject uploadMedia(HttpClient httpClient,
@@ -676,44 +623,113 @@ public class WebWeixinApi {
                                   String fromUserName,
                                   String toUserName,
                                   String dataTicket,
-                                  File file) {
+                                  byte[] mediaData,
+                                  String mediaName,
+                                  ContentType contentType) {
         try {
             String url = new ST(PropertiesUtil.getProperty("webwx-url.uploadmedia_url"))
                     .add("urlVersion", urlVersion)
                     .render();
 
+            long millis = System.currentTimeMillis();
+            int mediaLength = mediaData.length;
+            // String mimeType = contentType.getMimeType();
+
             HttpPost httpPost = new HttpPost(url);
             httpPost.setHeader("Content-type", ContentType.MULTIPART_FORM_DATA.toString());
-
-            long millis = System.currentTimeMillis();
-            String contentTypeStr = new MimetypesFileTypeMap().getContentType(file);
-            ContentType contentType = ContentType.parse(contentTypeStr);
 
             JSONObject uploadmediarequest = new JSONObject();
             uploadmediarequest.put("UploadType", 2);
             uploadmediarequest.put("BaseRequest", baseRequest);
             uploadmediarequest.put("ClientMediaId", millis);
-            uploadmediarequest.put("TotalLen", file.length());
+            uploadmediarequest.put("TotalLen", mediaLength);
             uploadmediarequest.put("StartPos", 0);
-            uploadmediarequest.put("DataLen", file.length());
+            uploadmediarequest.put("DataLen", mediaLength);
             uploadmediarequest.put("MediaType", 4);
             uploadmediarequest.put("FromUserName", fromUserName);
             uploadmediarequest.put("ToUserName", toUserName);
-            uploadmediarequest.put("FileMd5", DigestUtils.md5(new FileInputStream(file)));
+            uploadmediarequest.put("FileMd5", DigestUtils.md5Hex(mediaData));
 
-            HttpEntity paramEntity = MultipartEntityBuilder.create()
-                    .setMode(HttpMultipartMode.BROWSER_COMPATIBLE)
-                    .addTextBody("id", StringUtil.getUuid(), ContentType.TEXT_PLAIN)
-                    .addTextBody("name", file.getName(), ContentType.TEXT_PLAIN)
-                    .addTextBody("type", contentTypeStr, ContentType.TEXT_PLAIN)
-                    .addTextBody("lastModifieDate", millis + "", ContentType.TEXT_PLAIN)
-                    .addTextBody("size", file.length() + "", ContentType.TEXT_PLAIN)
-                    .addTextBody("mediatype", WechatUtil.getMediatype(contentType.getMimeType()), ContentType.TEXT_PLAIN)
-                    .addTextBody("uploadmediarequest", uploadmediarequest.toJSONString(), ContentType.TEXT_PLAIN)
-                    .addTextBody("webwx_data_ticket", dataTicket, ContentType.TEXT_PLAIN)
-                    .addTextBody("pass_ticket", passticket, ContentType.TEXT_PLAIN)
-                    .addBinaryBody("filename", file, contentType, file.getName())
-                    .build();
+            // 分片数量
+            int chunks = new BigDecimal(mediaLength).divide(new BigDecimal(UPLOAD_MEDIA_FILE_CHUNK_SIZE), 0, BigDecimal.ROUND_UP).intValue();
+
+            JSONObject result = null;
+            for (int chunk = 0; chunk < chunks; chunk++) {
+                int from = chunk * UPLOAD_MEDIA_FILE_CHUNK_SIZE;
+                int to = (chunk + 1) * UPLOAD_MEDIA_FILE_CHUNK_SIZE;
+                to = Math.min(to, mediaLength);
+                byte[] temp = Arrays.copyOfRange(mediaData, from, to);
+
+                HttpEntity paramEntity = MultipartEntityBuilder.create()
+                        .setMode(HttpMultipartMode.BROWSER_COMPATIBLE)
+                        // .addTextBody("id", StringUtil.getUuid(), ContentType.TEXT_PLAIN)
+                        // .addTextBody("name", mediaName, ContentType.TEXT_PLAIN)
+                        // .addTextBody("type", mimeType, ContentType.TEXT_PLAIN)
+                        // .addTextBody("lastModifieDate", String.valueOf(millis), ContentType.TEXT_PLAIN)
+                        // .addTextBody("size", String.valueOf(mediaLength), ContentType.TEXT_PLAIN)
+                        .addTextBody("chunks", String.valueOf(chunks))
+                        .addTextBody("chunk", String.valueOf(chunk))
+                        // .addTextBody("mediatype", WechatUtil.getMediatype(mimeType), ContentType.TEXT_PLAIN)
+                        .addTextBody("uploadmediarequest", uploadmediarequest.toJSONString(), ContentType.TEXT_PLAIN)
+                        .addTextBody("webwx_data_ticket", dataTicket, ContentType.TEXT_PLAIN)
+                        .addTextBody("pass_ticket", passticket, ContentType.TEXT_PLAIN)
+                        .addBinaryBody("filename", temp, contentType, mediaName)
+                        .build();
+                httpPost.setEntity(paramEntity);
+
+                HttpResponse response = httpClient.execute(httpPost);
+                int statusCode = response.getStatusLine().getStatusCode();
+                if (HttpStatus.SC_OK != statusCode) {
+                    throw new RuntimeException("响应失败(" + statusCode + ")");
+                }
+
+                HttpEntity entity = response.getEntity();
+                String res = EntityUtils.toString(entity, Consts.UTF_8);
+
+                result = JSONObject.parseObject(res);
+                if (result == null) {
+                    break;
+                }
+
+                JSONObject BaseResponse = result.getJSONObject("BaseResponse");
+                if (BaseResponse == null) {
+                    break;
+                }
+                int Ret = BaseResponse.getIntValue("Ret");
+                if (Ret != 0) {
+                    break;
+                }
+            }
+
+            return result;
+        } catch (Exception e) {
+            logger.error("上传媒体文件异常", e);
+            return null;
+        }
+    }
+
+    /**
+     * 发送图片消息
+     */
+    public JSONObject sendImageMsg(HttpClient httpClient,
+                                   String urlVersion,
+                                   String passticket,
+                                   BaseRequest baseRequest,
+                                   MediaMessage message) {
+        try {
+            String url = new ST(PropertiesUtil.getProperty("webwx-url.webwxsendmsgimg_url"))
+                    .add("urlVersion", urlVersion)
+                    .add("pass_ticket", StringUtil.encodeURL(passticket, Consts.UTF_8.name()))
+                    .render();
+
+            HttpPost httpPost = new HttpPost(url);
+            httpPost.setHeader("Content-type", ContentType.APPLICATION_JSON.toString());
+
+            JSONObject paramJson = new JSONObject();
+            paramJson.put("BaseRequest", baseRequest);
+            paramJson.put("Msg", message);
+            paramJson.put("Scene", 0);
+            HttpEntity paramEntity = new StringEntity(paramJson.toJSONString(), Consts.UTF_8);
             httpPost.setEntity(paramEntity);
 
             HttpResponse response = httpClient.execute(httpPost);
@@ -729,7 +745,7 @@ public class WebWeixinApi {
 
             return result;
         } catch (Exception e) {
-            logger.error("上传媒体文件异常", e);
+            logger.error("发送图片消息异常", e);
             return null;
         }
     }
