@@ -3,18 +3,22 @@ package com.hotlcc.wechat4j.enums;
 /**
  * 等待确认登录的tip
  *
- * @author https://gitee.com/hotlcc
+ * @author Allen
  */
 public enum LoginTipEnum {
-    TIP_0(0, "扫码登录"),
-    TIP_1(1, "确认登录");
+    /**
+     * 扫码登录
+     */
+    TIP_0(0),
+    /**
+     * 确认登录
+     */
+    TIP_1(1);
 
     private int code;
-    private String desc;
 
-    LoginTipEnum(int code, String desc) {
+    LoginTipEnum(int code) {
         this.code = code;
-        this.desc = desc;
     }
 
     public int getCode() {

@@ -22,6 +22,7 @@ import java.io.IOException;
  *
  * @author Allen
  */
+@SuppressWarnings({"unused", "WeakerAccess"})
 public final class QRCodeUtil {
     private static Logger logger = LoggerFactory.getLogger(QRCodeUtil.class);
 
@@ -31,7 +32,7 @@ public final class QRCodeUtil {
     /**
      * 从BitMatrix中得到boolean矩阵（不去除周围空白部分）
      *
-     * @return
+     * @return 得到的boolean矩阵
      */
     private static boolean[][] toBoolMatrix(BitMatrix matrix) {
         return toBoolMatrix(matrix, false);
@@ -40,9 +41,9 @@ public final class QRCodeUtil {
     /**
      * 从BitMatrix中得到boolean矩阵
      *
-     * @param matrix
+     * @param matrix   BitMatrix
      * @param noMargin 是否去除周围空白
-     * @return
+     * @return 得到的boolean矩阵
      */
     private static boolean[][] toBoolMatrix(BitMatrix matrix, boolean noMargin) {
         int width = matrix.getWidth();
@@ -57,8 +58,8 @@ public final class QRCodeUtil {
             right = width - br[1] - 1;
         }
         boolean[][] m = new boolean[height - top - bottom][width - left - right];
-        for (int h = 0 + top, i = 0; h < height - bottom; h++, i++) {
-            for (int w = 0 + left, j = 0; w < width - right; w++, j++) {
+        for (int h = top, i = 0; h < height - bottom; h++, i++) {
+            for (int w = left, j = 0; w < width - right; w++, j++) {
                 m[i][j] = matrix.get(w, h);
             }
         }
@@ -68,8 +69,8 @@ public final class QRCodeUtil {
     /**
      * 将矩阵逆时针转90度
      *
-     * @param matrix
-     * @return
+     * @param matrix 旋转前的矩阵
+     * @return 旋转后的矩阵
      */
     private static boolean[][] reverseMatrix(boolean[][] matrix) {
         if (matrix == null) {
@@ -92,15 +93,14 @@ public final class QRCodeUtil {
     /**
      * 从boolMatrix左上角判断二维码定位标记的大小
      *
-     * @param boolMatrix
-     * @return
+     * @param boolMatrix bool矩阵
+     * @return 定位标记大小
      */
     private static int getBitCharSize(boolean[][] boolMatrix) {
         int a = 0, b = 0;
         out:
-        for (int i = 0, len = boolMatrix.length; i < len; i++) {
+        for (boolean[] boolArr : boolMatrix) {
             boolean find = false;
-            boolean[] boolArr = boolMatrix[i];
             for (int i2 = 0, len2 = boolArr.length; i2 < len2; i2++) {
                 if (!find && boolArr[i2]) {
                     find = true;
@@ -119,20 +119,21 @@ public final class QRCodeUtil {
     /**
      * 从boolMatrix判断bit-char占位比
      *
-     * @param boolMatrix
-     * @return
+     * @param boolMatrix bool矩阵
+     * @return 占位比
      */
     private static int getBitCharRatio(boolean[][] boolMatrix) {
+        int len = 4;
         // 找出四个角的占位数
-        int[] size = new int[4];
+        int[] size = new int[len];
         size[0] = getBitCharSize(boolMatrix);
-        for (int i = 1; i < 4; i++) {
+        for (int i = 1; i < len; i++) {
             boolMatrix = reverseMatrix(boolMatrix);
             size[i] = getBitCharSize(boolMatrix);
         }
         // 统计每个占位数出现的次数
-        int[] num = new int[4];
-        for (int i = 0; i < 4; i++) {
+        int[] num = new int[len];
+        for (int i = 0; i < len; i++) {
             int n = 0;
             for (int s : size) {
                 if (s == size[i]) {
@@ -143,12 +144,12 @@ public final class QRCodeUtil {
         }
         // 找出最多的次数
         int maxNum = num[0];
-        for (int i = 1; i < 4; i++) {
+        for (int i = 1; i < len; i++) {
             maxNum = Math.max(maxNum, num[i]);
         }
         // 找出出现次数最多的占位数
         int s = 0;
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < len; i++) {
             if (num[i] == maxNum) {
                 s = size[i];
             }
@@ -160,18 +161,20 @@ public final class QRCodeUtil {
     /**
      * 将二维码图片转为字符矩阵
      *
-     * @param image
-     * @return
+     * @param image  二维码图片
+     * @param onStr  实体字符串
+     * @param offStr 空白字符串
+     * @return 字符矩阵
      */
     public static String toCharMatrix(BufferedImage image, String onStr, String offStr) {
         LuminanceSource source = new BufferedImageLuminanceSource(image);
         Binarizer binarizer = new HybridBinarizer(source);
-        BitMatrix matrix = null;
+        BitMatrix matrix;
         try {
             matrix = binarizer.getBlackMatrix();
             boolean[][] boolMatrix = toBoolMatrix(matrix, true);
             int ratio = getBitCharRatio(boolMatrix);
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = new StringBuilder();
             for (int i = 0, len = boolMatrix.length; i < len; i += ratio) {
                 boolean[] boolArr = boolMatrix[i];
                 for (int i2 = 0, len2 = boolArr.length; i2 < len2; i2 += ratio) {
@@ -189,8 +192,8 @@ public final class QRCodeUtil {
     /**
      * 将二维码图片转为字符矩阵
      *
-     * @param image
-     * @return
+     * @param image 二维码图片
+     * @return 字符矩阵
      */
     public static String toCharMatrix(BufferedImage image) {
         return toCharMatrix(image, "  ", "██");
@@ -199,8 +202,10 @@ public final class QRCodeUtil {
     /**
      * 将二维码图片转为字符矩阵
      *
-     * @param data
-     * @return
+     * @param data   二维码图片的字节数据
+     * @param onStr  实体字符串
+     * @param offStr 空白字符串
+     * @return 字符矩阵
      */
     public static String toCharMatrix(byte[] data, String onStr, String offStr) {
         ByteArrayInputStream bais = null;
@@ -225,8 +230,8 @@ public final class QRCodeUtil {
     /**
      * 将二维码图片转为字符矩阵
      *
-     * @param data
-     * @return
+     * @param data 二维码图片的字节数据
+     * @return 字符矩阵
      */
     public static String toCharMatrix(byte[] data) {
         return toCharMatrix(data, "  ", "██");
@@ -235,8 +240,8 @@ public final class QRCodeUtil {
     /**
      * 将二维码图片数据写入到临时文件
      *
-     * @param data
-     * @return
+     * @param data 二维码图片的字节数据
+     * @return 字符矩阵
      */
     public static File writeToTempFile(byte[] data) {
         FileOutputStream fos = null;
@@ -263,12 +268,12 @@ public final class QRCodeUtil {
     /**
      * 打开二维码图片
      *
-     * @param data
+     * @param data 二维码图片的字节数据
      */
     public static void openQRCodeImage(byte[] data) {
         OperatingSystemEnum os = OperatingSystemEnum.currentOperatingSystem();
-        Runtime runtime = null;
-        File tmp = null;
+        Runtime runtime;
+        File tmp;
         switch (os) {
             case WINDOWS:
                 runtime = Runtime.getRuntime();
