@@ -33,14 +33,33 @@ wechat.autoLogin();
 
 ```java
 // 通过userName发送文本消息
-public JSONObject sendText(String content, String userName);
-// 通过昵称发送消息
-public JSONObject sendTextToNickName(String content, String nickName);
-// 通过备注名发送消息
-public JSONObject sendTextToRemarkName(String content, String remarkName);
+JSONObject sendText(String content, String userName);
+// 通过昵称发送文本消息
+JSONObject sendTextToNickName(String content, String nickName);
+// 通过备注名发送文本消息
+JSONObject sendTextToRemarkName(String content, String remarkName);
+// 发送文本消息（根据多种名称）
+JSONObject sendText(String userName, String nickName, String remarkName, String content);
 ```
 
-> 目前仅支持发送文本消息，更多消息类型支持尽请期待。
+### 图片消息
+
+```java
+// 通过userName发送图片消息
+JSONObject sendImage(String userName, byte[] mediaData, String mediaName, ContentType contentType);
+JSONObject sendImage(String userName, File image);
+// 通过昵称发送图片消息
+JSONObject sendImageToNickName(String nickName, byte[] mediaData, String mediaName, ContentType contentType);
+JSONObject sendImageToNickName(String nickName, File image);
+// 通过备注名发送图片消息
+JSONObject sendImageToRemarkName(String remarkName, byte[] mediaData, String mediaName, ContentType contentType);
+JSONObject sendImageToRemarkName(String remarkName, File image);
+// 发送图片消息（根据多种名称）
+JSONObject sendImage(String userName, String nickName, String remarkName, byte[] mediaData, String mediaName, ContentType contentType);
+JSONObject sendImage(String userName, String nickName, String remarkName, File image);
+```
+
+> 更多消息类型支持尽请期待。
 
 ## 消息处理器
 
