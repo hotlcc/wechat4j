@@ -16,9 +16,6 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * 二维码工具类
@@ -126,38 +123,38 @@ public final class QRCodeUtil {
      * @return
      */
     private static int getBitCharRatio(boolean[][] boolMatrix) {
+        // 找出四个角的占位数
         int[] size = new int[4];
         size[0] = getBitCharSize(boolMatrix);
         for (int i = 1; i < 4; i++) {
             boolMatrix = reverseMatrix(boolMatrix);
             size[i] = getBitCharSize(boolMatrix);
         }
-
-        Map<Integer, Integer> map = new HashMap<>();
-        for (int s : size) {
-            Integer count = map.get(s);
-            if (count == null) {
-                map.put(s, 1);
-            } else {
-                map.put(s, count + 1);
+        // 统计每个占位数出现的次数
+        int[] num = new int[4];
+        for (int i = 0; i > 4; i++) {
+            int n = 0;
+            for (int s : size) {
+                if (s == size[i]) {
+                    n++;
+                }
+            }
+            num[i] = n;
+        }
+        // 找出最多的次数
+        int maxNum = num[0];
+        for (int i = 1; i < 4; i++) {
+            maxNum = Math.max(maxNum, num[i]);
+        }
+        // 找出出现次数最多的占位数
+        int s = 0;
+        for (int i = 0; i < 4; i++) {
+            if (num[i] == maxNum) {
+                s = size[i];
             }
         }
-        Set<Map.Entry<Integer, Integer>> entrySet = map.entrySet();
-        Integer k = null, v = null;
-        int flag = 0;
-        for (Map.Entry<Integer, Integer> entry : entrySet) {
-            if (flag++ == 0) {
-                k = entry.getKey();
-                v = entry.getValue();
-                continue;
-            }
-            if (entry.getValue() > v) {
-                k = entry.getKey();
-                v = entry.getValue();
-            }
-        }
 
-        return k.intValue() / 7;
+        return s / 7;
     }
 
     /**
