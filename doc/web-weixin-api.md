@@ -158,7 +158,7 @@ URL参数分析：
 
 FORM表单参数分析：
 
-|数名|示例值|描述|
+|参数名|示例值|描述|
 |---|---|---|
 |sid||登录时获取的；|
 |uin||登录时获取的；|
@@ -996,3 +996,128 @@ POST参数分析：
 ```
 https://file.wx.qq.com/cgi-bin/mmwebwx-bin/webwxuploadmedia?f=json
 ```
+
+若文件较小，则只会产生一个该请求，若文件较大，则会产生多个该请求。多个请求表示以分片的方式发送文件数据，分片大小约为524288。
+
+FORM表单参数分析：
+
+|参数名|示例值|描述|
+|---|---|---|
+|~~id~~|WU_FILE_0|页面文件组件ID；非必须；|
+|~~name~~|bd00c8eed5c2cd522e69f38317b46903.jpg|文件名；非必须；|
+|~~type~~|image/jpeg|文件的MimeType；非必须；|
+|~~lastModifieDate~~||文件最后修改时间；非必须；|
+|~~size~~|99785|文件大小；非必须；|
+|chunks|3|文件分片数量；文件较大需要分片时必须；|
+|chunk|0|文件分片序号；从0开始；文件较大需要分片时必须；|
+|mediatype|pic|文件类型；图片为pic，其它文件为doc；非必须；|
+|uploadmediarequest||JSON字符串；必须；|
+|webwx_data_ticket||cookie中的数据；必须；|
+|pass_ticket||登录时获取的；必须；|
+|filename||文件二进制数据；必须；|
+
+uploadmediarequest结构示例：
+
+```json
+{
+	"UploadType": 2,
+	"BaseRequest": {
+		"Uin": 1245,
+		"Sid": "zxaODbK4ed",
+		"Skey": "@crypt_4f399da_3c7a87e93b7872bce",
+		"DeviceID": "e69688819413"
+	},
+	"ClientMediaId": 153686311,
+	"TotalLen": 87508,
+	"StartPos": 0,
+	"DataLen": 87508,
+	"MediaType": 4,
+	"FromUserName": "@6feb88ee01067121479f686",
+	"ToUserName": "@6feb88ee0106f67121479f686",
+	"FileMd5": "717d1dbb9833c7cdbdd09ac"
+}
+```
+
+服务端返回数据：
+
+```json
+{
+	"BaseResponse": {
+		"Ret": 0,
+		"ErrMsg": ""
+	},
+	"MediaId": "@crypt_17ab5.................39bd9cfa9ab",
+	"StartPos": 99785,
+	"CDNThumbImgHeight": 56,
+	"CDNThumbImgWidth": 100,
+	"EncryFileName": "bd00c8e.....38317b46903.jpg"
+}
+```
+
+上传成功后，返回数据中会有MediaId，如果是分片上传的，则最后一个请求会返回MediaId。
+
+### 4.4、上传媒体到服务器
+
+发送图片后，紧接着4.3的是如下POST请求：
+
+```
+https://wx2.qq.com/cgi-bin/mmwebwx-bin/webwxsendmsgimg?fun=async&f=json&lang=zh_CN&pass_ticket=xFAjPcq0eXh.......TYHHdHgVL52eHo%253D
+```
+
+URL参数分析：
+
+|数名|示例值|描述|
+|---|---|---|
+|pass_ticket|xFAjPcq0eXh.......TYHHdHgVL52eHo%253D|同前面获取的；|
+
+POST的数据（JSON）：
+
+```json
+{
+	"BaseRequest": {
+		"Uin": 16...245,
+		"Sid": "KvCP..../TNqh8",
+		"Skey": "@crypt_4fb399da......9f1b3d997c4b5eef82",
+		"DeviceID": "e2825...3652448"
+	},
+	"Msg": {
+		"Type": 3,
+		"MediaId": "@crypt_17ab5.................39bd9cfa9ab",
+		"Content": "",
+		"FromUserName": "@3641f45.......69bed57642",
+		"ToUserName": "@3641f454....9bed57642",
+		"LocalID": "153691....0527",
+		"ClientMsgId": "1536....390527"
+	},
+	"Scene": 0
+}
+```
+
+POST参数分析：
+
+|Key|示例值|描述|
+|---|---|---|
+|BaseRequest||同上；|
+|Msg.ClientMsgId||同LocalID；|
+|Msg.Content||消息内容；消息为媒体时，该值为媒体ID。|
+|Msg.FromUserName||发送用户；|
+|Msg.LocalID||13位时间戳+4位随机数；|
+|Msg.ToUserName||接收用户；|
+|Msg.Type|3|消息类型；同3.1中接收的消息类型；|
+|Msg.MediaId||4.3接口中返回的MediaId；|
+|Scene|0|固定值；|
+
+服务端返回数据：
+
+```json
+{
+	"BaseResponse": {
+		"Ret": 0,
+		"ErrMsg": ""
+	},
+	"MsgID": "28832......8291836",
+	"LocalID": "1536.....54390527"
+}
+```
+
+Web微信发送图片，需要先调4.3的接口将媒体文件上传到服务器，然后再调4.4的接口发送图片的相关信息。

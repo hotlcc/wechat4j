@@ -6,7 +6,7 @@
 
     <groupId>com.hotlcc</groupId>
     <artifactId>wechat4j</artifactId>
-    <version>0.1.2</version>
+    <version>0.2.0</version>
 
     <name>wechat4j</name>
     <description>Wechat client for Java.</description>

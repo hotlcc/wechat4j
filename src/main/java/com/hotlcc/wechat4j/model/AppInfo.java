@@ -5,11 +5,14 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Getter;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 @Getter
-public final class AppInfo {
+public final class AppInfo implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private AppInfo() {
     }
 

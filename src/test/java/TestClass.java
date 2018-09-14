@@ -1,14 +1,22 @@
+import com.alibaba.fastjson.JSONObject;
 import com.hotlcc.wechat4j.Wechat;
 import com.hotlcc.wechat4j.api.WebWeixinApi;
 import com.hotlcc.wechat4j.handler.ReceivedMsgHandler;
 import com.hotlcc.wechat4j.model.ReceivedMsg;
 import com.hotlcc.wechat4j.model.UserInfo;
 import com.hotlcc.wechat4j.util.StringUtil;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.io.File;
 
 public class TestClass {
-    public static void main(String[] args) {
+    private Wechat wechat;
+
+    @Before
+    public void initAndLogin() {
+        wechat = new Wechat();
         WebWeixinApi api = new WebWeixinApi();
-        Wechat wechat = new Wechat();
         wechat.setWebWeixinApi(api);
         wechat.addReceivedMsgHandler(new ReceivedMsgHandler() {
             @Override
@@ -18,6 +26,15 @@ public class TestClass {
                 System.out.println(name + ": " + msg.getContent());
             }
         });
+
         wechat.autoLogin();
+    }
+
+    @Test
+    public void testSendImage() {
+        File file = new File("D:\\Downloads\\images\\6600e90b8b0ce2037a5291a7147ffd2b.jpeg");
+
+        JSONObject result = wechat.sendImage(null, file);
+        System.out.println(result);
     }
 }
