@@ -132,7 +132,7 @@ public final class QRCodeUtil {
         }
         // 统计每个占位数出现的次数
         int[] num = new int[4];
-        for (int i = 0; i > 4; i++) {
+        for (int i = 0; i < 4; i++) {
             int n = 0;
             for (int s : size) {
                 if (s == size[i]) {
