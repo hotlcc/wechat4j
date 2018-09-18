@@ -39,7 +39,7 @@ import java.util.regex.Pattern;
  *
  * @author Allen
  */
-@SuppressWarnings("Duplicates")
+@SuppressWarnings({"Duplicates", "unused"})
 public class WebWeixinApi {
     private static Logger logger = LoggerFactory.getLogger(WebWeixinApi.class);
 
@@ -50,7 +50,7 @@ public class WebWeixinApi {
     private static Pattern PATTERN_UUID_2 = Pattern.compile("window.QRLogin.code = (\\d+); window.QRLogin.uuid = \"(\\S+?)\";");
     private static Pattern PATTERN_REDIRECT_URI_1 = Pattern.compile("window.code=(\\d+);");
     private static Pattern PATTERN_REDIRECT_URI_2 = Pattern.compile("window.code=(\\d+);\\s*window.redirect_uri=\"(\\S+?)\";");
-    private static Pattern PATTERN_REDIRECT_URI_3 = Pattern.compile("http(s*)://wx(\\d*)\\.qq\\.com\\/");
+    private static Pattern PATTERN_REDIRECT_URI_3 = Pattern.compile("http(s*)://wx(\\d*)\\.qq\\.com/");
 
     /**
      * 上传媒体文件分片大小
@@ -59,6 +59,9 @@ public class WebWeixinApi {
 
     /**
      * 获取微信uuid
+     *
+     * @param httpClient http客户端
+     * @return 返回数据
      */
     public JSONObject getWxUuid(HttpClient httpClient) {
         try {
@@ -113,7 +116,9 @@ public class WebWeixinApi {
     /**
      * 获取二维码
      *
-     * @param uuid
+     * @param httpClient http客户端
+     * @param uuid       uuid
+     * @return 二维码图片字节数据
      */
     public byte[] getQR(HttpClient httpClient,
                         String uuid) {
@@ -147,7 +152,10 @@ public class WebWeixinApi {
     /**
      * 获取跳转uri（等待扫码认证）
      *
-     * @return
+     * @param httpClient http客户端
+     * @param tip        登录tip
+     * @param uuid       uuid
+     * @return 返回数据
      */
     public JSONObject getRedirectUri(HttpClient httpClient,
                                      LoginTipEnum tip,
@@ -216,6 +224,10 @@ public class WebWeixinApi {
     /**
      * 获取登录认证码
      * 此方法执行后，其它web端微信、pc端都会下线
+     *
+     * @param httpClient  http客户端
+     * @param redirectUri 调整uri
+     * @return 返回数据
      */
     public JSONObject getLoginCode(HttpClient httpClient,
                                    String redirectUri) {
@@ -236,9 +248,7 @@ public class WebWeixinApi {
             HttpEntity entity = response.getEntity();
             String res = EntityUtils.toString(entity, Consts.UTF_8);
 
-            JSONObject result = JSONObject.parseObject(XML.toJSONObject(res).toString()).getJSONObject("error");
-
-            return result;
+            return JSONObject.parseObject(XML.toJSONObject(res).toString()).getJSONObject("error");
         } catch (Exception e) {
             logger.error("获取登录认证码异常", e);
             return null;
@@ -247,21 +257,25 @@ public class WebWeixinApi {
 
     /**
      * 退出登录
+     *
+     * @param httpClient  http客户端
+     * @param urlVersion  url版本号
+     * @param baseRequest BaseRequest
      */
     public void logout(HttpClient httpClient,
                        String urlVersion,
-                       BaseRequest BaseRequest) {
+                       BaseRequest baseRequest) {
         try {
             List<NameValuePair> pairList = new ArrayList<>();
-            pairList.add(new BasicNameValuePair("sid", BaseRequest.getSid()));
-            pairList.add(new BasicNameValuePair("uin", BaseRequest.getUin()));
+            pairList.add(new BasicNameValuePair("sid", baseRequest.getSid()));
+            pairList.add(new BasicNameValuePair("uin", baseRequest.getUin()));
 
             //分两步进行
             for (int i = 0; i <= 1; i++) {
                 String url = new ST(PropertiesUtil.getProperty("webwx-url.logout_url"))
                         .add("urlVersion", urlVersion)
                         .add("type", i)
-                        .add("skey", StringUtil.encodeURL(BaseRequest.getSkey(), Consts.UTF_8.name()))
+                        .add("skey", StringUtil.encodeURL(baseRequest.getSkey(), Consts.UTF_8.name()))
                         .render();
 
                 HttpPost httpPost = new HttpPost(url);
@@ -279,12 +293,16 @@ public class WebWeixinApi {
 
     /**
      * push登录
+     *
+     * @param httpClient http客户端
+     * @param urlVersion url版本号
+     * @param wxuin      uin
+     * @return 返回数据
      */
     public JSONObject pushLogin(HttpClient httpClient,
                                 String urlVersion,
                                 String wxuin) {
         try {
-            long millis = System.currentTimeMillis();
             String url = new ST(PropertiesUtil.getProperty("webwx-url.pushlogin_url"))
                     .add("urlVersion", urlVersion)
                     .add("uin", wxuin)
@@ -311,11 +329,17 @@ public class WebWeixinApi {
 
     /**
      * 获取初始化数据
+     *
+     * @param httpClient  http客户端
+     * @param urlVersion  url版本号
+     * @param passticket  passticket
+     * @param baseRequest BaseRequest
+     * @return 返回数据
      */
     public JSONObject webWeixinInit(HttpClient httpClient,
                                     String urlVersion,
                                     String passticket,
-                                    BaseRequest BaseRequest) {
+                                    BaseRequest baseRequest) {
         try {
             String url = new ST(PropertiesUtil.getProperty("webwx-url.webwxinit_url"))
                     .add("urlVersion", urlVersion)
@@ -327,7 +351,7 @@ public class WebWeixinApi {
             httpPost.setHeader("Content-type", ContentType.APPLICATION_JSON.toString());
 
             JSONObject paramJson = new JSONObject();
-            paramJson.put("BaseRequest", BaseRequest);
+            paramJson.put("BaseRequest", baseRequest);
             HttpEntity paramEntity = new StringEntity(paramJson.toJSONString(), Consts.UTF_8);
             httpPost.setEntity(paramEntity);
 
@@ -350,12 +374,17 @@ public class WebWeixinApi {
     /**
      * 开启消息状态通知
      *
-     * @return
+     * @param httpClient    http客户端
+     * @param urlVersion    url版本号
+     * @param passticket    passticket
+     * @param baseRequest   BaseRequest
+     * @param loginUserName 当前登录账号用户名
+     * @return 返回数据
      */
     public JSONObject statusNotify(HttpClient httpClient,
                                    String urlVersion,
                                    String passticket,
-                                   BaseRequest BaseRequest,
+                                   BaseRequest baseRequest,
                                    String loginUserName) {
         try {
             String url = new ST(PropertiesUtil.getProperty("webwx-url.statusnotify_url"))
@@ -367,7 +396,7 @@ public class WebWeixinApi {
             httpPost.setHeader("Content-type", ContentType.APPLICATION_JSON.toString());
 
             JSONObject paramJson = new JSONObject();
-            paramJson.put("BaseRequest", BaseRequest);
+            paramJson.put("BaseRequest", baseRequest);
             paramJson.put("ClientMsgId", System.currentTimeMillis());
             paramJson.put("Code", 3);
             paramJson.put("FromUserName", loginUserName);
@@ -393,21 +422,27 @@ public class WebWeixinApi {
 
     /**
      * 服务端状态同步心跳
+     *
+     * @param httpClient  http客户端
+     * @param urlVersion  url版本号
+     * @param baseRequest BaseRequest
+     * @param syncKeyList SyncKeyList
+     * @return 返回数据
      */
     public JSONObject syncCheck(HttpClient httpClient,
                                 String urlVersion,
-                                BaseRequest BaseRequest,
-                                JSONArray SyncKeyList) {
+                                BaseRequest baseRequest,
+                                JSONArray syncKeyList) {
         try {
             long millis = System.currentTimeMillis();
             String url = new ST(PropertiesUtil.getProperty("webwx-url.synccheck_url"))
                     .add("urlVersion", urlVersion)
                     .add("r", millis)
-                    .add("skey", StringUtil.encodeURL(BaseRequest.getSkey(), Consts.UTF_8.name()))
-                    .add("sid", BaseRequest.getSid())
-                    .add("uin", BaseRequest.getUin())
+                    .add("skey", StringUtil.encodeURL(baseRequest.getSkey(), Consts.UTF_8.name()))
+                    .add("sid", baseRequest.getSid())
+                    .add("uin", baseRequest.getUin())
                     .add("deviceid", WechatUtil.createDeviceID())
-                    .add("synckey", StringUtil.encodeURL(WechatUtil.syncKeyListToString(SyncKeyList), Consts.UTF_8.name()))
+                    .add("synckey", StringUtil.encodeURL(WechatUtil.syncKeyListToString(syncKeyList), Consts.UTF_8.name()))
                     .add("_", millis)
                     .render();
 
@@ -446,6 +481,12 @@ public class WebWeixinApi {
 
     /**
      * 获取全部联系人列表
+     *
+     * @param httpClient http客户端
+     * @param urlVersion url版本号
+     * @param passticket passticket
+     * @param skey       skey
+     * @return 返回数据
      */
     public JSONObject getContact(HttpClient httpClient,
                                  String urlVersion,
@@ -479,11 +520,18 @@ public class WebWeixinApi {
 
     /**
      * 批量获取指定用户信息
+     *
+     * @param httpClient       http客户端
+     * @param urlVersion       url版本号
+     * @param passticket       passticket
+     * @param baseRequest      BaseRequest
+     * @param batchContactList 联系人列表
+     * @return 返回数据
      */
     public JSONObject batchGetContact(HttpClient httpClient,
                                       String urlVersion,
                                       String passticket,
-                                      BaseRequest BaseRequest,
+                                      BaseRequest baseRequest,
                                       JSONArray batchContactList) {
         try {
             String url = new ST(PropertiesUtil.getProperty("webwx-url.batchgetcontact_url"))
@@ -496,7 +544,7 @@ public class WebWeixinApi {
             httpPost.setHeader("Content-type", ContentType.APPLICATION_JSON.toString());
 
             JSONObject paramJson = new JSONObject();
-            paramJson.put("BaseRequest", BaseRequest);
+            paramJson.put("BaseRequest", baseRequest);
             paramJson.put("Count", batchContactList.size());
             paramJson.put("List", batchContactList);
             HttpEntity paramEntity = new StringEntity(paramJson.toJSONString(), Consts.UTF_8);
@@ -520,17 +568,24 @@ public class WebWeixinApi {
 
     /**
      * 从服务端同步新数据
+     *
+     * @param httpClient  http客户端
+     * @param urlVersion  url版本号
+     * @param passticket  passticket
+     * @param baseRequest BaseRequest
+     * @param syncKey     syncKey
+     * @return 返回数据
      */
     public JSONObject webWxSync(HttpClient httpClient,
                                 String urlVersion,
                                 String passticket,
-                                BaseRequest BaseRequest,
-                                JSONObject SyncKey) {
+                                BaseRequest baseRequest,
+                                JSONObject syncKey) {
         try {
             String url = new ST(PropertiesUtil.getProperty("webwx-url.webwxsync_url"))
                     .add("urlVersion", urlVersion)
-                    .add("skey", BaseRequest.getSkey())
-                    .add("sid", BaseRequest.getSid())
+                    .add("skey", baseRequest.getSkey())
+                    .add("sid", baseRequest.getSid())
                     .add("pass_ticket", StringUtil.encodeURL(passticket, Consts.UTF_8.name()))
                     .render();
 
@@ -538,8 +593,8 @@ public class WebWeixinApi {
             httpPost.setHeader("Content-type", ContentType.APPLICATION_JSON.toString());
 
             JSONObject paramJson = new JSONObject();
-            paramJson.put("BaseRequest", BaseRequest);
-            paramJson.put("SyncKey", SyncKey);
+            paramJson.put("BaseRequest", baseRequest);
+            paramJson.put("SyncKey", syncKey);
             HttpEntity paramEntity = new StringEntity(paramJson.toJSONString(), Consts.UTF_8);
             httpPost.setEntity(paramEntity);
 
@@ -561,6 +616,13 @@ public class WebWeixinApi {
 
     /**
      * 发送消息
+     *
+     * @param httpClient  http客户端
+     * @param urlVersion  url版本号
+     * @param passticket  passticket
+     * @param baseRequest BaseRequest
+     * @param message     消息
+     * @return 返回数据
      */
     public JSONObject sendMsg(HttpClient httpClient,
                               String urlVersion,
@@ -592,9 +654,7 @@ public class WebWeixinApi {
             HttpEntity entity = response.getEntity();
             String res = EntityUtils.toString(entity, Consts.UTF_8);
 
-            JSONObject result = JSONObject.parseObject(res);
-
-            return result;
+            return JSONObject.parseObject(res);
         } catch (Exception e) {
             logger.error("发送消息异常", e);
             return null;
@@ -604,17 +664,17 @@ public class WebWeixinApi {
     /**
      * 上传媒体文件(支持大文件自动分片上传)
      *
-     * @param httpClient
-     * @param urlVersion
-     * @param passticket
-     * @param baseRequest
-     * @param fromUserName
-     * @param toUserName
-     * @param dataTicket
-     * @param mediaData
-     * @param mediaName
-     * @param contentType
-     * @return
+     * @param httpClient   http客户端
+     * @param urlVersion   url版本号
+     * @param passticket   passticket
+     * @param baseRequest  BaseRequest
+     * @param fromUserName 发送者用户名
+     * @param toUserName   接受者用户名
+     * @param dataTicket   dataTicket
+     * @param mediaData    媒体文件二进制数据
+     * @param mediaName    媒体文件名称
+     * @param contentType  媒体文件类型
+     * @return 返回数据
      */
     public JSONObject uploadMedia(HttpClient httpClient,
                                   String urlVersion,
@@ -691,12 +751,12 @@ public class WebWeixinApi {
                     break;
                 }
 
-                JSONObject BaseResponse = result.getJSONObject("BaseResponse");
-                if (BaseResponse == null) {
+                JSONObject baseResponse = result.getJSONObject("BaseResponse");
+                if (baseResponse == null) {
                     break;
                 }
-                int Ret = BaseResponse.getIntValue("Ret");
-                if (Ret != 0) {
+                int ret = baseResponse.getIntValue("Ret");
+                if (ret != 0) {
                     break;
                 }
             }
@@ -710,6 +770,13 @@ public class WebWeixinApi {
 
     /**
      * 发送图片消息
+     *
+     * @param httpClient  http客户端
+     * @param urlVersion  url版本号
+     * @param passticket  passticket
+     * @param baseRequest BaseRequest
+     * @param message     消息
+     * @return 返回数据
      */
     public JSONObject sendImageMsg(HttpClient httpClient,
                                    String urlVersion,
@@ -741,9 +808,7 @@ public class WebWeixinApi {
             HttpEntity entity = response.getEntity();
             String res = EntityUtils.toString(entity, Consts.UTF_8);
 
-            JSONObject result = JSONObject.parseObject(res);
-
-            return result;
+            return JSONObject.parseObject(res);
         } catch (Exception e) {
             logger.error("发送图片消息异常", e);
             return null;

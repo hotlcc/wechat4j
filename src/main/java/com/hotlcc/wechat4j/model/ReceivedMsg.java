@@ -1,15 +1,18 @@
 package com.hotlcc.wechat4j.model;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 @Getter
+@Setter
 public final class ReceivedMsg implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -78,37 +81,7 @@ public final class ReceivedMsg implements Serializable {
             return null;
         }
 
-        ReceivedMsg receivedMsg = new ReceivedMsg();
-
-        receivedMsg.subMsgType = msg.getInteger("SubMsgType");
-        receivedMsg.voiceLength = msg.getLong("VoiceLength");
-        receivedMsg.fileName = msg.getString("FileName");
-        receivedMsg.imgHeight = msg.getLong("ImgHeight");
-        receivedMsg.toUserName = msg.getString("ToUserName");
-        receivedMsg.hasProductId = msg.getLong("HasProductId");
-        receivedMsg.imgStatus = msg.getInteger("ImgStatus");
-        receivedMsg.url = msg.getString("Url");
-        receivedMsg.imgWidth = msg.getInteger("ImgWidth");
-        receivedMsg.forwardFlag = msg.getInteger("ForwardFlag");
-        receivedMsg.status = msg.getInteger("Status");
-        receivedMsg.ticket = msg.getString("Ticket");
-        receivedMsg.recommendInfo = com.hotlcc.wechat4j.model.RecommendInfo.valueOf(msg.getJSONObject("RecommendInfo"));
-        receivedMsg.createTime = msg.getLong("CreateTime");
-        receivedMsg.newMsgId = msg.getLong("NewMsgId");
-        receivedMsg.msgType = msg.getInteger("MsgType");
-        receivedMsg.encryFileName = msg.getString("EncryFileName");
-        receivedMsg.msgId = msg.getString("MsgId");
-        receivedMsg.statusNotifyCode = msg.getInteger("StatusNotifyCode");
-        receivedMsg.appInfo = com.hotlcc.wechat4j.model.AppInfo.valueOf(msg.getJSONObject("AppInfo"));
-        receivedMsg.playLength = msg.getLong("PlayLength");
-        receivedMsg.mediaId = msg.getString("MediaId");
-        receivedMsg.content = msg.getString("Content");
-        receivedMsg.statusNotifyUserName = msg.getString("StatusNotifyUserName");
-        receivedMsg.fromUserName = msg.getString("FromUserName");
-        receivedMsg.oriContent = msg.getString("OriContent");
-        receivedMsg.fileSize = msg.getString("FileSize");
-
-        return receivedMsg;
+        return JSON.toJavaObject(msg, ReceivedMsg.class);
     }
 
     public static List<ReceivedMsg> valueOf(JSONArray msgs) {

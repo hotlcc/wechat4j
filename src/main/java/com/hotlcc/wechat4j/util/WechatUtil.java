@@ -4,6 +4,11 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.lang3.RandomStringUtils;
 
+/**
+ * 微信工具类
+ *
+ * @author Allen
+ */
 public final class WechatUtil {
     private WechatUtil() {
     }
@@ -14,7 +19,7 @@ public final class WechatUtil {
     /**
      * 创建一个设备ID
      *
-     * @return
+     * @return 设备ID
      */
     public static String createDeviceID() {
         return "e" + RandomStringUtils.random(15, STRING_CHARS_1);
@@ -23,7 +28,7 @@ public final class WechatUtil {
     /**
      * 创建一个消息ID
      *
-     * @return
+     * @return 消息ID
      */
     public static String createMsgId() {
         return System.currentTimeMillis() + RandomStringUtils.random(4, STRING_CHARS_2);
@@ -32,8 +37,8 @@ public final class WechatUtil {
     /**
      * 把SyncKeyList转为字符串格式
      *
-     * @param SyncKeyList
-     * @return
+     * @param SyncKeyList SyncKeyList
+     * @return 字符串
      */
     public static String syncKeyListToString(JSONArray SyncKeyList) {
         if (SyncKeyList == null) {
@@ -55,8 +60,8 @@ public final class WechatUtil {
     /**
      * 根据ContentType得到微信上传所需的mediatype
      *
-     * @param contentType
-     * @return
+     * @param contentType contentType
+     * @return 微信上传所需的mediatype
      */
     public static String getMediatype(String contentType) {
         if (contentType == null) {

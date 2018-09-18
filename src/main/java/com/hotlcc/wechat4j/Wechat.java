@@ -35,7 +35,7 @@ import java.util.concurrent.locks.ReentrantLock;
  *
  * @author Allen
  */
-@SuppressWarnings("Duplicates")
+@SuppressWarnings({"Duplicates", "unused"})
 public class Wechat {
     private static Logger logger = LoggerFactory.getLogger(Wechat.class);
 
@@ -82,6 +82,12 @@ public class Wechat {
         this.webWeixinApi = webWeixinApi;
     }
 
+    /**
+     * 获取Cookie
+     *
+     * @param name key
+     * @return Cookie
+     */
     private Cookie getCookie(String name) {
         List<Cookie> cookies = cookieStore.getCookies();
         if (cookies == null) {
@@ -95,6 +101,12 @@ public class Wechat {
         return null;
     }
 
+    /**
+     * 获取Cookie值
+     *
+     * @param name key
+     * @return Cookie值
+     */
     public String getCookieValue(String name) {
         Cookie cookie = getCookie(name);
         if (cookie == null) {
@@ -103,6 +115,11 @@ public class Wechat {
         return cookie.getValue();
     }
 
+    /**
+     * 添加退出事件处理器
+     *
+     * @param handler 退出事件处理器
+     */
     public void addExitEventHandler(ExitEventHandler handler) {
         if (handler == null) {
             return;
@@ -114,6 +131,11 @@ public class Wechat {
         exitEventHandlers.add(handler);
     }
 
+    /**
+     * 添加退出事件处理器
+     *
+     * @param handlers 退出事件处理器
+     */
     public void addExitEventHandler(Collection<ExitEventHandler> handlers) {
         if (handlers == null || handlers.isEmpty()) {
             return;
@@ -126,6 +148,11 @@ public class Wechat {
         }
     }
 
+    /**
+     * 添加接收消息处理器
+     *
+     * @param handler 接收消息处理器
+     */
     public void addReceivedMsgHandler(ReceivedMsgHandler handler) {
         if (handler == null) {
             return;
@@ -136,6 +163,11 @@ public class Wechat {
         receivedMsgHandlers.add(handler);
     }
 
+    /**
+     * 添加接收消息处理器
+     *
+     * @param handlers 接收消息处理器
+     */
     public void addReceivedMsgHandler(Collection<ReceivedMsgHandler> handlers) {
         if (handlers == null || handlers.isEmpty()) {
             return;
@@ -148,6 +180,12 @@ public class Wechat {
         }
     }
 
+    /**
+     * 构建http客户端
+     *
+     * @param cookieStore Cookie保存
+     * @return http客户端
+     */
     private HttpClient buildHttpClient(CookieStore cookieStore) {
         HttpRequestInterceptor interceptor = new HttpRequestInterceptor() {
             @Override
@@ -474,7 +512,7 @@ public class Wechat {
             return true;
         }
 
-        JSONObject result = null;
+        JSONObject result;
         int time = PropertiesUtil.getIntValue("wechat4j.retry.time", 3);
 
         // 2、登录
@@ -538,7 +576,7 @@ public class Wechat {
     /**
      * 自动登录
      *
-     * @return
+     * @return 成功状态
      */
     public boolean autoLogin() {
         return autoLogin(null, false);
@@ -546,6 +584,8 @@ public class Wechat {
 
     /**
      * 退出登录
+     *
+     * @param clearAllLoginInfo 是否清除全部登录信息
      */
     public void logout(boolean clearAllLoginInfo) {
         if (isOnline) {
@@ -599,7 +639,7 @@ public class Wechat {
     /**
      * 判断在线状态
      *
-     * @return
+     * @return 是否在线
      */
     public boolean isOnline() {
         return isOnline;
@@ -673,6 +713,9 @@ public class Wechat {
 
         /**
          * 处理退出事件
+         *
+         * @param type 退出类型
+         * @param t    异常
          */
         private void processExitEvent(ExitTypeEnum type, Throwable t) {
             try {
@@ -719,7 +762,7 @@ public class Wechat {
         /**
          * 处理selector值
          *
-         * @param selector
+         * @param selector selector值
          */
         private void processSelector(int selector) {
             try {
@@ -751,8 +794,6 @@ public class Wechat {
 
         /**
          * 同步数据
-         *
-         * @return
          */
         private void webWxSync() {
             try {
@@ -762,21 +803,21 @@ public class Wechat {
                     return;
                 }
 
-                JSONObject BaseResponse = result.getJSONObject("BaseResponse");
-                if (BaseResponse == null) {
+                JSONObject baseResponse = result.getJSONObject("BaseResponse");
+                if (baseResponse == null) {
                     logger.warn("同步接口返回数据格式错误");
                     return;
                 }
 
-                int Ret = BaseResponse.getIntValue("Ret");
-                if (Ret != RetcodeEnum.RECODE_0.getCode()) {
-                    logger.warn("同步接口返回错误代码:{}", Ret);
+                int ret = baseResponse.getIntValue("Ret");
+                if (ret != RetcodeEnum.RECODE_0.getCode()) {
+                    logger.warn("同步接口返回错误代码:{}", ret);
                     return;
                 }
 
                 //新消息处理
-                JSONArray AddMsgList = result.getJSONArray("AddMsgList");
-                processNewMsg(AddMsgList);
+                JSONArray addMsgList = result.getJSONArray("AddMsgList");
+                processNewMsg(addMsgList);
 
                 //更新SyncKey
                 try {
@@ -793,15 +834,15 @@ public class Wechat {
         /**
          * 处理新消息
          *
-         * @param AddMsgList
+         * @param addMsgList 消息列表
          */
-        private void processNewMsg(JSONArray AddMsgList) {
+        private void processNewMsg(JSONArray addMsgList) {
             try {
-                if (AddMsgList == null || AddMsgList.isEmpty()) {
+                if (addMsgList == null || addMsgList.isEmpty()) {
                     return;
                 }
 
-                int len = AddMsgList.size();
+                int len = addMsgList.size();
                 logger.debug("收到{}条新消息", len);
 
                 if (receivedMsgHandlers == null || receivedMsgHandlers.isEmpty()) {
@@ -809,7 +850,7 @@ public class Wechat {
                     return;
                 }
 
-                List<ReceivedMsg> receivedMsgList = ReceivedMsg.valueOf(AddMsgList);
+                List<ReceivedMsg> receivedMsgList = ReceivedMsg.valueOf(addMsgList);
                 for (ReceivedMsg receivedMsg : receivedMsgList) {
                     for (ReceivedMsgHandler handler : receivedMsgHandlers) {
                         if (handler != null) {
@@ -834,7 +875,7 @@ public class Wechat {
     /**
      * 获取登录用户对象
      *
-     * @return
+     * @return 登录用户对象
      */
     public UserInfo getLoginUser(boolean update) {
         if (loginUser == null || update) {
@@ -843,13 +884,13 @@ public class Wechat {
                 return loginUser;
             }
 
-            JSONObject BaseResponse = result.getJSONObject("BaseResponse");
-            if (result == null) {
+            JSONObject baseResponse = result.getJSONObject("BaseResponse");
+            if (baseResponse == null) {
                 return loginUser;
             }
 
-            int Ret = BaseResponse.getIntValue("Ret");
-            if (Ret != 0) {
+            int ret = baseResponse.getIntValue("Ret");
+            if (ret != 0) {
                 return loginUser;
             }
 
@@ -874,7 +915,7 @@ public class Wechat {
     /**
      * 获取登录用户名
      *
-     * @return
+     * @return 登录用户的用户名（加密的）
      */
     public String getLoginUserName(boolean update) {
         UserInfo loginUser = getLoginUser(update);
@@ -891,7 +932,7 @@ public class Wechat {
     /**
      * 获取登录用户的昵称
      *
-     * @return
+     * @return 登录用户的昵称
      */
     public String getLoginUserNickName(boolean update) {
         UserInfo loginUser = getLoginUser(update);
@@ -908,8 +949,8 @@ public class Wechat {
     /**
      * 获取SyncKey
      *
-     * @param update
-     * @return
+     * @param update 是否强制更新
+     * @return 返回数据
      */
     private JSONObject getSyncKey(boolean update) {
         if (syncKey == null || update) {
@@ -918,13 +959,13 @@ public class Wechat {
                 return syncKey;
             }
 
-            JSONObject BaseResponse = result.getJSONObject("BaseResponse");
-            if (result == null) {
+            JSONObject baseResponse = result.getJSONObject("BaseResponse");
+            if (baseResponse == null) {
                 return syncKey;
             }
 
-            int Ret = BaseResponse.getIntValue("Ret");
-            if (Ret != 0) {
+            int ret = baseResponse.getIntValue("Ret");
+            if (ret != 0) {
                 return syncKey;
             }
 
@@ -945,22 +986,22 @@ public class Wechat {
     /**
      * 获取SyncKey的List
      *
-     * @param update
-     * @return
+     * @param update 是否强制更新
+     * @return 返回数据
      */
     private JSONArray getSyncKeyList(boolean update) {
-        JSONObject SyncKey = getSyncKey(update);
-        if (SyncKey == null) {
+        JSONObject syncKey = getSyncKey(update);
+        if (syncKey == null) {
             return null;
         }
-        return SyncKey.getJSONArray("List");
+        return syncKey.getJSONArray("List");
     }
 
     /**
      * 获取联系人列表
      *
-     * @param update
-     * @return
+     * @param update 是否强制更新
+     * @return 返回数据
      */
     public List<UserInfo> getContactList(boolean update) {
         if (contactList == null || update) {
@@ -969,13 +1010,13 @@ public class Wechat {
                 return contactList;
             }
 
-            JSONObject BaseResponse = result.getJSONObject("BaseResponse");
-            if (BaseResponse == null) {
+            JSONObject baseResponse = result.getJSONObject("BaseResponse");
+            if (baseResponse == null) {
                 return contactList;
             }
 
-            String Ret = BaseResponse.getString("Ret");
-            if (!"0".equals(Ret)) {
+            String ret = baseResponse.getString("Ret");
+            if (!"0".equals(ret)) {
                 return contactList;
             }
 
@@ -1000,9 +1041,9 @@ public class Wechat {
     /**
      * 根据UserName获取联系人信息
      *
-     * @param update
-     * @param userName
-     * @return
+     * @param update   是否强制更新
+     * @param userName 用户名（加密的）
+     * @return 返回数据
      */
     public UserInfo getContactByUserName(boolean update, String userName) {
         if (StringUtil.isEmpty(userName)) {
@@ -1034,9 +1075,9 @@ public class Wechat {
     /**
      * 根据NickName获取联系人信息
      *
-     * @param update
-     * @param nickName
-     * @return
+     * @param update   是否强制更新
+     * @param nickName 昵称
+     * @return 返回数据
      */
     public UserInfo getContactByNickName(boolean update, String nickName) {
         if (StringUtil.isEmpty(nickName)) {
@@ -1068,9 +1109,9 @@ public class Wechat {
     /**
      * 根据RemarkName获取联系人信息
      *
-     * @param update
-     * @param remarkName
-     * @return
+     * @param update     是否强制更新
+     * @param remarkName 备注名
+     * @return 返回数据
      */
     public UserInfo getContactByRemarkName(boolean update, String remarkName) {
         if (StringUtil.isEmpty(remarkName)) {
@@ -1102,9 +1143,9 @@ public class Wechat {
     /**
      * 发送文本消息
      *
-     * @param userName
-     * @param content
-     * @return
+     * @param userName 用户名（加密的）
+     * @param content  文本消息内容
+     * @return 返回数据
      */
     public JSONObject sendText(String userName, String content) {
         BaseRequest baseRequest = new BaseRequest(wxsid, skey, wxuin);
@@ -1123,17 +1164,15 @@ public class Wechat {
         }
         message.setType(MsgTypeEnum.TEXT_MSG.getCode());
 
-        JSONObject result = webWeixinApi.sendMsg(httpClient, urlVersion, passTicket, baseRequest, message);
-
-        return result;
+        return webWeixinApi.sendMsg(httpClient, urlVersion, passTicket, baseRequest, message);
     }
 
     /**
      * 发送文本消息（根据昵称）
      *
-     * @param nickName
-     * @param content
-     * @return
+     * @param nickName 昵称
+     * @param content  文本消息内容
+     * @return 返回数据
      */
     public JSONObject sendTextToNickName(String nickName, String content) {
         if (StringUtil.isEmpty(nickName)) {
@@ -1156,9 +1195,9 @@ public class Wechat {
     /**
      * 发送文本消息（根据备注名）
      *
-     * @param remarkName
-     * @param content
-     * @return
+     * @param remarkName 备注
+     * @param content    文本消息内容
+     * @return 返回数据
      */
     public JSONObject sendTextToRemarkName(String remarkName, String content) {
         if (StringUtil.isEmpty(remarkName)) {
@@ -1181,14 +1220,14 @@ public class Wechat {
     /**
      * 发送文本消息（根据多种名称）
      *
-     * @param userName
-     * @param nickName
-     * @param remarkName
-     * @param content
-     * @return
+     * @param userName   用户名（加密的）
+     * @param nickName   昵称
+     * @param remarkName 备注
+     * @param content    文本消息内容
+     * @return 返回数据
      */
     public JSONObject sendText(String userName, String nickName, String remarkName, String content) {
-        UserInfo userInfo = null;
+        UserInfo userInfo;
 
         if (StringUtil.isNotEmpty(userName)) {
             return sendText(content, userName);
@@ -1214,11 +1253,11 @@ public class Wechat {
     /**
      * 发送图片消息
      *
-     * @param userName
-     * @param mediaData
-     * @param mediaName
-     * @param contentType
-     * @return
+     * @param userName    用户名（加密的）
+     * @param mediaData   媒体文件数据
+     * @param mediaName   媒体文件名
+     * @param contentType 媒体文件类型
+     * @return 返回数据
      */
     public JSONObject sendImage(String userName, byte[] mediaData, String mediaName, ContentType contentType) {
         String loginUserName = getLoginUserName(false);
@@ -1231,17 +1270,17 @@ public class Wechat {
         if (result == null) {
             return null;
         }
-        JSONObject BaseResponse = result.getJSONObject("BaseResponse");
-        if (BaseResponse == null) {
+        JSONObject br = result.getJSONObject("BaseResponse");
+        if (br == null) {
             return result;
         }
-        int Ret = BaseResponse.getIntValue("Ret");
-        if (Ret != 0) {
+        int ret = br.getIntValue("Ret");
+        if (ret != 0) {
             return result;
         }
 
-        String MediaId = result.getString("MediaId");
-        if (StringUtil.isEmpty(MediaId)) {
+        String mediaId = result.getString("MediaId");
+        if (StringUtil.isEmpty(mediaId)) {
             return result;
         }
 
@@ -1252,7 +1291,7 @@ public class Wechat {
         message.setContent("");
         message.setFromUserName(loginUserName);
         message.setLocalID(msgId);
-        message.setMediaId(MediaId);
+        message.setMediaId(mediaId);
         message.setToUserName(toUserName);
         message.setType(MsgTypeEnum.IMAGE_MSG.getCode());
         result = webWeixinApi.sendImageMsg(httpClient, urlVersion, passTicket, baseRequest, message);
@@ -1263,9 +1302,9 @@ public class Wechat {
     /**
      * 发送图片消息
      *
-     * @param userName
-     * @param image
-     * @return
+     * @param userName 用户名（加密的）
+     * @param image    图片文件
+     * @return 返回数据
      */
     public JSONObject sendImage(String userName, File image) {
         ContentType contentType = FileUtil.getContentBody(image);
@@ -1276,11 +1315,11 @@ public class Wechat {
     /**
      * 发送图片消息（根据昵称）
      *
-     * @param nickName
-     * @param mediaData
-     * @param mediaName
-     * @param contentType
-     * @return
+     * @param nickName    昵称
+     * @param mediaData   媒体文件数据
+     * @param mediaName   媒体文件名
+     * @param contentType 媒体文件类型
+     * @return 返回数据
      */
     public JSONObject sendImageToNickName(String nickName, byte[] mediaData, String mediaName, ContentType contentType) {
         if (StringUtil.isEmpty(nickName)) {
@@ -1303,9 +1342,9 @@ public class Wechat {
     /**
      * 发送图片消息（根据昵称）
      *
-     * @param nickName
-     * @param image
-     * @return
+     * @param nickName 昵称
+     * @param image    图片文件
+     * @return 返回数据
      */
     public JSONObject sendImageToNickName(String nickName, File image) {
         ContentType contentType = FileUtil.getContentBody(image);
@@ -1316,11 +1355,11 @@ public class Wechat {
     /**
      * 发送图片消息（根据备注名）
      *
-     * @param remarkName
-     * @param mediaData
-     * @param mediaName
-     * @param contentType
-     * @return
+     * @param remarkName  备注名
+     * @param mediaData   媒体文件数据
+     * @param mediaName   媒体文件名
+     * @param contentType 媒体文件类型
+     * @return 返回数据
      */
     public JSONObject sendImageToRemarkName(String remarkName, byte[] mediaData, String mediaName, ContentType contentType) {
         if (StringUtil.isEmpty(remarkName)) {
@@ -1343,9 +1382,9 @@ public class Wechat {
     /**
      * 发送图片消息（根据备注名）
      *
-     * @param remarkName
-     * @param image
-     * @return
+     * @param remarkName 备注名
+     * @param image      图片文件
+     * @return 返回数据
      */
     public JSONObject sendImageToRemarkName(String remarkName, File image) {
         ContentType contentType = FileUtil.getContentBody(image);
@@ -1356,17 +1395,17 @@ public class Wechat {
     /**
      * 发送图片消息（根据多种名称）
      *
-     * @param userName
-     * @param nickName
-     * @param remarkName
-     * @param mediaData
-     * @param mediaName
-     * @param contentType
-     * @return
+     * @param userName    用户名（加密的）
+     * @param nickName    昵称
+     * @param remarkName  备注名
+     * @param mediaData   媒体文件数据
+     * @param mediaName   媒体文件名
+     * @param contentType 媒体文件类型
+     * @return 返回数据
      */
     public JSONObject sendImage(String userName, String nickName, String remarkName
             , byte[] mediaData, String mediaName, ContentType contentType) {
-        UserInfo userInfo = null;
+        UserInfo userInfo;
 
         if (StringUtil.isNotEmpty(userName)) {
             return sendImage(userName, mediaData, mediaName, contentType);
@@ -1392,11 +1431,11 @@ public class Wechat {
     /**
      * 发送图片消息（根据多种名称）
      *
-     * @param userName
-     * @param nickName
-     * @param remarkName
-     * @param image
-     * @return
+     * @param userName   用户名（加密的）
+     * @param nickName   昵称
+     * @param remarkName 备注名
+     * @param image      图片文件
+     * @return 返回数据
      */
     public JSONObject sendImage(String userName, String nickName, String remarkName, File image) {
         ContentType contentType = FileUtil.getContentBody(image);

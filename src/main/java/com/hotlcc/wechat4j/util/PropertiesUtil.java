@@ -7,6 +7,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+/**
+ * Properties工具类
+ *
+ * @author Allen
+ */
 public final class PropertiesUtil {
     private static Logger logger = LoggerFactory.getLogger(PropertiesUtil.class);
 

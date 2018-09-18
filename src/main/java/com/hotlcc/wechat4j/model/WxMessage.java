@@ -8,6 +8,8 @@ import java.io.Serializable;
 
 /**
  * 要发送的消息
+ *
+ * @author Allen
  */
 @Getter
 @Setter

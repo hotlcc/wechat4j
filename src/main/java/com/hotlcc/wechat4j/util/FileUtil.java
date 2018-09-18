@@ -12,6 +12,8 @@ import java.io.IOException;
 
 /**
  * 文件工具类
+ *
+ * @author Allen
  */
 public final class FileUtil {
     private static Logger logger = LoggerFactory.getLogger(FileUtil.class);
@@ -19,6 +21,12 @@ public final class FileUtil {
     private FileUtil() {
     }
 
+    /**
+     * 从文件中获取二进制数据
+     *
+     * @param file 文件
+     * @return 二进制数据
+     */
     public static byte[] getBytes(File file) {
         if (file == null) {
             throw new IllegalArgumentException("参数file不能为null");
@@ -62,6 +70,12 @@ public final class FileUtil {
         }
     }
 
+    /**
+     * 获取文件的ContentType
+     *
+     * @param file 文件
+     * @return ContentType
+     */
     public static ContentType getContentBody(File file) {
         String mimeType = new MimetypesFileTypeMap().getContentType(file);
         ContentType contentType = ContentType.parse(mimeType);

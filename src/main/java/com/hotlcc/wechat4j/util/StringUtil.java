@@ -5,6 +5,11 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.UUID;
 
+/**
+ * 字符串工具类
+ *
+ * @author Allen
+ */
 public final class StringUtil {
     private StringUtil() {
     }

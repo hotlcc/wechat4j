@@ -1,15 +1,23 @@
 package com.hotlcc.wechat4j.model;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * AppInfo
+ *
+ * @author Allen
+ */
 @Getter
+@Setter
 public final class AppInfo implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -25,10 +33,7 @@ public final class AppInfo implements Serializable {
         if (info == null) {
             return null;
         }
-        AppInfo appInfo = new AppInfo();
-        appInfo.type = info.getInteger("Type");
-        appInfo.appID = info.getString("AppID");
-        return appInfo;
+        return JSON.toJavaObject(info, AppInfo.class);
     }
 
     public static List<AppInfo> valueOf(JSONArray infos) {

@@ -1,15 +1,23 @@
 package com.hotlcc.wechat4j.model;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * RecommendInfo
+ *
+ * @author Allen
+ */
 @Getter
+@Setter
 public final class RecommendInfo implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -50,24 +58,7 @@ public final class RecommendInfo implements Serializable {
             return null;
         }
 
-        RecommendInfo recommendInfo = new RecommendInfo();
-
-        recommendInfo.ticket = info.getString("Ticket");
-        recommendInfo.userName = info.getString("UserName");
-        recommendInfo.sex = info.getInteger("Sex");
-        recommendInfo.attrStatus = info.getInteger("AttrStatus");
-        recommendInfo.city = info.getString("City");
-        recommendInfo.nickName = info.getString("NickName");
-        recommendInfo.scene = info.getInteger("Scene");
-        recommendInfo.province = info.getString("Province");
-        recommendInfo.content = info.getString("Content");
-        recommendInfo.alias = info.getString("Alias");
-        recommendInfo.signature = info.getString("Signature");
-        recommendInfo.opCode = info.getInteger("OpCode");
-        recommendInfo.qqNum = info.getLong("QQNum");
-        recommendInfo.verifyFlag = info.getInteger("VerifyFlag");
-
-        return recommendInfo;
+        return JSON.toJavaObject(info, RecommendInfo.class);
     }
 
     public static List<RecommendInfo> valueOf(JSONArray infos) {
