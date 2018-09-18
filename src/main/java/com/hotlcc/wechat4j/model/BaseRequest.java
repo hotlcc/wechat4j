@@ -9,6 +9,8 @@ import java.io.Serializable;
 
 /**
  * 基本请求模型
+ *
+ * @author Allen
  */
 @Getter
 @Setter

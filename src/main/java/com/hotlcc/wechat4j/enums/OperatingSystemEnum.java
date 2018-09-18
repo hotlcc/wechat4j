@@ -3,7 +3,7 @@ package com.hotlcc.wechat4j.enums;
 /**
  * 操作系统enum
  *
- * @author https://gitee.com/hotlcc
+ * @author Allen
  */
 public enum OperatingSystemEnum {
     DARWIN("darwin"),

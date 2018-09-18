@@ -5,20 +5,17 @@ package com.hotlcc.wechat4j.enums;
  *
  * @author Allen
  */
+@SuppressWarnings("unused")
 public enum LoginTipEnum {
-    /**
-     * 扫码登录
-     */
-    TIP_0(0),
-    /**
-     * 确认登录
-     */
-    TIP_1(1);
+    TIP_0(0, "扫码登录"),
+    TIP_1(1, "确认登录");
 
     private int code;
+    private String desc;
 
-    LoginTipEnum(int code) {
+    LoginTipEnum(int code, String desc) {
         this.code = code;
+        this.desc = desc;
     }
 
     public int getCode() {

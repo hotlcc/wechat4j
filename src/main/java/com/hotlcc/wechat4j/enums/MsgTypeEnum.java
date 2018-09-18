@@ -3,8 +3,9 @@ package com.hotlcc.wechat4j.enums;
 /**
  * 消息类型enum
  *
- * @author https://gitee.com/hotlcc
+ * @author Allen
  */
+@SuppressWarnings({"unused"})
 public enum MsgTypeEnum {
     TEXT_MSG(1, "文本消息"),
     IMAGE_MSG(3, "图片消息"),

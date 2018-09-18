@@ -1,5 +1,10 @@
 package com.hotlcc.wechat4j.enums;
 
+/**
+ * Ret代码
+ *
+ * @author Allen
+ */
 public enum RetcodeEnum {
     RECODE_0(0, "正常"),
     RECODE_1100(1100, "失败/登出微信"),

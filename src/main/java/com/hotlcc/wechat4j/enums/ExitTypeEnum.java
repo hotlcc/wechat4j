@@ -6,20 +6,14 @@ package com.hotlcc.wechat4j.enums;
  * @author Allen
  */
 public enum ExitTypeEnum {
-    /**
-     * 错误导致退出
-     */
-    ERROR_EXIT,
-    /**
-     * 本次手动退出
-     */
-    LOCAL_EXIT,
-    /**
-     * 远程操作退出
-     */
-    REMOTE_EXIT;
+    ERROR_EXIT("错误退出"),
+    LOCAL_EXIT("本地退出"),
+    REMOTE_EXIT("远程退出");
 
-    ExitTypeEnum() {
+    private String desc;
+
+    ExitTypeEnum(String desc) {
+        this.desc = desc;
     }
 
 }

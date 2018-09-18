@@ -1,5 +1,10 @@
 package com.hotlcc.wechat4j.enums;
 
+/**
+ * Selector代码
+ *
+ * @author Allen
+ */
 public enum SelectorEnum {
     SELECTOR_0(0, "正常"),
     SELECTOR_2(2, "有新消息"),
@@ -13,10 +18,6 @@ public enum SelectorEnum {
     SelectorEnum(int code, String desc) {
         this.code = code;
         this.desc = desc;
-    }
-
-    public int getCode() {
-        return code;
     }
 
     public static SelectorEnum valueOf(int code) {

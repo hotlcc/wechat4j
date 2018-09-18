@@ -6,6 +6,8 @@ import lombok.Setter;
 
 /**
  * 媒体消息
+ *
+ * @author Allen
  */
 @Getter
 @Setter

@@ -1,9 +1,11 @@
 package com.hotlcc.wechat4j.model;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -11,8 +13,11 @@ import java.util.List;
 
 /**
  * 微信用户信息
+ *
+ * @author Allen
  */
 @Getter
+@Setter
 public final class UserInfo implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -87,41 +92,7 @@ public final class UserInfo implements Serializable {
             return null;
         }
 
-        UserInfo userInfo = new UserInfo();
-
-        userInfo.uin = info.getLong("Uin");
-        userInfo.nickName = info.getString("NickName");
-        userInfo.headImgUrl = info.getString("HeadImgUrl");
-        userInfo.contactFlag = info.getInteger("ContactFlag");
-        userInfo.memberCount = info.getInteger("MemberCount");
-        userInfo.memberList = valueOf(info.getJSONArray("MemberList"));
-        userInfo.remarkName = info.getString("RemarkName");
-        userInfo.hideInputBarFlag = info.getInteger("HideInputBarFlag");
-        userInfo.sex = info.getInteger("Sex");
-        userInfo.signature = info.getString("Signature");
-        userInfo.verifyFlag = info.getInteger("VerifyFlag");
-        userInfo.ownerUin = info.getLong("OwnerUin");
-        userInfo.pyInitial = info.getString("PYInitial");
-        userInfo.pyQuanPin = info.getString("PYQuanPin");
-        userInfo.remarkPYInitial = info.getString("RemarkPYInitial");
-        userInfo.remarkPYQuanPin = info.getString("RemarkPYQuanPin");
-        userInfo.starFriend = info.getInteger("StarFriend");
-        userInfo.appAccountFlag = info.getInteger("AppAccountFlag");
-        userInfo.statues = info.getInteger("Statues");
-        userInfo.attrStatus = info.getInteger("AttrStatus");
-        userInfo.province = info.getString("Province");
-        userInfo.city = info.getString("City");
-        userInfo.alias = info.getString("Alias");
-        userInfo.snsFlag = info.getInteger("SnsFlag");
-        userInfo.uniFriend = info.getInteger("UniFriend");
-        userInfo.displayName = info.getString("DisplayName");
-        userInfo.chatRoomId = info.getLong("ChatRoomId");
-        userInfo.keyWord = info.getString("KeyWord");
-        userInfo.encryChatRoomId = info.getString("EncryChatRoomId");
-        userInfo.isOwner = info.getInteger("IsOwner");
-        userInfo.userName = info.getString("UserName");
-
-        return userInfo;
+        return JSON.toJavaObject(info, UserInfo.class);
     }
 
     public static List<UserInfo> valueOf(JSONArray infos) {
