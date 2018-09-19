@@ -1176,7 +1176,7 @@ public class Wechat {
      */
     public JSONObject sendTextToNickName(String nickName, String content) {
         if (StringUtil.isEmpty(nickName)) {
-            return sendText(content, null);
+            return sendText(null, content);
         }
 
         UserInfo userInfo = getContactByNickName(false, nickName);
@@ -1189,7 +1189,7 @@ public class Wechat {
             return null;
         }
 
-        return sendText(content, userName);
+        return sendText(userName, content);
     }
 
     /**
@@ -1201,7 +1201,7 @@ public class Wechat {
      */
     public JSONObject sendTextToRemarkName(String remarkName, String content) {
         if (StringUtil.isEmpty(remarkName)) {
-            return sendText(content, null);
+            return sendText(null, content);
         }
 
         UserInfo userInfo = getContactByRemarkName(false, remarkName);
@@ -1214,7 +1214,7 @@ public class Wechat {
             return null;
         }
 
-        return sendText(content, userName);
+        return sendText(userName, content);
     }
 
     /**
@@ -1230,14 +1230,14 @@ public class Wechat {
         UserInfo userInfo;
 
         if (StringUtil.isNotEmpty(userName)) {
-            return sendText(content, userName);
+            return sendText(userName, content);
         } else if (StringUtil.isNotEmpty(nickName)) {
             userInfo = getContactByNickName(false, nickName);
         } else if (StringUtil.isNotEmpty(remarkName)) {
             userInfo = getContactByRemarkName(false, remarkName);
         } else {
             String loginUserName = getLoginUserName(false);
-            return sendText(content, loginUserName);
+            return sendText(loginUserName, content);
         }
 
         if (userInfo == null) {
@@ -1247,7 +1247,7 @@ public class Wechat {
         if (StringUtil.isEmpty(userName)) {
             return null;
         }
-        return sendText(content, userName);
+        return sendText(userName, content);
     }
 
     /**

@@ -30,6 +30,11 @@ public class TestClass {
         wechat.autoLogin();
     }
 
+    public void testSendText() {
+        JSONObject result = wechat.sendText(null, "这是消息内容");
+        System.out.println(result);
+    }
+
     @Test
     public void testSendImage() {
         File file = new File("D:\\Downloads\\images\\6600e90b8b0ce2037a5291a7147ffd2b.jpeg");
