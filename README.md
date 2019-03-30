@@ -11,6 +11,7 @@
 [![toutiao](https://img.shields.io/badge/toutiao-%40Allen-red.svg)](https://www.toutiao.com/c/user/3341863552/#mid=51655113888)
 [![@Allen on weibo](https://img.shields.io/badge/weibo-%40Allen-orange.svg)](https://weibo.com/hotloveu?is_hot=1)
 [![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
+<a href="https://996.icu"><img src="https://img.shields.io/badge/link-996.icu-red.svg"></a>
 
 ## Web微信API文档
 
