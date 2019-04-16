@@ -7,8 +7,7 @@ import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.common.HybridBinarizer;
 import com.hotlcc.wechat4j.enums.OperatingSystemEnum;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -23,9 +22,8 @@ import java.io.IOException;
  * @author Allen
  */
 @SuppressWarnings({"unused", "WeakerAccess"})
+@Slf4j
 public final class QRCodeUtil {
-    private static Logger logger = LoggerFactory.getLogger(QRCodeUtil.class);
-
     private QRCodeUtil() {
     }
 
@@ -252,7 +250,7 @@ public final class QRCodeUtil {
             fos.flush();
             return tmp;
         } catch (IOException e) {
-            logger.error("二维码写入临时文件异常", e);
+            log.error("二维码写入临时文件异常", e);
             throw new RuntimeException(e);
         } finally {
             if (fos != null) {

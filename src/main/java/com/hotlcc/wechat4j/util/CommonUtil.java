@@ -1,16 +1,14 @@
 package com.hotlcc.wechat4j.util;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 通用工具类
  *
  * @author Allen
  */
+@Slf4j
 public final class CommonUtil {
-    private static Logger logger = LoggerFactory.getLogger(CommonUtil.class);
-
     private CommonUtil() {
     }
 

@@ -7,6 +7,7 @@ import com.hotlcc.wechat4j.handler.ExitEventHandler;
 import com.hotlcc.wechat4j.handler.ReceivedMsgHandler;
 import com.hotlcc.wechat4j.model.*;
 import com.hotlcc.wechat4j.util.*;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestInterceptor;
@@ -17,8 +18,6 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.protocol.HttpContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,9 +34,8 @@ import java.util.concurrent.locks.ReentrantLock;
  * @author Allen
  */
 @SuppressWarnings({"Duplicates", "unused"})
+@Slf4j
 public class Wechat {
-    private static Logger logger = LoggerFactory.getLogger(Wechat.class);
-
     private CookieStore cookieStore;
     private HttpClient httpClient;
 
@@ -657,7 +655,7 @@ public class Wechat {
 
                 try {
                     JSONObject result = WebWeixinApiUtil.syncCheck(httpClient, urlVersion, new BaseRequest(wxsid, skey, wxuin), getSyncKeyList(false));
-                    logger.info("微信同步监听心跳返回数据：{}", result);
+                    log.info("微信同步监听心跳返回数据：{}", result);
                     if (result == null) {
                         throw new RuntimeException("微信API调用异常");
                     } else {
@@ -667,7 +665,7 @@ public class Wechat {
                     //人为退出
                     int retcode = result.getIntValue("retcode");
                     if (retcode != RetcodeEnum.RECODE_0.getCode()) {
-                        logger.info("微信退出或从其它设备登录");
+                        log.info("微信退出或从其它设备登录");
                         logout();
                         processExitEvent(ExitTypeEnum.REMOTE_EXIT, null);
                         return;
@@ -676,16 +674,16 @@ public class Wechat {
                     int selector = result.getIntValue("selector");
                     processSelector(selector);
                 } catch (Exception e) {
-                    logger.error("同步监听心跳异常", e);
+                    log.error("同步监听心跳异常", e);
 
                     if (i == 0) {
-                        logger.info("同步监听请求失败，正在重试...");
+                        log.info("同步监听请求失败，正在重试...");
                     } else if (i > 0) {
-                        logger.info("第{}次重试失败" + i);
+                        log.info("第{}次重试失败" + i);
                     }
 
                     if (i >= time) {
-                        logger.info("重复{}次仍然失败，退出微信", i);
+                        log.info("重复{}次仍然失败，退出微信", i);
                         logout();
                         processExitEvent(ExitTypeEnum.ERROR_EXIT, e);
                         return;
@@ -722,7 +720,7 @@ public class Wechat {
                     }
                 }
             } catch (Exception e) {
-                logger.error("Exit event process error.", e);
+                log.error("Exit event process error.", e);
             }
         }
 
@@ -742,13 +740,13 @@ public class Wechat {
                         break;
                 }
             } catch (Exception e) {
-                logger.error("Exit event process error.", e);
+                log.error("Exit event process error.", e);
             }
 
             try {
                 handler.handleAllType(wechat, type, t);
             } catch (Exception e) {
-                logger.error("Exit event process error.", e);
+                log.error("Exit event process error.", e);
             }
         }
 
@@ -761,7 +759,7 @@ public class Wechat {
             try {
                 SelectorEnum e = SelectorEnum.valueOf(selector);
                 if (e == null) {
-                    logger.warn("Cannot process unknow selector {}", selector);
+                    log.warn("Cannot process unknow selector {}", selector);
                     return;
                 }
 
@@ -781,7 +779,7 @@ public class Wechat {
                         break;
                 }
             } catch (Exception e) {
-                logger.error("Execute processSelector error.", e);
+                log.error("Execute processSelector error.", e);
             }
         }
 
@@ -792,19 +790,19 @@ public class Wechat {
             try {
                 JSONObject result = WebWeixinApiUtil.webWxSync(httpClient, urlVersion, passTicket, new BaseRequest(wxsid, skey, wxuin), syncKey);
                 if (result == null) {
-                    logger.error("从服务端同步新数据异常");
+                    log.error("从服务端同步新数据异常");
                     return;
                 }
 
                 JSONObject baseResponse = result.getJSONObject("BaseResponse");
                 if (baseResponse == null) {
-                    logger.warn("同步接口返回数据格式错误");
+                    log.warn("同步接口返回数据格式错误");
                     return;
                 }
 
                 int ret = baseResponse.getIntValue("Ret");
                 if (ret != RetcodeEnum.RECODE_0.getCode()) {
-                    logger.warn("同步接口返回错误代码:{}", ret);
+                    log.warn("同步接口返回错误代码:{}", ret);
                     return;
                 }
 
@@ -820,7 +818,7 @@ public class Wechat {
                     syncKeyLock.unlock();
                 }
             } catch (Exception e) {
-                logger.error("Execute webWxSync error.", e);
+                log.error("Execute webWxSync error.", e);
             }
         }
 
@@ -836,10 +834,10 @@ public class Wechat {
                 }
 
                 int len = addMsgList.size();
-                logger.debug("收到{}条新消息", len);
+                log.debug("收到{}条新消息", len);
 
                 if (receivedMsgHandlers == null || receivedMsgHandlers.isEmpty()) {
-                    logger.warn("收到{}条新消息，但没有配置消息处理器", len);
+                    log.warn("收到{}条新消息，但没有配置消息处理器", len);
                     return;
                 }
 
@@ -852,7 +850,7 @@ public class Wechat {
                     }
                 }
             } catch (Exception e) {
-                logger.error("Execute processNewMsg error.", e);
+                log.error("Execute processNewMsg error.", e);
             }
         }
 
@@ -860,7 +858,7 @@ public class Wechat {
             try {
                 handler.handleAllType(wechat, msg);
             } catch (Exception e) {
-                logger.error("Execute processNewMsg error.", e);
+                log.error("Execute processNewMsg error.", e);
             }
         }
     }

@@ -1,7 +1,6 @@
 package com.hotlcc.wechat4j.util;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,9 +11,8 @@ import java.util.Properties;
  *
  * @author Allen
  */
+@Slf4j
 public final class PropertiesUtil {
-    private static Logger logger = LoggerFactory.getLogger(PropertiesUtil.class);
-
     private PropertiesUtil() {
     }
 
@@ -38,7 +36,7 @@ public final class PropertiesUtil {
                 is = PropertiesUtil.class.getClassLoader().getResourceAsStream(path);
                 prop.load(is);
             } catch (Exception e) {
-                logger.error("Loading properties file \"" + path + "\" error.", e);
+                log.error("Loading properties file \"" + path + "\" error.", e);
             } finally {
                 if (is != null) {
                     try {

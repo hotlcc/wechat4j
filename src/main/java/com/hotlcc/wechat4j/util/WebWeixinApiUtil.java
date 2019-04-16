@@ -6,6 +6,7 @@ import com.hotlcc.wechat4j.enums.LoginTipEnum;
 import com.hotlcc.wechat4j.model.BaseRequest;
 import com.hotlcc.wechat4j.model.MediaMessage;
 import com.hotlcc.wechat4j.model.WxMessage;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.http.*;
 import org.apache.http.client.HttpClient;
@@ -20,8 +21,6 @@ import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.json.XML;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.stringtemplate.v4.ST;
 
 import java.math.BigDecimal;
@@ -37,11 +36,10 @@ import java.util.regex.Pattern;
  * @author Allen
  */
 @SuppressWarnings({"Duplicates", "unused"})
+@Slf4j
 public final class WebWeixinApiUtil {
     private WebWeixinApiUtil() {
     }
-
-    private static Logger logger = LoggerFactory.getLogger(WebWeixinApiUtil.class);
 
     /**
      * 预编译正则匹配
@@ -108,7 +106,7 @@ public final class WebWeixinApiUtil {
 
             return result;
         } catch (Exception e) {
-            logger.error("获取uuid异常", e);
+            log.error("获取uuid异常", e);
             return null;
         }
     }
@@ -144,7 +142,7 @@ public final class WebWeixinApiUtil {
 
             return data;
         } catch (Exception e) {
-            logger.error("获取二维码异常", e);
+            log.error("获取二维码异常", e);
             return null;
         }
     }
@@ -216,7 +214,7 @@ public final class WebWeixinApiUtil {
 
             return result;
         } catch (Exception e) {
-            logger.error("获取跳转uri异常", e);
+            log.error("获取跳转uri异常", e);
             return null;
         }
     }
@@ -250,7 +248,7 @@ public final class WebWeixinApiUtil {
 
             return JSONObject.parseObject(XML.toJSONObject(res).toString()).getJSONObject("error");
         } catch (Exception e) {
-            logger.error("获取登录认证码异常", e);
+            log.error("获取登录认证码异常", e);
             return null;
         }
     }
@@ -287,7 +285,7 @@ public final class WebWeixinApiUtil {
                 httpClient.execute(httpPost);
             }
         } catch (Exception e) {
-            logger.error("退出登录异常", e);
+            log.error("退出登录异常", e);
         }
     }
 
@@ -322,7 +320,7 @@ public final class WebWeixinApiUtil {
 
             return JSONObject.parseObject(res);
         } catch (Exception e) {
-            logger.error("push登录异常", e);
+            log.error("push登录异常", e);
             return null;
         }
     }
@@ -366,7 +364,7 @@ public final class WebWeixinApiUtil {
 
             return JSONObject.parseObject(res);
         } catch (Exception e) {
-            logger.error("获取初始化数据异常", e);
+            log.error("获取初始化数据异常", e);
             return null;
         }
     }
@@ -415,7 +413,7 @@ public final class WebWeixinApiUtil {
 
             return JSONObject.parseObject(res);
         } catch (Exception e) {
-            logger.error("开启消息状态通知异常", e);
+            log.error("开启消息状态通知异常", e);
             return null;
         }
     }
@@ -474,7 +472,7 @@ public final class WebWeixinApiUtil {
 
             return result;
         } catch (Exception e) {
-            logger.error("服务端状态同步异常", e);
+            log.error("服务端状态同步异常", e);
             return null;
         }
     }
@@ -513,7 +511,7 @@ public final class WebWeixinApiUtil {
 
             return JSONObject.parseObject(res);
         } catch (Exception e) {
-            logger.error("获取全部联系人列表异常", e);
+            log.error("获取全部联系人列表异常", e);
             return null;
         }
     }
@@ -561,7 +559,7 @@ public final class WebWeixinApiUtil {
 
             return JSONObject.parseObject(res);
         } catch (Exception e) {
-            logger.error("批量获取指定联系人信息异常", e);
+            log.error("批量获取指定联系人信息异常", e);
             return null;
         }
     }
@@ -609,7 +607,7 @@ public final class WebWeixinApiUtil {
 
             return JSONObject.parseObject(res);
         } catch (Exception e) {
-            logger.error("从服务端同步新数据异常", e);
+            log.error("从服务端同步新数据异常", e);
             return null;
         }
     }
@@ -656,7 +654,7 @@ public final class WebWeixinApiUtil {
 
             return JSONObject.parseObject(res);
         } catch (Exception e) {
-            logger.error("发送消息异常", e);
+            log.error("发送消息异常", e);
             return null;
         }
     }
@@ -693,7 +691,6 @@ public final class WebWeixinApiUtil {
 
             long millis = System.currentTimeMillis();
             int mediaLength = mediaData.length;
-            // String mimeType = contentType.getMimeType();
 
             HttpPost httpPost = new HttpPost(url);
             httpPost.setHeader("Content-type", ContentType.MULTIPART_FORM_DATA.toString());
@@ -722,14 +719,8 @@ public final class WebWeixinApiUtil {
 
                 HttpEntity paramEntity = MultipartEntityBuilder.create()
                         .setMode(HttpMultipartMode.BROWSER_COMPATIBLE)
-                        // .addTextBody("id", StringUtil.getUuid(), ContentType.TEXT_PLAIN)
-                        // .addTextBody("name", mediaName, ContentType.TEXT_PLAIN)
-                        // .addTextBody("type", mimeType, ContentType.TEXT_PLAIN)
-                        // .addTextBody("lastModifieDate", String.valueOf(millis), ContentType.TEXT_PLAIN)
-                        // .addTextBody("size", String.valueOf(mediaLength), ContentType.TEXT_PLAIN)
                         .addTextBody("chunks", String.valueOf(chunks))
                         .addTextBody("chunk", String.valueOf(chunk))
-                        // .addTextBody("mediatype", WechatUtil.getMediatype(mimeType), ContentType.TEXT_PLAIN)
                         .addTextBody("uploadmediarequest", uploadmediarequest.toJSONString(), ContentType.TEXT_PLAIN)
                         .addTextBody("webwx_data_ticket", dataTicket, ContentType.TEXT_PLAIN)
                         .addTextBody("pass_ticket", passticket, ContentType.TEXT_PLAIN)
@@ -763,7 +754,7 @@ public final class WebWeixinApiUtil {
 
             return result;
         } catch (Exception e) {
-            logger.error("上传媒体文件异常", e);
+            log.error("上传媒体文件异常", e);
             return null;
         }
     }
@@ -810,7 +801,7 @@ public final class WebWeixinApiUtil {
 
             return JSONObject.parseObject(res);
         } catch (Exception e) {
-            logger.error("发送图片消息异常", e);
+            log.error("发送图片消息异常", e);
             return null;
         }
     }
