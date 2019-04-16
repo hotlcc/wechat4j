@@ -1,6 +1,5 @@
 import com.alibaba.fastjson.JSONObject;
 import com.hotlcc.wechat4j.Wechat;
-import com.hotlcc.wechat4j.api.WebWeixinApi;
 import com.hotlcc.wechat4j.handler.ReceivedMsgHandler;
 import com.hotlcc.wechat4j.model.ReceivedMsg;
 import com.hotlcc.wechat4j.model.UserInfo;
@@ -16,8 +15,6 @@ public class TestClass {
     @Before
     public void initAndLogin() {
         wechat = new Wechat();
-        WebWeixinApi api = new WebWeixinApi();
-        wechat.setWebWeixinApi(api);
         wechat.addReceivedMsgHandler(new ReceivedMsgHandler() {
             @Override
             public void handleAllType(Wechat wechat, ReceivedMsg msg) {

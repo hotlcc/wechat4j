@@ -1,4 +1,4 @@
-package com.hotlcc.wechat4j.api;
+package com.hotlcc.wechat4j.util;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -6,9 +6,6 @@ import com.hotlcc.wechat4j.enums.LoginTipEnum;
 import com.hotlcc.wechat4j.model.BaseRequest;
 import com.hotlcc.wechat4j.model.MediaMessage;
 import com.hotlcc.wechat4j.model.WxMessage;
-import com.hotlcc.wechat4j.util.PropertiesUtil;
-import com.hotlcc.wechat4j.util.StringUtil;
-import com.hotlcc.wechat4j.util.WechatUtil;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.http.*;
 import org.apache.http.client.HttpClient;
@@ -40,8 +37,11 @@ import java.util.regex.Pattern;
  * @author Allen
  */
 @SuppressWarnings({"Duplicates", "unused"})
-public class WebWeixinApi {
-    private static Logger logger = LoggerFactory.getLogger(WebWeixinApi.class);
+public final class WebWeixinApiUtil {
+    private WebWeixinApiUtil() {
+    }
+
+    private static Logger logger = LoggerFactory.getLogger(WebWeixinApiUtil.class);
 
     /**
      * 预编译正则匹配
@@ -63,7 +63,7 @@ public class WebWeixinApi {
      * @param httpClient http客户端
      * @return 返回数据
      */
-    public JSONObject getWxUuid(HttpClient httpClient) {
+    public static JSONObject getWxUuid(HttpClient httpClient) {
         try {
             String url = new ST(PropertiesUtil.getProperty("webwx-url.uuid_url"))
                     .add("appid", PropertiesUtil.getProperty("webwx.appid"))
@@ -120,8 +120,8 @@ public class WebWeixinApi {
      * @param uuid       uuid
      * @return 二维码图片字节数据
      */
-    public byte[] getQR(HttpClient httpClient,
-                        String uuid) {
+    public static byte[] getQR(HttpClient httpClient,
+                               String uuid) {
         try {
             String url = new ST(PropertiesUtil.getProperty("webwx-url.qrcode_url"))
                     .add("uuid", uuid)
@@ -157,9 +157,9 @@ public class WebWeixinApi {
      * @param uuid       uuid
      * @return 返回数据
      */
-    public JSONObject getRedirectUri(HttpClient httpClient,
-                                     LoginTipEnum tip,
-                                     String uuid) {
+    public static JSONObject getRedirectUri(HttpClient httpClient,
+                                            LoginTipEnum tip,
+                                            String uuid) {
         try {
             long millis = System.currentTimeMillis();
             String url = new ST(PropertiesUtil.getProperty("webwx-url.redirect_uri"))
@@ -229,8 +229,8 @@ public class WebWeixinApi {
      * @param redirectUri 调整uri
      * @return 返回数据
      */
-    public JSONObject getLoginCode(HttpClient httpClient,
-                                   String redirectUri) {
+    public static JSONObject getLoginCode(HttpClient httpClient,
+                                          String redirectUri) {
         try {
             String url = new ST(PropertiesUtil.getProperty("webwx-url.newlogin_url"))
                     .add("redirectUri", redirectUri)
@@ -262,9 +262,9 @@ public class WebWeixinApi {
      * @param urlVersion  url版本号
      * @param baseRequest BaseRequest
      */
-    public void logout(HttpClient httpClient,
-                       String urlVersion,
-                       BaseRequest baseRequest) {
+    public static void logout(HttpClient httpClient,
+                              String urlVersion,
+                              BaseRequest baseRequest) {
         try {
             List<NameValuePair> pairList = new ArrayList<>();
             pairList.add(new BasicNameValuePair("sid", baseRequest.getSid()));
@@ -299,9 +299,9 @@ public class WebWeixinApi {
      * @param wxuin      uin
      * @return 返回数据
      */
-    public JSONObject pushLogin(HttpClient httpClient,
-                                String urlVersion,
-                                String wxuin) {
+    public static JSONObject pushLogin(HttpClient httpClient,
+                                       String urlVersion,
+                                       String wxuin) {
         try {
             String url = new ST(PropertiesUtil.getProperty("webwx-url.pushlogin_url"))
                     .add("urlVersion", urlVersion)
@@ -336,10 +336,10 @@ public class WebWeixinApi {
      * @param baseRequest BaseRequest
      * @return 返回数据
      */
-    public JSONObject webWeixinInit(HttpClient httpClient,
-                                    String urlVersion,
-                                    String passticket,
-                                    BaseRequest baseRequest) {
+    public static JSONObject webWeixinInit(HttpClient httpClient,
+                                           String urlVersion,
+                                           String passticket,
+                                           BaseRequest baseRequest) {
         try {
             String url = new ST(PropertiesUtil.getProperty("webwx-url.webwxinit_url"))
                     .add("urlVersion", urlVersion)
@@ -381,11 +381,11 @@ public class WebWeixinApi {
      * @param loginUserName 当前登录账号用户名
      * @return 返回数据
      */
-    public JSONObject statusNotify(HttpClient httpClient,
-                                   String urlVersion,
-                                   String passticket,
-                                   BaseRequest baseRequest,
-                                   String loginUserName) {
+    public static JSONObject statusNotify(HttpClient httpClient,
+                                          String urlVersion,
+                                          String passticket,
+                                          BaseRequest baseRequest,
+                                          String loginUserName) {
         try {
             String url = new ST(PropertiesUtil.getProperty("webwx-url.statusnotify_url"))
                     .add("urlVersion", urlVersion)
@@ -429,10 +429,10 @@ public class WebWeixinApi {
      * @param syncKeyList SyncKeyList
      * @return 返回数据
      */
-    public JSONObject syncCheck(HttpClient httpClient,
-                                String urlVersion,
-                                BaseRequest baseRequest,
-                                JSONArray syncKeyList) {
+    public static JSONObject syncCheck(HttpClient httpClient,
+                                       String urlVersion,
+                                       BaseRequest baseRequest,
+                                       JSONArray syncKeyList) {
         try {
             long millis = System.currentTimeMillis();
             String url = new ST(PropertiesUtil.getProperty("webwx-url.synccheck_url"))
@@ -488,10 +488,10 @@ public class WebWeixinApi {
      * @param skey       skey
      * @return 返回数据
      */
-    public JSONObject getContact(HttpClient httpClient,
-                                 String urlVersion,
-                                 String passticket,
-                                 String skey) {
+    public static JSONObject getContact(HttpClient httpClient,
+                                        String urlVersion,
+                                        String passticket,
+                                        String skey) {
         try {
             String url = new ST(PropertiesUtil.getProperty("webwx-url.getcontact_url"))
                     .add("urlVersion", urlVersion)
@@ -528,11 +528,11 @@ public class WebWeixinApi {
      * @param batchContactList 联系人列表
      * @return 返回数据
      */
-    public JSONObject batchGetContact(HttpClient httpClient,
-                                      String urlVersion,
-                                      String passticket,
-                                      BaseRequest baseRequest,
-                                      JSONArray batchContactList) {
+    public static JSONObject batchGetContact(HttpClient httpClient,
+                                             String urlVersion,
+                                             String passticket,
+                                             BaseRequest baseRequest,
+                                             JSONArray batchContactList) {
         try {
             String url = new ST(PropertiesUtil.getProperty("webwx-url.batchgetcontact_url"))
                     .add("urlVersion", urlVersion)
@@ -576,11 +576,11 @@ public class WebWeixinApi {
      * @param syncKey     syncKey
      * @return 返回数据
      */
-    public JSONObject webWxSync(HttpClient httpClient,
-                                String urlVersion,
-                                String passticket,
-                                BaseRequest baseRequest,
-                                JSONObject syncKey) {
+    public static JSONObject webWxSync(HttpClient httpClient,
+                                       String urlVersion,
+                                       String passticket,
+                                       BaseRequest baseRequest,
+                                       JSONObject syncKey) {
         try {
             String url = new ST(PropertiesUtil.getProperty("webwx-url.webwxsync_url"))
                     .add("urlVersion", urlVersion)
@@ -624,11 +624,11 @@ public class WebWeixinApi {
      * @param message     消息
      * @return 返回数据
      */
-    public JSONObject sendMsg(HttpClient httpClient,
-                              String urlVersion,
-                              String passticket,
-                              BaseRequest baseRequest,
-                              WxMessage message) {
+    public static JSONObject sendMsg(HttpClient httpClient,
+                                     String urlVersion,
+                                     String passticket,
+                                     BaseRequest baseRequest,
+                                     WxMessage message) {
         try {
             String url = new ST(PropertiesUtil.getProperty("webwx-url.webwxsendmsg_url"))
                     .add("urlVersion", urlVersion)
@@ -676,16 +676,16 @@ public class WebWeixinApi {
      * @param contentType  媒体文件类型
      * @return 返回数据
      */
-    public JSONObject uploadMedia(HttpClient httpClient,
-                                  String urlVersion,
-                                  String passticket,
-                                  BaseRequest baseRequest,
-                                  String fromUserName,
-                                  String toUserName,
-                                  String dataTicket,
-                                  byte[] mediaData,
-                                  String mediaName,
-                                  ContentType contentType) {
+    public static JSONObject uploadMedia(HttpClient httpClient,
+                                         String urlVersion,
+                                         String passticket,
+                                         BaseRequest baseRequest,
+                                         String fromUserName,
+                                         String toUserName,
+                                         String dataTicket,
+                                         byte[] mediaData,
+                                         String mediaName,
+                                         ContentType contentType) {
         try {
             String url = new ST(PropertiesUtil.getProperty("webwx-url.uploadmedia_url"))
                     .add("urlVersion", urlVersion)
@@ -778,11 +778,11 @@ public class WebWeixinApi {
      * @param message     消息
      * @return 返回数据
      */
-    public JSONObject sendImageMsg(HttpClient httpClient,
-                                   String urlVersion,
-                                   String passticket,
-                                   BaseRequest baseRequest,
-                                   MediaMessage message) {
+    public static JSONObject sendImageMsg(HttpClient httpClient,
+                                          String urlVersion,
+                                          String passticket,
+                                          BaseRequest baseRequest,
+                                          MediaMessage message) {
         try {
             String url = new ST(PropertiesUtil.getProperty("webwx-url.webwxsendmsgimg_url"))
                     .add("urlVersion", urlVersion)

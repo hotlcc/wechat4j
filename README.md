@@ -17,10 +17,8 @@
 ## 简单使用
 
 ```java
-WebWeixinApi api = new WebWeixinApi();
 // 实例化微信客户端
 Wechat wechat = new Wechat();
-wechat.setWebWeixinApi(api);
 // 自动登录
 wechat.autoLogin();
 ```
