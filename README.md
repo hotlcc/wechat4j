@@ -60,16 +60,16 @@ JSONObject sendImage(String userName, String nickName, String remarkName, File i
 ```java
 // 通过userName发送视频消息
 JSONObject sendVideo(String userName, byte[] mediaData, String mediaName, ContentType contentType);
-JSONObject sendVideo(String userName, File image);
+JSONObject sendVideo(String userName, File video);
 // 通过昵称发送视频消息
 JSONObject sendVideoToNickName(String nickName, byte[] mediaData, String mediaName, ContentType contentType);
-JSONObject sendVideoToNickName(String nickName, File image);
+JSONObject sendVideoToNickName(String nickName, File video);
 // 通过备注名发送视频消息
 JSONObject sendVideoToRemarkName(String remarkName, byte[] mediaData, String mediaName, ContentType contentType);
-JSONObject sendVideoToRemarkName(String remarkName, File image);
+JSONObject sendVideoToRemarkName(String remarkName, File video);
 // 发送视频消息（根据多种名称）
 JSONObject sendVideo(String userName, String nickName, String remarkName, byte[] mediaData, String mediaName, ContentType contentType);
-JSONObject sendVideo(String userName, String nickName, String remarkName, File image);
+JSONObject sendVideo(String userName, String nickName, String remarkName, File video);
 ```
 
 > 更多消息类型支持尽请期待。
