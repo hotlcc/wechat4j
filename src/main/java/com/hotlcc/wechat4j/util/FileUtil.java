@@ -74,7 +74,7 @@ public final class FileUtil {
      * @param file 文件
      * @return ContentType
      */
-    public static ContentType getContentBody(File file) {
+    public static ContentType getContentType(File file) {
         String mimeType = new MimetypesFileTypeMap().getContentType(file);
         ContentType contentType = ContentType.parse(mimeType);
         return contentType;

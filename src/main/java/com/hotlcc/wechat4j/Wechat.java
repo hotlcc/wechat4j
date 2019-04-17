@@ -1296,7 +1296,7 @@ public class Wechat {
      * @return 返回数据
      */
     public JSONObject sendImage(String userName, File image) {
-        ContentType contentType = FileUtil.getContentBody(image);
+        ContentType contentType = FileUtil.getContentType(image);
         byte[] mediaData = FileUtil.getBytes(image);
         return sendImage(userName, mediaData, image.getName(), contentType);
     }
@@ -1336,7 +1336,7 @@ public class Wechat {
      * @return 返回数据
      */
     public JSONObject sendImageToNickName(String nickName, File image) {
-        ContentType contentType = FileUtil.getContentBody(image);
+        ContentType contentType = FileUtil.getContentType(image);
         byte[] mediaData = FileUtil.getBytes(image);
         return sendImageToNickName(nickName, mediaData, image.getName(), contentType);
     }
@@ -1376,7 +1376,7 @@ public class Wechat {
      * @return 返回数据
      */
     public JSONObject sendImageToRemarkName(String remarkName, File image) {
-        ContentType contentType = FileUtil.getContentBody(image);
+        ContentType contentType = FileUtil.getContentType(image);
         byte[] mediaData = FileUtil.getBytes(image);
         return sendImageToRemarkName(remarkName, mediaData, image.getName(), contentType);
     }
@@ -1427,7 +1427,7 @@ public class Wechat {
      * @return 返回数据
      */
     public JSONObject sendImage(String userName, String nickName, String remarkName, File image) {
-        ContentType contentType = FileUtil.getContentBody(image);
+        ContentType contentType = FileUtil.getContentType(image);
         byte[] mediaData = FileUtil.getBytes(image);
         return sendImage(userName, nickName, remarkName, mediaData, image.getName(), contentType);
     }
@@ -1489,7 +1489,7 @@ public class Wechat {
      * @return 返回数据
      */
     public JSONObject sendVideo(String userName, File video) {
-        ContentType contentType = FileUtil.getContentBody(video);
+        ContentType contentType = FileUtil.getContentType(video);
         byte[] mediaData = FileUtil.getBytes(video);
         return sendVideo(userName, mediaData, video.getName(), contentType);
     }
@@ -1529,7 +1529,7 @@ public class Wechat {
      * @return 返回数据
      */
     public JSONObject sendVideoToNickName(String nickName, File video) {
-        ContentType contentType = FileUtil.getContentBody(video);
+        ContentType contentType = FileUtil.getContentType(video);
         byte[] mediaData = FileUtil.getBytes(video);
         return sendVideoToNickName(nickName, mediaData, video.getName(), contentType);
     }
@@ -1569,7 +1569,7 @@ public class Wechat {
      * @return 返回数据
      */
     public JSONObject sendVideoToRemarkName(String remarkName, File video) {
-        ContentType contentType = FileUtil.getContentBody(video);
+        ContentType contentType = FileUtil.getContentType(video);
         byte[] mediaData = FileUtil.getBytes(video);
         return sendVideoToRemarkName(remarkName, mediaData, video.getName(), contentType);
     }
@@ -1619,7 +1619,7 @@ public class Wechat {
      * @return 返回数据
      */
     public JSONObject sendVideo(String userName, String nickName, String remarkName, File video) {
-        ContentType contentType = FileUtil.getContentBody(video);
+        ContentType contentType = FileUtil.getContentType(video);
         byte[] mediaData = FileUtil.getBytes(video);
         return sendVideo(userName, nickName, remarkName, mediaData, video.getName(), contentType);
     }
