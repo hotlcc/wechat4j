@@ -6,7 +6,7 @@ import com.google.zxing.NotFoundException;
 import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.common.HybridBinarizer;
-import com.hotlcc.wechat4j.enums.OperatingSystemEnum;
+import com.hotlcc.wechat4j.enums.OperatingSystem;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.imageio.ImageIO;
@@ -269,7 +269,7 @@ public final class QRCodeUtil {
      * @param data 二维码图片的字节数据
      */
     public static void openQRCodeImage(byte[] data) {
-        OperatingSystemEnum os = OperatingSystemEnum.currentOperatingSystem();
+        OperatingSystem os = OperatingSystem.currentOperatingSystem();
         Runtime runtime;
         File tmp;
         switch (os) {

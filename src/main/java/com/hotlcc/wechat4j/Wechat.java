@@ -8,7 +8,6 @@ import com.hotlcc.wechat4j.handler.ReceivedMsgHandler;
 import com.hotlcc.wechat4j.model.*;
 import com.hotlcc.wechat4j.util.*;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.client.CookieStore;
@@ -20,7 +19,6 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.protocol.HttpContext;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -180,7 +178,7 @@ public class Wechat {
     private HttpClient buildHttpClient(CookieStore cookieStore) {
         HttpRequestInterceptor interceptor = new HttpRequestInterceptor() {
             @Override
-            public void process(HttpRequest httpRequest, HttpContext httpContext) throws HttpException, IOException {
+            public void process(HttpRequest httpRequest, HttpContext httpContext) {
                 httpRequest.addHeader("User-Agent", PropertiesUtil.getProperty("wechat4j.userAgent"));
             }
         };
@@ -194,8 +192,8 @@ public class Wechat {
     /**
      * 获取uuid（登录时）
      *
-     * @param pw
-     * @param time
+     * @param pw   打印器
+     * @param time 时间
      * @return
      */
     private String getWxUuid(PrintWriter pw, int time) {
@@ -244,7 +242,7 @@ public class Wechat {
     /**
      * 获取并显示qrcode（登录时）
      *
-     * @return
+     * @return 是否成功
      */
     private boolean getAndShowQRCode(PrintWriter pw, String uuid, int time) {
         pw.print("获取二维码...");
@@ -293,7 +291,7 @@ public class Wechat {
 
         boolean flag = false;
         while (true) {
-            JSONObject result = WebWeixinApiUtil.getRedirectUri(httpClient, LoginTipEnum.TIP_0, uuid);
+            JSONObject result = WebWeixinApiUtil.getRedirectUri(httpClient, LoginTip.TIP_0, uuid);
             if (result == null) {
                 pw.println("\t失败：出现异常");
                 pw.flush();
@@ -664,10 +662,10 @@ public class Wechat {
 
                     //人为退出
                     int retcode = result.getIntValue("retcode");
-                    if (retcode != RetcodeEnum.RECODE_0.getCode()) {
+                    if (retcode != Retcode.RECODE_0.getCode()) {
                         log.info("微信退出或从其它设备登录");
                         logout();
-                        processExitEvent(ExitTypeEnum.REMOTE_EXIT, null);
+                        processExitEvent(ExitType.REMOTE_EXIT, null);
                         return;
                     }
 
@@ -685,7 +683,7 @@ public class Wechat {
                     if (i >= time) {
                         log.info("重复{}次仍然失败，退出微信", i);
                         logout();
-                        processExitEvent(ExitTypeEnum.ERROR_EXIT, e);
+                        processExitEvent(ExitType.ERROR_EXIT, e);
                         return;
                     }
 
@@ -699,7 +697,7 @@ public class Wechat {
                 }
             }
 
-            processExitEvent(ExitTypeEnum.LOCAL_EXIT, null);
+            processExitEvent(ExitType.LOCAL_EXIT, null);
         }
 
         /**
@@ -708,7 +706,7 @@ public class Wechat {
          * @param type 退出类型
          * @param t    异常
          */
-        private void processExitEvent(ExitTypeEnum type, Throwable t) {
+        private void processExitEvent(ExitType type, Throwable t) {
             try {
                 if (exitEventHandlers == null) {
                     return;
@@ -724,7 +722,7 @@ public class Wechat {
             }
         }
 
-        private void processExitEvent(ExitTypeEnum type, Throwable t, ExitEventHandler handler) {
+        private void processExitEvent(ExitType type, Throwable t, ExitEventHandler handler) {
             try {
                 switch (type) {
                     case ERROR_EXIT:
@@ -757,7 +755,7 @@ public class Wechat {
          */
         private void processSelector(int selector) {
             try {
-                SelectorEnum e = SelectorEnum.valueOf(selector);
+                Selector e = Selector.valueOf(selector);
                 if (e == null) {
                     log.warn("Cannot process unknow selector {}", selector);
                     return;
@@ -801,7 +799,7 @@ public class Wechat {
                 }
 
                 int ret = baseResponse.getIntValue("Ret");
-                if (ret != RetcodeEnum.RECODE_0.getCode()) {
+                if (ret != Retcode.RECODE_0.getCode()) {
                     log.warn("同步接口返回错误代码:{}", ret);
                     return;
                 }
@@ -1153,7 +1151,7 @@ public class Wechat {
         } else {
             message.setToUserName(userName);
         }
-        message.setType(MsgTypeEnum.TEXT_MSG.getCode());
+        message.setType(MsgType.TEXT_MSG.getCode());
 
         return WebWeixinApiUtil.sendMsg(httpClient, urlVersion, passTicket, baseRequest, message);
     }
@@ -1257,7 +1255,7 @@ public class Wechat {
 
         // 上传媒体文件
         String dataTicket = getCookieValue("webwx_data_ticket");
-        JSONObject result = WebWeixinApiUtil.uploadMedia(httpClient, urlVersion, passTicket, baseRequest, loginUserName, toUserName, dataTicket, mediaData, mediaName, contentType);
+        JSONObject result = WebWeixinApiUtil.uploadMedia(httpClient, urlVersion, passTicket, baseRequest, loginUserName, toUserName, dataTicket, mediaData, mediaName, contentType, MediaType.PICTURE);
         if (result == null) {
             return null;
         }
@@ -1284,7 +1282,7 @@ public class Wechat {
         message.setLocalID(msgId);
         message.setMediaId(mediaId);
         message.setToUserName(toUserName);
-        message.setType(MsgTypeEnum.IMAGE_MSG.getCode());
+        message.setType(MsgType.IMAGE_MSG.getCode());
         result = WebWeixinApiUtil.sendImageMsg(httpClient, urlVersion, passTicket, baseRequest, message);
 
         return result;
@@ -1432,5 +1430,197 @@ public class Wechat {
         ContentType contentType = FileUtil.getContentBody(image);
         byte[] mediaData = FileUtil.getBytes(image);
         return sendImage(userName, nickName, remarkName, mediaData, image.getName(), contentType);
+    }
+
+    /**
+     * 发送视频消息
+     *
+     * @param userName    用户名（加密的）
+     * @param mediaData   媒体文件数据
+     * @param mediaName   媒体文件名
+     * @param contentType 媒体文件类型
+     * @return 返回数据
+     */
+    public JSONObject sendVideo(String userName, byte[] mediaData, String mediaName, ContentType contentType) {
+        String loginUserName = getLoginUserName(false);
+        String toUserName = StringUtil.isEmpty(userName) ? loginUserName : userName;
+        BaseRequest baseRequest = new BaseRequest(wxsid, skey, wxuin);
+
+        // 上传媒体文件
+        String dataTicket = getCookieValue("webwx_data_ticket");
+        JSONObject result = WebWeixinApiUtil.uploadMedia(httpClient, urlVersion, passTicket, baseRequest, loginUserName, toUserName, dataTicket, mediaData, mediaName, contentType, MediaType.VIDEO);
+        if (result == null) {
+            return null;
+        }
+        JSONObject br = result.getJSONObject("BaseResponse");
+        if (br == null) {
+            return result;
+        }
+        int ret = br.getIntValue("Ret");
+        if (ret != 0) {
+            return result;
+        }
+
+        String mediaId = result.getString("MediaId");
+        if (StringUtil.isEmpty(mediaId)) {
+            return result;
+        }
+
+        // 发送视频消息
+        String msgId = WechatUtil.createMsgId();
+        MediaMessage message = new MediaMessage();
+        message.setClientMsgId(msgId);
+        message.setContent("");
+        message.setFromUserName(loginUserName);
+        message.setLocalID(msgId);
+        message.setMediaId(mediaId);
+        message.setToUserName(toUserName);
+        message.setType(MsgType.VIDEO_CALL_MSG.getCode());
+        result = WebWeixinApiUtil.sendVideoMsg(httpClient, urlVersion, baseRequest, message);
+
+        return result;
+    }
+
+    /**
+     * 发送视频消息
+     *
+     * @param userName 用户名（加密的）
+     * @param video    视频文件
+     * @return 返回数据
+     */
+    public JSONObject sendVideo(String userName, File video) {
+        ContentType contentType = FileUtil.getContentBody(video);
+        byte[] mediaData = FileUtil.getBytes(video);
+        return sendVideo(userName, mediaData, video.getName(), contentType);
+    }
+
+    /**
+     * 发送视频消息（根据昵称）
+     *
+     * @param nickName    昵称
+     * @param mediaData   媒体文件数据
+     * @param mediaName   媒体文件名
+     * @param contentType 媒体文件类型
+     * @return 返回数据
+     */
+    public JSONObject sendVideoToNickName(String nickName, byte[] mediaData, String mediaName, ContentType contentType) {
+        if (StringUtil.isEmpty(nickName)) {
+            return sendVideo(null, mediaData, mediaName, contentType);
+        }
+
+        UserInfo userInfo = getContactByNickName(false, nickName);
+        if (userInfo == null) {
+            return null;
+        }
+
+        String userName = userInfo.getUserName();
+        if (StringUtil.isEmpty(userName)) {
+            return null;
+        }
+
+        return sendVideo(userName, mediaData, mediaName, contentType);
+    }
+
+    /**
+     * 发送视频消息（根据昵称）
+     *
+     * @param nickName 昵称
+     * @param video    视频文件
+     * @return 返回数据
+     */
+    public JSONObject sendVideoToNickName(String nickName, File video) {
+        ContentType contentType = FileUtil.getContentBody(video);
+        byte[] mediaData = FileUtil.getBytes(video);
+        return sendVideoToNickName(nickName, mediaData, video.getName(), contentType);
+    }
+
+    /**
+     * 发送视频消息（根据备注名）
+     *
+     * @param remarkName  备注名
+     * @param mediaData   媒体文件数据
+     * @param mediaName   媒体文件名
+     * @param contentType 媒体文件类型
+     * @return 返回数据
+     */
+    public JSONObject sendVideoToRemarkName(String remarkName, byte[] mediaData, String mediaName, ContentType contentType) {
+        if (StringUtil.isEmpty(remarkName)) {
+            return sendVideo(null, mediaData, mediaName, contentType);
+        }
+
+        UserInfo userInfo = getContactByRemarkName(false, remarkName);
+        if (userInfo == null) {
+            return null;
+        }
+
+        String userName = userInfo.getUserName();
+        if (StringUtil.isEmpty(userName)) {
+            return null;
+        }
+
+        return sendVideo(userName, mediaData, mediaName, contentType);
+    }
+
+    /**
+     * 发送视频消息（根据备注名）
+     *
+     * @param remarkName 备注名
+     * @param video      视频文件
+     * @return 返回数据
+     */
+    public JSONObject sendVideoToRemarkName(String remarkName, File video) {
+        ContentType contentType = FileUtil.getContentBody(video);
+        byte[] mediaData = FileUtil.getBytes(video);
+        return sendVideoToRemarkName(remarkName, mediaData, video.getName(), contentType);
+    }
+
+    /**
+     * 发送视频消息（根据多种名称）
+     *
+     * @param userName    用户名（加密的）
+     * @param nickName    昵称
+     * @param remarkName  备注名
+     * @param mediaData   媒体文件数据
+     * @param mediaName   媒体文件名
+     * @param contentType 媒体文件类型
+     * @return 返回数据
+     */
+    public JSONObject sendVideo(String userName, String nickName, String remarkName, byte[] mediaData, String mediaName, ContentType contentType) {
+        UserInfo userInfo;
+
+        if (StringUtil.isNotEmpty(userName)) {
+            return sendVideo(userName, mediaData, mediaName, contentType);
+        } else if (StringUtil.isNotEmpty(nickName)) {
+            userInfo = getContactByNickName(false, nickName);
+        } else if (StringUtil.isNotEmpty(remarkName)) {
+            userInfo = getContactByRemarkName(false, remarkName);
+        } else {
+            String loginUserName = getLoginUserName(false);
+            return sendVideo(loginUserName, mediaData, mediaName, contentType);
+        }
+
+        if (userInfo == null) {
+            return null;
+        }
+        userName = userInfo.getUserName();
+        if (StringUtil.isEmpty(userName)) {
+            return null;
+        }
+        return sendVideo(userName, mediaData, mediaName, contentType);
+    }
+
+    /**
+     * 发送视频消息（根据多种名称）
+     *
+     * @param userName   用户名（加密的）
+     * @param nickName   昵称
+     * @param remarkName 备注名
+     * @param video      视频文件
+     * @return 返回数据
+     */
+    public JSONObject sendVideo(String userName, String nickName, String remarkName, File video) {
+        ContentType contentType = FileUtil.getContentBody(video);
+        byte[] mediaData = FileUtil.getBytes(video);
+        return sendVideo(userName, nickName, remarkName, mediaData, video.getName(), contentType);
     }
 }

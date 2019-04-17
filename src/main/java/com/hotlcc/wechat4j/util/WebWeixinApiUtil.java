@@ -2,7 +2,8 @@ package com.hotlcc.wechat4j.util;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.hotlcc.wechat4j.enums.LoginTipEnum;
+import com.hotlcc.wechat4j.enums.LoginTip;
+import com.hotlcc.wechat4j.enums.MediaType;
 import com.hotlcc.wechat4j.model.BaseRequest;
 import com.hotlcc.wechat4j.model.MediaMessage;
 import com.hotlcc.wechat4j.model.WxMessage;
@@ -156,7 +157,7 @@ public final class WebWeixinApiUtil {
      * @return 返回数据
      */
     public static JSONObject getRedirectUri(HttpClient httpClient,
-                                            LoginTipEnum tip,
+                                            LoginTip tip,
                                             String uuid) {
         try {
             long millis = System.currentTimeMillis();
@@ -672,6 +673,7 @@ public final class WebWeixinApiUtil {
      * @param mediaData    媒体文件二进制数据
      * @param mediaName    媒体文件名称
      * @param contentType  媒体文件类型
+     * @param mediaType    媒体类型
      * @return 返回数据
      */
     public static JSONObject uploadMedia(HttpClient httpClient,
@@ -683,7 +685,8 @@ public final class WebWeixinApiUtil {
                                          String dataTicket,
                                          byte[] mediaData,
                                          String mediaName,
-                                         ContentType contentType) {
+                                         ContentType contentType,
+                                         MediaType mediaType) {
         try {
             String url = new ST(PropertiesUtil.getProperty("webwx-url.uploadmedia_url"))
                     .add("urlVersion", urlVersion)
@@ -702,7 +705,7 @@ public final class WebWeixinApiUtil {
             uploadmediarequest.put("TotalLen", mediaLength);
             uploadmediarequest.put("StartPos", 0);
             uploadmediarequest.put("DataLen", mediaLength);
-            uploadmediarequest.put("MediaType", 4);
+            uploadmediarequest.put(MediaType.REQUEST_JSON_KEY, mediaType.getCode());
             uploadmediarequest.put("FromUserName", fromUserName);
             uploadmediarequest.put("ToUserName", toUserName);
             uploadmediarequest.put("FileMd5", DigestUtils.md5Hex(mediaData));
@@ -721,6 +724,7 @@ public final class WebWeixinApiUtil {
                         .setMode(HttpMultipartMode.BROWSER_COMPATIBLE)
                         .addTextBody("chunks", String.valueOf(chunks))
                         .addTextBody("chunk", String.valueOf(chunk))
+                        .addTextBody(MediaType.REQUEST_KEY, mediaType.getValue(), ContentType.TEXT_PLAIN)
                         .addTextBody("uploadmediarequest", uploadmediarequest.toJSONString(), ContentType.TEXT_PLAIN)
                         .addTextBody("webwx_data_ticket", dataTicket, ContentType.TEXT_PLAIN)
                         .addTextBody("pass_ticket", passticket, ContentType.TEXT_PLAIN)
@@ -802,6 +806,50 @@ public final class WebWeixinApiUtil {
             return JSONObject.parseObject(res);
         } catch (Exception e) {
             log.error("发送图片消息异常", e);
+            return null;
+        }
+    }
+
+    /**
+     * 发送视频消息
+     *
+     * @param httpClient  http客户端
+     * @param urlVersion  url版本号
+     * @param baseRequest BaseRequest
+     * @param message     消息
+     * @return 返回数据
+     */
+    public static JSONObject sendVideoMsg(HttpClient httpClient,
+                                          String urlVersion,
+                                          BaseRequest baseRequest,
+                                          MediaMessage message) {
+        try {
+            String url = new ST(PropertiesUtil.getProperty("webwx-url.webwxsendvideomsg_url"))
+                    .add("urlVersion", urlVersion)
+                    .render();
+
+            HttpPost httpPost = new HttpPost(url);
+            httpPost.setHeader("Content-type", ContentType.APPLICATION_JSON.toString());
+
+            JSONObject paramJson = new JSONObject();
+            paramJson.put("BaseRequest", baseRequest);
+            paramJson.put("Msg", message);
+            paramJson.put("Scene", 0);
+            HttpEntity paramEntity = new StringEntity(paramJson.toJSONString(), Consts.UTF_8);
+            httpPost.setEntity(paramEntity);
+
+            HttpResponse response = httpClient.execute(httpPost);
+            int statusCode = response.getStatusLine().getStatusCode();
+            if (HttpStatus.SC_OK != statusCode) {
+                throw new RuntimeException("响应失败(" + statusCode + ")");
+            }
+
+            HttpEntity entity = response.getEntity();
+            String res = EntityUtils.toString(entity, Consts.UTF_8);
+
+            return JSONObject.parseObject(res);
+        } catch (Exception e) {
+            log.error("发送视频消息异常", e);
             return null;
         }
     }
