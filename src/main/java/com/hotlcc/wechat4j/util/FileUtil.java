@@ -1,8 +1,7 @@
 package com.hotlcc.wechat4j.util;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.http.entity.ContentType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.activation.MimetypesFileTypeMap;
 import java.io.ByteArrayOutputStream;
@@ -15,9 +14,8 @@ import java.io.IOException;
  *
  * @author Allen
  */
+@Slf4j
 public final class FileUtil {
-    private static Logger logger = LoggerFactory.getLogger(FileUtil.class);
-
     private FileUtil() {
     }
 

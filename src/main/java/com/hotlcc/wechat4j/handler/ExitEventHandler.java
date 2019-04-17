@@ -1,7 +1,7 @@
 package com.hotlcc.wechat4j.handler;
 
 import com.hotlcc.wechat4j.Wechat;
-import com.hotlcc.wechat4j.enums.ExitTypeEnum;
+import com.hotlcc.wechat4j.enums.ExitType;
 
 /**
  * 退出事件处理器
@@ -16,7 +16,7 @@ public interface ExitEventHandler {
      * @param type   退出类型
      * @param t      异常
      */
-    void handleAllType(Wechat wechat, ExitTypeEnum type, Throwable t);
+    void handleAllType(Wechat wechat, ExitType type, Throwable t);
 
     /**
      * 针对错误导致的退出事件

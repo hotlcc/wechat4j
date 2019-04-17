@@ -1,9 +1,9 @@
 import com.alibaba.fastjson.JSONObject;
 import com.hotlcc.wechat4j.Wechat;
-import com.hotlcc.wechat4j.api.WebWeixinApi;
 import com.hotlcc.wechat4j.handler.ReceivedMsgHandler;
 import com.hotlcc.wechat4j.model.ReceivedMsg;
 import com.hotlcc.wechat4j.model.UserInfo;
+import com.hotlcc.wechat4j.util.CommonUtil;
 import com.hotlcc.wechat4j.util.StringUtil;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,8 +16,6 @@ public class TestClass {
     @Before
     public void initAndLogin() {
         wechat = new Wechat();
-        WebWeixinApi api = new WebWeixinApi();
-        wechat.setWebWeixinApi(api);
         wechat.addReceivedMsgHandler(new ReceivedMsgHandler() {
             @Override
             public void handleAllType(Wechat wechat, ReceivedMsg msg) {
@@ -37,9 +35,13 @@ public class TestClass {
 
     @Test
     public void testSendImage() {
-        File file = new File("D:\\Downloads\\images\\6600e90b8b0ce2037a5291a7147ffd2b.jpeg");
-
-        JSONObject result = wechat.sendImage(null, file);
+        File file = null;
+        JSONObject result = null;
+        file = new File("C:\\Users\\Administrator\\Pictures\\壁纸\\9e5f4981099bcf351e0ec18c3654aced.jpg");
+        result = wechat.sendImage(null, file);
+        file = new File("C:\\Users\\Administrator\\Videos\\手机QQ视频_20190416170016.mp4");
+        result = wechat.sendVideo(null, file);
         System.out.println(result);
+        while (true) CommonUtil.threadSleep(5000);
     }
 }

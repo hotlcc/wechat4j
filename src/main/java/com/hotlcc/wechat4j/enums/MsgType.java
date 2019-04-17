@@ -1,12 +1,17 @@
 package com.hotlcc.wechat4j.enums;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
 /**
  * 消息类型enum
  *
  * @author Allen
  */
 @SuppressWarnings({"unused"})
-public enum MsgTypeEnum {
+@AllArgsConstructor
+@Getter
+public enum MsgType {
     TEXT_MSG(1, "文本消息"),
     IMAGE_MSG(3, "图片消息"),
     VOICE_MSG(34, "语音消息"),
@@ -26,19 +31,6 @@ public enum MsgTypeEnum {
     SYSTEM_MSG(10000, "系统消息"),
     WITHDRAW_MSG(10002, "撤回消息");
 
-    MsgTypeEnum(int code, String desc) {
-        this.code = code;
-        this.desc = desc;
-    }
-
     private int code;
     private String desc;
-
-    public int getCode() {
-        return code;
-    }
-
-    public String getDesc() {
-        return desc;
-    }
 }
