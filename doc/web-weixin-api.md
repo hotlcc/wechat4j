@@ -924,7 +924,7 @@ POST参数分析：
       - 10002：撤回消息
 - SyncKey会暂存起来作为下一次请求的参数。
 
-### 4.2、发送消息
+### 4.2、发送文本消息
 
 打开一个聊天界面，向好友发送一条消息，会发现产生如下 POST 请求：
 
@@ -1010,7 +1010,7 @@ FORM表单参数分析：
 |~~size~~|99785|文件大小；非必须；|
 |chunks|3|文件分片数量；文件较大需要分片时必须；|
 |chunk|0|文件分片序号；从0开始；文件较大需要分片时必须；|
-|mediatype|pic|文件类型；图片为pic，其它文件为doc；非必须；|
+|mediatype|pic|文件类型；图片为pic，视频为video，其它文件为doc；必须；|
 |uploadmediarequest||JSON字符串；必须；|
 |webwx_data_ticket||cookie中的数据；必须；|
 |pass_ticket||登录时获取的；必须；|
