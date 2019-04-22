@@ -29,7 +29,7 @@ wechat.autoLogin();
 
 ```java
 // 通过userName发送文本消息
-JSONObject sendText(String content, String userName);
+JSONObject sendTextToUserName(String content, String userName);
 // 通过昵称发送文本消息
 JSONObject sendTextToNickName(String content, String nickName);
 // 通过备注名发送文本消息
@@ -42,8 +42,8 @@ JSONObject sendText(String userName, String nickName, String remarkName, String 
 
 ```java
 // 通过userName发送图片消息
-JSONObject sendImage(String userName, byte[] mediaData, String mediaName, ContentType contentType);
-JSONObject sendImage(String userName, File image);
+JSONObject sendImageToUserName(String userName, byte[] mediaData, String mediaName, ContentType contentType);
+JSONObject sendImageToUserName(String userName, File image);
 // 通过昵称发送图片消息
 JSONObject sendImageToNickName(String nickName, byte[] mediaData, String mediaName, ContentType contentType);
 JSONObject sendImageToNickName(String nickName, File image);
@@ -59,8 +59,8 @@ JSONObject sendImage(String userName, String nickName, String remarkName, File i
 
 ```java
 // 通过userName发送视频消息
-JSONObject sendVideo(String userName, byte[] mediaData, String mediaName, ContentType contentType);
-JSONObject sendVideo(String userName, File video);
+JSONObject sendVideoToUserName(String userName, byte[] mediaData, String mediaName, ContentType contentType);
+JSONObject sendVideoToUserName(String userName, File video);
 // 通过昵称发送视频消息
 JSONObject sendVideoToNickName(String nickName, byte[] mediaData, String mediaName, ContentType contentType);
 JSONObject sendVideoToNickName(String nickName, File video);
