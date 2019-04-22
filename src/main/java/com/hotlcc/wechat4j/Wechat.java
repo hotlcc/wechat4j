@@ -1130,13 +1130,52 @@ public class Wechat {
     }
 
     /**
+     * 获取联系人信息（根据多种名称）
+     *
+     * @param update     是否强制更新
+     * @param userName   用户名（加密的）
+     * @param nickName   昵称
+     * @param remarkName 备注
+     * @return 返回数据
+     */
+    public UserInfo getContact(boolean update, String userName, String nickName, String remarkName) {
+        if (StringUtil.isNotEmpty(userName)) {
+            return getContactByUserName(update, userName);
+        } else if (StringUtil.isNotEmpty(nickName)) {
+            return getContactByNickName(update, nickName);
+        } else if (StringUtil.isNotEmpty(remarkName)) {
+            return getContactByRemarkName(update, remarkName);
+        } else {
+            return getLoginUser(update);
+        }
+    }
+
+    public UserInfo getContact(String userName, String nickName, String remarkName) {
+        return getContact(false, userName, nickName, remarkName);
+    }
+
+    /**
+     * 根据UserName获取联系人头像图片
+     *
+     * @param userName 用户名（加密的）
+     * @return 返回数据
+     */
+    public byte[] getContactHeadImgByUserName(String userName) {
+        if (!StringUtil.isEmpty(userName)) {
+            return WebWeixinApiUtil.getContactHeadImg(httpClient, urlVersion, userName);
+        } else {
+            return WebWeixinApiUtil.getContactHeadImg(httpClient, urlVersion, getLoginUserName());
+        }
+    }
+
+    /**
      * 发送文本消息
      *
      * @param userName 用户名（加密的）
      * @param content  文本消息内容
      * @return 返回数据
      */
-    public JSONObject sendText(String userName, String content) {
+    public JSONObject sendTextToUserName(String userName, String content) {
         BaseRequest baseRequest = new BaseRequest(wxsid, skey, wxuin);
 
         String msgId = WechatUtil.createMsgId();
@@ -1165,7 +1204,7 @@ public class Wechat {
      */
     public JSONObject sendTextToNickName(String nickName, String content) {
         if (StringUtil.isEmpty(nickName)) {
-            return sendText(null, content);
+            return sendTextToUserName(null, content);
         }
 
         UserInfo userInfo = getContactByNickName(false, nickName);
@@ -1178,7 +1217,7 @@ public class Wechat {
             return null;
         }
 
-        return sendText(userName, content);
+        return sendTextToUserName(userName, content);
     }
 
     /**
@@ -1190,7 +1229,7 @@ public class Wechat {
      */
     public JSONObject sendTextToRemarkName(String remarkName, String content) {
         if (StringUtil.isEmpty(remarkName)) {
-            return sendText(null, content);
+            return sendTextToUserName(null, content);
         }
 
         UserInfo userInfo = getContactByRemarkName(false, remarkName);
@@ -1203,7 +1242,7 @@ public class Wechat {
             return null;
         }
 
-        return sendText(userName, content);
+        return sendTextToUserName(userName, content);
     }
 
     /**
@@ -1219,14 +1258,14 @@ public class Wechat {
         UserInfo userInfo;
 
         if (StringUtil.isNotEmpty(userName)) {
-            return sendText(userName, content);
+            return sendTextToUserName(userName, content);
         } else if (StringUtil.isNotEmpty(nickName)) {
             userInfo = getContactByNickName(false, nickName);
         } else if (StringUtil.isNotEmpty(remarkName)) {
             userInfo = getContactByRemarkName(false, remarkName);
         } else {
             String loginUserName = getLoginUserName(false);
-            return sendText(loginUserName, content);
+            return sendTextToUserName(loginUserName, content);
         }
 
         if (userInfo == null) {
@@ -1236,7 +1275,7 @@ public class Wechat {
         if (StringUtil.isEmpty(userName)) {
             return null;
         }
-        return sendText(userName, content);
+        return sendTextToUserName(userName, content);
     }
 
     /**
@@ -1248,7 +1287,7 @@ public class Wechat {
      * @param contentType 媒体文件类型
      * @return 返回数据
      */
-    public JSONObject sendImage(String userName, byte[] mediaData, String mediaName, ContentType contentType) {
+    public JSONObject sendImageToUserName(String userName, byte[] mediaData, String mediaName, ContentType contentType) {
         String loginUserName = getLoginUserName(false);
         String toUserName = StringUtil.isEmpty(userName) ? loginUserName : userName;
         BaseRequest baseRequest = new BaseRequest(wxsid, skey, wxuin);
@@ -1295,10 +1334,10 @@ public class Wechat {
      * @param image    图片文件
      * @return 返回数据
      */
-    public JSONObject sendImage(String userName, File image) {
-        ContentType contentType = FileUtil.getContentBody(image);
+    public JSONObject sendImageToUserName(String userName, File image) {
+        ContentType contentType = FileUtil.getContentType(image);
         byte[] mediaData = FileUtil.getBytes(image);
-        return sendImage(userName, mediaData, image.getName(), contentType);
+        return sendImageToUserName(userName, mediaData, image.getName(), contentType);
     }
 
     /**
@@ -1312,7 +1351,7 @@ public class Wechat {
      */
     public JSONObject sendImageToNickName(String nickName, byte[] mediaData, String mediaName, ContentType contentType) {
         if (StringUtil.isEmpty(nickName)) {
-            return sendImage(null, mediaData, mediaName, contentType);
+            return sendImageToUserName(null, mediaData, mediaName, contentType);
         }
 
         UserInfo userInfo = getContactByNickName(false, nickName);
@@ -1325,7 +1364,7 @@ public class Wechat {
             return null;
         }
 
-        return sendImage(userName, mediaData, mediaName, contentType);
+        return sendImageToUserName(userName, mediaData, mediaName, contentType);
     }
 
     /**
@@ -1336,7 +1375,7 @@ public class Wechat {
      * @return 返回数据
      */
     public JSONObject sendImageToNickName(String nickName, File image) {
-        ContentType contentType = FileUtil.getContentBody(image);
+        ContentType contentType = FileUtil.getContentType(image);
         byte[] mediaData = FileUtil.getBytes(image);
         return sendImageToNickName(nickName, mediaData, image.getName(), contentType);
     }
@@ -1352,7 +1391,7 @@ public class Wechat {
      */
     public JSONObject sendImageToRemarkName(String remarkName, byte[] mediaData, String mediaName, ContentType contentType) {
         if (StringUtil.isEmpty(remarkName)) {
-            return sendImage(null, mediaData, mediaName, contentType);
+            return sendImageToUserName(null, mediaData, mediaName, contentType);
         }
 
         UserInfo userInfo = getContactByRemarkName(false, remarkName);
@@ -1365,7 +1404,7 @@ public class Wechat {
             return null;
         }
 
-        return sendImage(userName, mediaData, mediaName, contentType);
+        return sendImageToUserName(userName, mediaData, mediaName, contentType);
     }
 
     /**
@@ -1376,7 +1415,7 @@ public class Wechat {
      * @return 返回数据
      */
     public JSONObject sendImageToRemarkName(String remarkName, File image) {
-        ContentType contentType = FileUtil.getContentBody(image);
+        ContentType contentType = FileUtil.getContentType(image);
         byte[] mediaData = FileUtil.getBytes(image);
         return sendImageToRemarkName(remarkName, mediaData, image.getName(), contentType);
     }
@@ -1392,19 +1431,18 @@ public class Wechat {
      * @param contentType 媒体文件类型
      * @return 返回数据
      */
-    public JSONObject sendImage(String userName, String nickName, String remarkName
-            , byte[] mediaData, String mediaName, ContentType contentType) {
+    public JSONObject sendImage(String userName, String nickName, String remarkName, byte[] mediaData, String mediaName, ContentType contentType) {
         UserInfo userInfo;
 
         if (StringUtil.isNotEmpty(userName)) {
-            return sendImage(userName, mediaData, mediaName, contentType);
+            return sendImageToUserName(userName, mediaData, mediaName, contentType);
         } else if (StringUtil.isNotEmpty(nickName)) {
             userInfo = getContactByNickName(false, nickName);
         } else if (StringUtil.isNotEmpty(remarkName)) {
             userInfo = getContactByRemarkName(false, remarkName);
         } else {
             String loginUserName = getLoginUserName(false);
-            return sendImage(loginUserName, mediaData, mediaName, contentType);
+            return sendImageToUserName(loginUserName, mediaData, mediaName, contentType);
         }
 
         if (userInfo == null) {
@@ -1414,7 +1452,7 @@ public class Wechat {
         if (StringUtil.isEmpty(userName)) {
             return null;
         }
-        return sendImage(userName, mediaData, mediaName, contentType);
+        return sendImageToUserName(userName, mediaData, mediaName, contentType);
     }
 
     /**
@@ -1427,7 +1465,7 @@ public class Wechat {
      * @return 返回数据
      */
     public JSONObject sendImage(String userName, String nickName, String remarkName, File image) {
-        ContentType contentType = FileUtil.getContentBody(image);
+        ContentType contentType = FileUtil.getContentType(image);
         byte[] mediaData = FileUtil.getBytes(image);
         return sendImage(userName, nickName, remarkName, mediaData, image.getName(), contentType);
     }
@@ -1441,7 +1479,7 @@ public class Wechat {
      * @param contentType 媒体文件类型
      * @return 返回数据
      */
-    public JSONObject sendVideo(String userName, byte[] mediaData, String mediaName, ContentType contentType) {
+    public JSONObject sendVideoToUserName(String userName, byte[] mediaData, String mediaName, ContentType contentType) {
         String loginUserName = getLoginUserName(false);
         String toUserName = StringUtil.isEmpty(userName) ? loginUserName : userName;
         BaseRequest baseRequest = new BaseRequest(wxsid, skey, wxuin);
@@ -1488,10 +1526,10 @@ public class Wechat {
      * @param video    视频文件
      * @return 返回数据
      */
-    public JSONObject sendVideo(String userName, File video) {
-        ContentType contentType = FileUtil.getContentBody(video);
+    public JSONObject sendVideoToUserName(String userName, File video) {
+        ContentType contentType = FileUtil.getContentType(video);
         byte[] mediaData = FileUtil.getBytes(video);
-        return sendVideo(userName, mediaData, video.getName(), contentType);
+        return sendVideoToUserName(userName, mediaData, video.getName(), contentType);
     }
 
     /**
@@ -1505,7 +1543,7 @@ public class Wechat {
      */
     public JSONObject sendVideoToNickName(String nickName, byte[] mediaData, String mediaName, ContentType contentType) {
         if (StringUtil.isEmpty(nickName)) {
-            return sendVideo(null, mediaData, mediaName, contentType);
+            return sendVideoToUserName(null, mediaData, mediaName, contentType);
         }
 
         UserInfo userInfo = getContactByNickName(false, nickName);
@@ -1518,7 +1556,7 @@ public class Wechat {
             return null;
         }
 
-        return sendVideo(userName, mediaData, mediaName, contentType);
+        return sendVideoToUserName(userName, mediaData, mediaName, contentType);
     }
 
     /**
@@ -1529,7 +1567,7 @@ public class Wechat {
      * @return 返回数据
      */
     public JSONObject sendVideoToNickName(String nickName, File video) {
-        ContentType contentType = FileUtil.getContentBody(video);
+        ContentType contentType = FileUtil.getContentType(video);
         byte[] mediaData = FileUtil.getBytes(video);
         return sendVideoToNickName(nickName, mediaData, video.getName(), contentType);
     }
@@ -1545,7 +1583,7 @@ public class Wechat {
      */
     public JSONObject sendVideoToRemarkName(String remarkName, byte[] mediaData, String mediaName, ContentType contentType) {
         if (StringUtil.isEmpty(remarkName)) {
-            return sendVideo(null, mediaData, mediaName, contentType);
+            return sendVideoToUserName(null, mediaData, mediaName, contentType);
         }
 
         UserInfo userInfo = getContactByRemarkName(false, remarkName);
@@ -1558,7 +1596,7 @@ public class Wechat {
             return null;
         }
 
-        return sendVideo(userName, mediaData, mediaName, contentType);
+        return sendVideoToUserName(userName, mediaData, mediaName, contentType);
     }
 
     /**
@@ -1569,7 +1607,7 @@ public class Wechat {
      * @return 返回数据
      */
     public JSONObject sendVideoToRemarkName(String remarkName, File video) {
-        ContentType contentType = FileUtil.getContentBody(video);
+        ContentType contentType = FileUtil.getContentType(video);
         byte[] mediaData = FileUtil.getBytes(video);
         return sendVideoToRemarkName(remarkName, mediaData, video.getName(), contentType);
     }
@@ -1589,14 +1627,14 @@ public class Wechat {
         UserInfo userInfo;
 
         if (StringUtil.isNotEmpty(userName)) {
-            return sendVideo(userName, mediaData, mediaName, contentType);
+            return sendVideoToUserName(userName, mediaData, mediaName, contentType);
         } else if (StringUtil.isNotEmpty(nickName)) {
             userInfo = getContactByNickName(false, nickName);
         } else if (StringUtil.isNotEmpty(remarkName)) {
             userInfo = getContactByRemarkName(false, remarkName);
         } else {
             String loginUserName = getLoginUserName(false);
-            return sendVideo(loginUserName, mediaData, mediaName, contentType);
+            return sendVideoToUserName(loginUserName, mediaData, mediaName, contentType);
         }
 
         if (userInfo == null) {
@@ -1606,7 +1644,7 @@ public class Wechat {
         if (StringUtil.isEmpty(userName)) {
             return null;
         }
-        return sendVideo(userName, mediaData, mediaName, contentType);
+        return sendVideoToUserName(userName, mediaData, mediaName, contentType);
     }
 
     /**
@@ -1619,7 +1657,7 @@ public class Wechat {
      * @return 返回数据
      */
     public JSONObject sendVideo(String userName, String nickName, String remarkName, File video) {
-        ContentType contentType = FileUtil.getContentBody(video);
+        ContentType contentType = FileUtil.getContentType(video);
         byte[] mediaData = FileUtil.getBytes(video);
         return sendVideo(userName, nickName, remarkName, mediaData, video.getName(), contentType);
     }

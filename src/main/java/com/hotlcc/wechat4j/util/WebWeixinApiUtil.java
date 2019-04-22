@@ -566,6 +566,42 @@ public final class WebWeixinApiUtil {
     }
 
     /**
+     * 获取联系人头像
+     *
+     * @param httpClient http客户端
+     * @param urlVersion url版本号
+     * @param username   用户名
+     * @return 头像图片数据
+     */
+    public static byte[] getContactHeadImg(HttpClient httpClient,
+                                           String urlVersion,
+                                           String username) {
+        try {
+            String url = new ST(PropertiesUtil.getProperty("webwx-url.webwxgetheadimg_url"))
+                    .add("urlVersion", urlVersion)
+                    .add("seq", System.currentTimeMillis())
+                    .add("username", username)
+                    .render();
+
+            HttpGet httpGet = new HttpGet(url);
+
+            HttpResponse response = httpClient.execute(httpGet);
+            int statusCode = response.getStatusLine().getStatusCode();
+            if (HttpStatus.SC_OK != statusCode) {
+                throw new RuntimeException("响应失败(" + statusCode + ")");
+            }
+
+            HttpEntity entity = response.getEntity();
+            byte[] headImgData = EntityUtils.toByteArray(entity);
+
+            return headImgData;
+        } catch (Exception e) {
+            log.error("获取联系人头像图片异常", e);
+            return null;
+        }
+    }
+
+    /**
      * 从服务端同步新数据
      *
      * @param httpClient  http客户端

@@ -56,21 +56,4 @@ public final class WechatUtil {
         }
         return synckey.toString();
     }
-
-    /**
-     * 根据ContentType得到微信上传所需的mediatype
-     *
-     * @param contentType contentType
-     * @return 微信上传所需的mediatype
-     */
-    public static String getMediatype(String contentType) {
-        if (contentType == null) {
-            return "doc";
-        }
-        if (contentType.indexOf("image") >= 0) {
-            return "pic";
-        } else {
-            return "doc";
-        }
-    }
 }
