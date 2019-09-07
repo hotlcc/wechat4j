@@ -8,18 +8,13 @@ import lombok.Getter;
  *
  * @author Allen
  */
-@SuppressWarnings("unused")
 @Getter
 @AllArgsConstructor
 public enum LoginTip {
-    TIP_0(0, "扫码登录"),
-    TIP_1(1, "确认登录");
+    /** 扫码登录 */
+    TIP_0(0),
+    /** 确认登录 */
+    TIP_1(1);
 
     private int code;
-    private String desc;
-
-    @Override
-    public String toString() {
-        return code + "";
-    }
 }

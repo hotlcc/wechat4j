@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.io.Serializable;
@@ -18,11 +19,9 @@ import java.util.List;
  */
 @Getter
 @Setter
+@NoArgsConstructor
 public final class AppInfo implements Serializable {
-    private static final long serialVersionUID = 1L;
-
-    private AppInfo() {
-    }
+    private static final long serialVersionUID = 6409793898938883312L;
 
     @JSONField(name = "Type")
     private Integer type;

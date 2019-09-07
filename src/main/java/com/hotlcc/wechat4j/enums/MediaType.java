@@ -11,11 +11,13 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum MediaType {
+    /** pic */
     PICTURE(4, "pic"),
+    /** video */
     VIDEO(4, "video");
 
-    public static String REQUEST_KEY = "mediatype";
-    public static String REQUEST_JSON_KEY = "MediaType";
+    public static final String REQUEST_KEY = "mediatype";
+    public static final String REQUEST_JSON_KEY = "MediaType";
 
     private Integer code;
     private String value;

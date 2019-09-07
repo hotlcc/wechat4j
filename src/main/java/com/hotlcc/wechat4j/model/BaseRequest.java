@@ -2,7 +2,9 @@ package com.hotlcc.wechat4j.model;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.hotlcc.wechat4j.util.WechatUtil;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.io.Serializable;
@@ -14,18 +16,10 @@ import java.io.Serializable;
  */
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class BaseRequest implements Serializable {
-    private static final long serialVersionUID = 1L;
-
-    public BaseRequest() {
-    }
-
-    public BaseRequest(String deviceID, String sid, String skey, String uin) {
-        this.deviceID = deviceID;
-        this.sid = sid;
-        this.skey = skey;
-        this.uin = uin;
-    }
+    private static final long serialVersionUID = 9141083671818346541L;
 
     public BaseRequest(String Sid, String Skey, String Uin) {
         this(WechatUtil.createDeviceID(), Sid, Skey, Uin);

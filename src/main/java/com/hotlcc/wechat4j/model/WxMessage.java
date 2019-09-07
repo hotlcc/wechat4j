@@ -14,7 +14,7 @@ import java.io.Serializable;
 @Getter
 @Setter
 public class WxMessage implements Serializable {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 3090487762066388772L;
 
     @JSONField(name = "ClientMsgId")
     private String clientMsgId;

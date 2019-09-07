@@ -9,9 +9,10 @@ import lombok.AllArgsConstructor;
  */
 @AllArgsConstructor
 public enum ExitType {
-    ERROR_EXIT("错误退出"),
-    LOCAL_EXIT("本地退出"),
-    REMOTE_EXIT("远程退出");
-
-    private String desc;
+    /** 错误退出 */
+    ERROR_EXIT,
+    /** 本地退出 */
+    LOCAL_EXIT,
+    /** 远程退出 */
+    REMOTE_EXIT
 }

@@ -11,10 +11,15 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum OperatingSystem {
+    /** darwin */
     DARWIN("darwin"),
+    /** windows */
     WINDOWS("windows"),
+    /** linux */
     LINUX("linux"),
+    /** mac os */
     MAC_OS("mac"),
+    /** other */
     OTHER("other");
 
     private String value;
