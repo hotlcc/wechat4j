@@ -49,7 +49,6 @@ public class TestClass {
         }
     }
 
-    @Test
     public void testGetImageData() {
         byte[] data = wechat.getContactHeadImgByUserName(null);
         FileOutputStream fos = null;
@@ -70,5 +69,10 @@ public class TestClass {
                 }
             }
         }
+    }
+
+    @Test
+    public void sendMsgToSelf() {
+        wechat.sendTextToUserName(null, "测试一下");
     }
 }
