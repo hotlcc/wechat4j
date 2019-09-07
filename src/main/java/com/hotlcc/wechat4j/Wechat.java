@@ -1,12 +1,27 @@
 package com.hotlcc.wechat4j;
 
+import cn.hutool.core.thread.ThreadUtil;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.hotlcc.wechat4j.enums.*;
+import com.hotlcc.wechat4j.enums.ExitType;
+import com.hotlcc.wechat4j.enums.LoginTip;
+import com.hotlcc.wechat4j.enums.MediaType;
+import com.hotlcc.wechat4j.enums.MsgType;
+import com.hotlcc.wechat4j.enums.Retcode;
+import com.hotlcc.wechat4j.enums.Selector;
 import com.hotlcc.wechat4j.handler.ExitEventHandler;
 import com.hotlcc.wechat4j.handler.ReceivedMsgHandler;
-import com.hotlcc.wechat4j.model.*;
-import com.hotlcc.wechat4j.util.*;
+import com.hotlcc.wechat4j.model.BaseRequest;
+import com.hotlcc.wechat4j.model.MediaMessage;
+import com.hotlcc.wechat4j.model.ReceivedMsg;
+import com.hotlcc.wechat4j.model.UserInfo;
+import com.hotlcc.wechat4j.model.WxMessage;
+import com.hotlcc.wechat4j.util.FileUtil;
+import com.hotlcc.wechat4j.util.PropertiesUtil;
+import com.hotlcc.wechat4j.util.QRCodeUtil;
+import com.hotlcc.wechat4j.util.StringUtil;
+import com.hotlcc.wechat4j.util.WebWeixinApiUtil;
+import com.hotlcc.wechat4j.util.WechatUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestInterceptor;
@@ -265,7 +280,7 @@ public class Wechat {
                 pw.flush();
                 getWxUuid(pw, 0);
 
-                CommonUtil.threadSleep(2000);
+                ThreadUtil.sleep(2000);
                 continue;
             }
 
@@ -445,7 +460,7 @@ public class Wechat {
                 pw.println();
                 pw.flush();
 
-                CommonUtil.threadSleep(2000);
+                ThreadUtil.sleep(2000);
                 continue;
             }
 
@@ -693,7 +708,7 @@ public class Wechat {
                 //如果时间太短则阻塞2秒
                 long end = System.currentTimeMillis();
                 if (end - start < 2000) {
-                    CommonUtil.threadSleep(2000);
+                    ThreadUtil.sleep(2000);
                 }
             }
 

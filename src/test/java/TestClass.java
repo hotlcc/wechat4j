@@ -1,9 +1,9 @@
+import cn.hutool.core.thread.ThreadUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.hotlcc.wechat4j.Wechat;
 import com.hotlcc.wechat4j.handler.ReceivedMsgHandler;
 import com.hotlcc.wechat4j.model.ReceivedMsg;
 import com.hotlcc.wechat4j.model.UserInfo;
-import com.hotlcc.wechat4j.util.CommonUtil;
 import com.hotlcc.wechat4j.util.StringUtil;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,13 +38,15 @@ public class TestClass {
 
     public void testSendImage() {
         File file = null;
-        JSONObject result = null;
+        JSONObject result;
         file = new File("C:\\Users\\Administrator\\Pictures\\壁纸\\9e5f4981099bcf351e0ec18c3654aced.jpg");
         result = wechat.sendImageToUserName(null, file);
         file = new File("C:\\Users\\Administrator\\Videos\\手机QQ视频_20190416170016.mp4");
         result = wechat.sendVideoToUserName(null, file);
         System.out.println(result);
-        while (true) CommonUtil.threadSleep(5000);
+        while (true) {
+            ThreadUtil.sleep(5000);
+        }
     }
 
     @Test
