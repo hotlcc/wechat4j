@@ -1,5 +1,7 @@
 package com.hotlcc.wechat4j.util;
 
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.util.URLUtil;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.hotlcc.wechat4j.enums.LoginTip;
@@ -9,7 +11,11 @@ import com.hotlcc.wechat4j.model.MediaMessage;
 import com.hotlcc.wechat4j.model.WxMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.http.*;
+import org.apache.http.Consts;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -101,7 +107,7 @@ public final class WebWeixinApiUtil {
 
             String uuid = matcher.group(2);
             result.put("uuid", uuid);
-            if (StringUtil.isEmpty(uuid)) {
+            if (StrUtil.isEmpty(uuid)) {
                 throw new RuntimeException("获取的uuid为空");
             }
 
@@ -274,7 +280,7 @@ public final class WebWeixinApiUtil {
                 String url = new ST(PropertiesUtil.getProperty("webwx-url.logout_url"))
                         .add("urlVersion", urlVersion)
                         .add("type", i)
-                        .add("skey", StringUtil.encodeURL(baseRequest.getSkey(), Consts.UTF_8.name()))
+                        .add("skey", URLUtil.encode(baseRequest.getSkey()))
                         .render();
 
                 HttpPost httpPost = new HttpPost(url);
@@ -342,7 +348,7 @@ public final class WebWeixinApiUtil {
         try {
             String url = new ST(PropertiesUtil.getProperty("webwx-url.webwxinit_url"))
                     .add("urlVersion", urlVersion)
-                    .add("pass_ticket", StringUtil.encodeURL(passticket, Consts.UTF_8.name()))
+                    .add("pass_ticket", URLUtil.encode(passticket))
                     .add("r", System.currentTimeMillis() / 1252L)
                     .render();
 
@@ -388,7 +394,7 @@ public final class WebWeixinApiUtil {
         try {
             String url = new ST(PropertiesUtil.getProperty("webwx-url.statusnotify_url"))
                     .add("urlVersion", urlVersion)
-                    .add("pass_ticket", StringUtil.encodeURL(passticket, Consts.UTF_8.name()))
+                    .add("pass_ticket", URLUtil.encode(passticket))
                     .render();
 
             HttpPost httpPost = new HttpPost(url);
@@ -437,11 +443,11 @@ public final class WebWeixinApiUtil {
             String url = new ST(PropertiesUtil.getProperty("webwx-url.synccheck_url"))
                     .add("urlVersion", urlVersion)
                     .add("r", millis)
-                    .add("skey", StringUtil.encodeURL(baseRequest.getSkey(), Consts.UTF_8.name()))
+                    .add("skey", URLUtil.encode(baseRequest.getSkey()))
                     .add("sid", baseRequest.getSid())
                     .add("uin", baseRequest.getUin())
                     .add("deviceid", WechatUtil.createDeviceID())
-                    .add("synckey", StringUtil.encodeURL(WechatUtil.syncKeyListToString(syncKeyList), Consts.UTF_8.name()))
+                    .add("synckey", URLUtil.encode(WechatUtil.syncKeyListToString(syncKeyList)))
                     .add("_", millis)
                     .render();
 
@@ -494,9 +500,9 @@ public final class WebWeixinApiUtil {
         try {
             String url = new ST(PropertiesUtil.getProperty("webwx-url.getcontact_url"))
                     .add("urlVersion", urlVersion)
-                    .add("pass_ticket", StringUtil.encodeURL(passticket, Consts.UTF_8.name()))
+                    .add("pass_ticket", URLUtil.encode(passticket))
                     .add("r", System.currentTimeMillis())
-                    .add("skey", StringUtil.encodeURL(skey, Consts.UTF_8.name()))
+                    .add("skey", URLUtil.encode(skey))
                     .render();
 
             HttpGet httpGet = new HttpGet(url);
@@ -535,7 +541,7 @@ public final class WebWeixinApiUtil {
         try {
             String url = new ST(PropertiesUtil.getProperty("webwx-url.batchgetcontact_url"))
                     .add("urlVersion", urlVersion)
-                    .add("pass_ticket", StringUtil.encodeURL(passticket, Consts.UTF_8.name()))
+                    .add("pass_ticket", URLUtil.encode(passticket))
                     .add("r", System.currentTimeMillis())
                     .render();
 
@@ -621,7 +627,7 @@ public final class WebWeixinApiUtil {
                     .add("urlVersion", urlVersion)
                     .add("skey", baseRequest.getSkey())
                     .add("sid", baseRequest.getSid())
-                    .add("pass_ticket", StringUtil.encodeURL(passticket, Consts.UTF_8.name()))
+                    .add("pass_ticket", URLUtil.encode(passticket))
                     .render();
 
             HttpPost httpPost = new HttpPost(url);
@@ -667,7 +673,7 @@ public final class WebWeixinApiUtil {
         try {
             String url = new ST(PropertiesUtil.getProperty("webwx-url.webwxsendmsg_url"))
                     .add("urlVersion", urlVersion)
-                    .add("pass_ticket", StringUtil.encodeURL(passticket, Consts.UTF_8.name()))
+                    .add("pass_ticket", URLUtil.encode(passticket))
                     .render();
 
             HttpPost httpPost = new HttpPost(url);
@@ -817,7 +823,7 @@ public final class WebWeixinApiUtil {
         try {
             String url = new ST(PropertiesUtil.getProperty("webwx-url.webwxsendmsgimg_url"))
                     .add("urlVersion", urlVersion)
-                    .add("pass_ticket", StringUtil.encodeURL(passticket, Consts.UTF_8.name()))
+                    .add("pass_ticket", URLUtil.encode(passticket))
                     .render();
 
             HttpPost httpPost = new HttpPost(url);

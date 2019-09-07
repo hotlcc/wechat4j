@@ -1,10 +1,10 @@
 import cn.hutool.core.thread.ThreadUtil;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.hotlcc.wechat4j.Wechat;
 import com.hotlcc.wechat4j.handler.ReceivedMsgHandler;
 import com.hotlcc.wechat4j.model.ReceivedMsg;
 import com.hotlcc.wechat4j.model.UserInfo;
-import com.hotlcc.wechat4j.util.StringUtil;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -23,7 +23,7 @@ public class TestClass {
             @Override
             public void handleAllType(Wechat wechat, ReceivedMsg msg) {
                 UserInfo contact = wechat.getContactByUserName(false, msg.getFromUserName());
-                String name = StringUtil.isEmpty(contact.getRemarkName()) ? contact.getNickName() : contact.getRemarkName();
+                String name = StrUtil.isEmpty(contact.getRemarkName()) ? contact.getNickName() : contact.getRemarkName();
                 System.out.println(name + ": " + msg.getContent());
             }
         });
