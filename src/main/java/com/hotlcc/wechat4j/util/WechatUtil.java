@@ -3,6 +3,10 @@ package com.hotlcc.wechat4j.util;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.http.entity.ContentType;
+
+import javax.activation.MimetypesFileTypeMap;
+import java.io.File;
 
 /**
  * 微信工具类
@@ -55,5 +59,17 @@ public final class WechatUtil {
                     .append(json.getString("Val"));
         }
         return synckey.toString();
+    }
+
+    /**
+     * 获取文件的ContentType
+     *
+     * @param file 文件
+     * @return ContentType
+     */
+    public static ContentType getContentType(File file) {
+        String mimeType = new MimetypesFileTypeMap().getContentType(file);
+        ContentType contentType = ContentType.parse(mimeType);
+        return contentType;
     }
 }
