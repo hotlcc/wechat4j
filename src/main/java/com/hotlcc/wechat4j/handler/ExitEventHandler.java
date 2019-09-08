@@ -23,7 +23,7 @@ public interface ExitEventHandler {
      *
      * @param wechat 微信客户端
      */
-    void handleErrorExitEvent(Wechat wechat);
+    void handleErrorExitEvent(Wechat wechat, Throwable t);
 
     /**
      * 针对远程人为导致的退出事件

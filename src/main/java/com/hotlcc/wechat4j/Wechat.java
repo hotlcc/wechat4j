@@ -692,7 +692,7 @@ public class Wechat {
                     if (i == 0) {
                         log.info("同步监听请求失败，正在重试...");
                     } else if (i > 0) {
-                        log.info("第{}次重试失败" + i);
+                        log.info("第{}次重试失败", i);
                     }
 
                     if (i >= time) {
@@ -741,7 +741,7 @@ public class Wechat {
             try {
                 switch (type) {
                     case ERROR_EXIT:
-                        handler.handleErrorExitEvent(wechat);
+                        handler.handleErrorExitEvent(wechat, t);
                         break;
                     case REMOTE_EXIT:
                         handler.handleRemoteExitEvent(wechat);
